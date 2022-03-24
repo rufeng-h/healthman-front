@@ -1,14 +1,14 @@
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-15 10:51:07
- * @LastEditTime: 2022-03-16 19:26:33
+ * @LastEditTime: 2022-03-22 16:00:48
  * @Version: 1.0
  * @Description: TODO
  */
 
 import { BasicColumn } from '../components/Table';
 import { defHttp } from '../utils/http/axios';
-import { QueryOrder } from './base';
+import { QueryOrder } from './common';
 import { ErrorMessageMode } from '/#/axios';
 
 export interface UserModel {
@@ -31,7 +31,8 @@ export enum RoleType {
 export const userColumns: BasicColumn[] = [
   {
     title: '工号',
-    dataIndex: 'id',
+    dataIndex: 'userId',
+    fixed: 'left',
   },
   {
     title: '用户名',
@@ -49,6 +50,11 @@ export const userColumns: BasicColumn[] = [
     title: '头像',
     dataIndex: 'avatar',
     slots: { customRender: 'avatar' },
+  },
+  {
+    title: '角色',
+    dataIndex: 'roles[0].roleName',
+    width: 200,
   },
   {
     title: '上次登录',
@@ -75,6 +81,7 @@ export type UserQuery = Partial<UserModel> & QueryOrder;
 enum Api {
   UserList = '/api/user',
   UserAdd = '/api/user',
+  UserUpload = '/api/user/upload',
 }
 
 export function getUserList(params: UserQuery, errorMessageMode: ErrorMessageMode = 'modal') {
@@ -83,4 +90,8 @@ export function getUserList(params: UserQuery, errorMessageMode: ErrorMessageMod
 
 export function addUser(data: AddUserData, errorMessageMode: ErrorMessageMode = 'modal') {
   return defHttp.post({ url: Api.UserAdd, data }, { errorMessageMode });
+}
+
+export function uploadUser(errorMessageMode: ErrorMessageMode = 'modal') {
+  return defHttp.post<string>({ url: Api.UserUpload }, { errorMessageMode });
 }

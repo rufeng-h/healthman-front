@@ -25,7 +25,7 @@ const dashboard: AppRouteModule = {
     {
       path: 'index',
       name: 'AboutIndex',
-      component: () => import('/@/views/about/About.vue'),
+      component: () => import('/@/views/sys/about/index.vue'),
       meta: {
         title: t('routes.dashboard.about'),
         icon: 'simple-icons:about-dot-me',

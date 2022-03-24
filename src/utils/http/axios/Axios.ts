@@ -8,6 +8,7 @@ import { isFunction } from '/@/utils/is';
 import { cloneDeep } from 'lodash-es';
 import { ContentTypeEnum } from '/@/enums/httpEnum';
 import { RequestEnum } from '/@/enums/httpEnum';
+import { downloadByData } from '../../file/download';
 
 export * from './axiosTransform';
 
@@ -120,10 +121,13 @@ export class VAxios {
   /**
    * @description:  File Upload
    */
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
+  uploadFile<T = any>(
+    config: AxiosRequestConfig,
+    params: UploadFileParams,
+    options?: RequestOptions,
+  ) {
     const formData = new window.FormData();
     const customFilename = params.name || 'file';
-
     if (params.filename) {
       formData.append(customFilename, params.file, params.filename);
     } else {
@@ -144,16 +148,16 @@ export class VAxios {
       });
     }
 
-    return this.axiosInstance.request<T>({
-      ...config,
-      method: 'POST',
-      data: formData,
-      headers: {
-        'Content-type': ContentTypeEnum.FORM_DATA,
-        // @ts-ignore
-        ignoreCancelToken: true,
+    return this.post<T>(
+      {
+        ...config,
+        data: formData,
+        headers: {
+          'Content-type': ContentTypeEnum.FORM_DATA,
+        },
       },
-    });
+      options,
+    );
   }
 
   // support form-data
@@ -173,6 +177,20 @@ export class VAxios {
       ...config,
       data: qs.stringify(config.data, { arrayFormat: 'brackets' }),
     };
+  }
+
+  /* 下载文件流 */
+  async downloadFileByData(config: AxiosRequestConfig, options?: RequestOptions): Promise<void> {
+    const { headers, data } = await this.get<AxiosResponse>(
+      { ...config, responseType: 'blob' },
+      { ...options, isReturnNativeResponse: true },
+    );
+    const ret = /filename="(.+)"/.exec(headers['content-disposition']);
+    if (!ret) {
+      throw new Error('未知文件名!');
+    }
+    const filename = decodeURIComponent(ret[1]);
+    downloadByData(data, filename);
   }
 
   get<T = any>(config: AxiosRequestConfig, options?: RequestOptions): Promise<T> {

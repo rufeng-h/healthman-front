@@ -1,12 +1,12 @@
 import type { AppRouteModule } from '/@/router/types';
 
-import { getParentLayout, LAYOUT } from '/@/router/constant';
+import { LAYOUT } from '/@/router/constant';
 
 const basedata: AppRouteModule = {
   path: '/basedata',
   name: 'BaseData',
   component: LAYOUT,
-  redirect: '/basedata/user/admin',
+  redirect: '/basedata/college',
   meta: {
     orderNo: 1,
     icon: 'ant-design:database-outlined',
@@ -14,43 +14,26 @@ const basedata: AppRouteModule = {
   },
   children: [
     {
-      path: 'user',
-      name: 'BaseDataUser',
-      component: getParentLayout('BaseDataUser'),
-      redirect: '/basedata/user/admin',
-      meta: {
-        title: '用户管理',
-        icon: 'ant-design:aliwangwang-outlined',
-      },
-      children: [
-        {
-          path: 'admin',
-          name: 'BaseDataAdmin',
-          component: () => import('/@/views/basedata/account/Admin.vue'),
-          meta: {
-            title: '管理员信息',
-            icon: 'ant-design:aliwangwang-outlined',
-          },
-        },
-        {
-          path: 'student',
-          name: 'BaseDataStudent',
-          component: () => import('/@/views/basedata/account/Student.vue'),
-          meta: {
-            title: '学生信息',
-            icon: 'ant-design:aliwangwang-outlined',
-          },
-        },
-      ],
-    },
-    {
       path: 'college',
       name: 'BaseDataCollege',
       component: () => import('/@/views/basedata/college/index.vue'),
       meta: {
         title: '学院信息',
         icon: 'ant-design:ant-design-outlined',
+        hideChildrenInMenu: true,
       },
+      children: [
+        {
+          path: ':clgCode',
+          name: 'BaseDataCollegeDetail',
+          component: () => import('/@/views/basedata/college/Detail.vue'),
+          meta: {
+            title: '详情',
+            hideMenu: true,
+            currentActiveMenu: '/basedata/college',
+          },
+        },
+      ],
     },
     {
       path: 'class',
@@ -61,6 +44,25 @@ const basedata: AppRouteModule = {
         icon: 'ant-design:bank-outlined',
       },
     },
+    {
+      path: 'admin',
+      name: 'BaseDataAdmin',
+      component: () => import('/@/views/basedata/account/Admin.vue'),
+      meta: {
+        title: '管理员信息',
+        icon: 'ant-design:aliwangwang-outlined',
+      },
+    },
+    {
+      path: 'student',
+      name: 'BaseDataStudent',
+      component: () => import('../../../views/basedata/student/index.vue'),
+      meta: {
+        title: '学生信息',
+        icon: 'ant-design:aliwangwang-outlined',
+      },
+    },
+
     {
       path: 'subject',
       name: 'BaseDataSubject',

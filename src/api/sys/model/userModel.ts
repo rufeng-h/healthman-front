@@ -1,14 +1,10 @@
-import type { RoleInfo, UserInfo } from '/#/store';
-
-export enum UserTypeEnum {
-  ADMIN = 'ADMIN',
-  STUDENT = 'STUDENT',
-}
+import type { RoleInfo } from '/#/store';
+import { UserTypeEnum } from '/@/enums/userTypeEnum';
 
 /**
  * @description: Login interface parameters
  */
-export interface LoginParams {
+export interface LoginQuery {
   userId: string;
   password: string;
   userType: UserTypeEnum;
@@ -18,7 +14,24 @@ export interface LoginParams {
  * @description: Login interface return value
  */
 export interface LoginResult {
-  userInfo: UserInfo;
+  userInfo: UserInfoModel;
   token: string;
   role: RoleInfo;
+}
+
+export interface UserInfoModel {
+  userId: string;
+  username: string;
+  avatar: string;
+  lastLoginTime: string;
+  createdTime: string;
+  desp: string;
+  email?: string;
+  phone?: string;
+  roles: RoleInfoModel[];
+}
+
+export interface RoleInfoModel {
+  roleName: string;
+  value: string;
 }

@@ -76,7 +76,7 @@
   import { useUserStore } from '/@/store/modules/user';
   import { LoginStateEnum, useLoginState, useFormRules, useFormValid } from './useLogin';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { UserTypeEnum } from '/@/api/sys/model/userModel';
+  import { UserTypeEnum } from '/@/enums/userTypeEnum';
   const ACol = Col;
   const ARow = Row;
   const FormItem = Form.Item;
@@ -95,7 +95,7 @@
   const isAdmin = ref(false);
 
   const formData = reactive({
-    account: '1',
+    account: '0001',
     password: '123456',
   });
 

@@ -1,15 +1,17 @@
 <!--
  * @Author: 黄纯峰
  * @Date: 2022-03-11 00:36:06
- * @LastEditTime: 2022-03-16 17:16:18
+ * @LastEditTime: 2022-03-21 18:28:54
  * @Version: 1.0
  * @Description: TODO
 -->
 <template>
   <PageWrapper content-full-height dense content-background>
     <BasicTable
+      @register="tableRef"
       :api="getUserList"
       :columns="userColumns"
+      :show-index-column="false"
       :title="tableTitle"
       show-table-setting
       title-help-message="温馨提示"
@@ -51,17 +53,17 @@
         <Image :src="record.avatar" :width="30" :height="30" />
       </template>
     </BasicTable>
-    <UserModal @register="userModal" />
+    <UserModal @register="userModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
   import { Image } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, TableAction } from '/@/components/Table';
+  import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { FormProps } from '/@/components/Form';
   import { ref } from 'vue';
   import { getCollegeList } from '/@/api/college';
-  import { userColumns, getUserList } from '/@/api/user';
+  import { userColumns, getUserList } from '../../../api/admin';
   import UserModal from './UserModal.vue';
   import { useModal } from '/@/components/Modal';
   const tableTitle = ref('');
@@ -100,6 +102,7 @@
   };
 
   const [userModal, { openModal }] = useModal();
+  const [tableRef, { reload }] = useTable();
 
   function handleCreate() {
     openModal(true, {
@@ -126,7 +129,7 @@
       const result = updateTableDataRecord(values.id, values);
       console.log(result);
     } else {
-      reload();
+      reload({ page: 1 });
     }
   }
 

@@ -111,7 +111,7 @@
               // console.log(workbook);
               /* DO SOMETHING WITH workbook HERE */
               const excelData = getExcelData(workbook);
-              emit('success', excelData);
+              emit('success', excelData, rawFile);
               resolve('');
             } catch (error) {
               reject(error);

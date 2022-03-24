@@ -9,7 +9,10 @@
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
   import { ClassQuery, getClassList } from '/@/api/ptclass';
   import { getCollegeList } from '/@/api/college';
-  import { addUser, RoleType } from '/@/api/user';
+  import { addUser, RoleType } from '../../../api/admin';
+  import { useMessage } from '/@/hooks/web/useMessage';
+
+  const { createMessage } = useMessage();
 
   export default defineComponent({
     name: 'AccountModal',
@@ -67,11 +70,11 @@
           required: true,
         },
         {
-          required: false,
+          required: true,
           label: '学院',
           field: 'collegeId',
           component: 'ApiSelect',
-          show({ field, model }) {
+          ifShow({ field, model }) {
             return (
               field === 'collegeId' &&
               (model.roleType === RoleType.COLLEGE || model.roleType === RoleType.CLASS)
@@ -90,7 +93,7 @@
           },
         },
         {
-          required: false,
+          required: true,
           label: '班级',
           field: 'classCode',
           component: 'ApiSelect',
@@ -103,7 +106,7 @@
               valueField: 'code',
             };
           },
-          show({ field, model }) {
+          ifShow({ field, model }) {
             return field === 'classCode' && model.roleType === RoleType.CLASS;
           },
         },
@@ -117,7 +120,28 @@
             { required: true, message: '请输入邮箱', trigger: 'blur' },
           ],
         },
-
+        {
+          label: '手机',
+          field: 'phoen',
+          component: 'Input',
+          required: true,
+          rules: [
+            {
+              type: 'string',
+              pattern: /^1(3\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\d|9[0-35-9])\d{8}$/,
+              trigger: 'blur',
+              message: '请输入正确的手机号',
+            },
+            {
+              required: true,
+              message: '请输入手机号',
+              trigger: 'blur',
+            },
+          ],
+          componentProps: {
+            type: 'phone',
+          },
+        },
         {
           label: '备注',
           field: 'desp',
@@ -165,9 +189,10 @@
         try {
           const values = await validate();
           setModalProps({ confirmLoading: true });
-          await addUser(values);
-          closeModal();
+          const userInfo = await addUser(values);
+          createMessage.success('添加成功 ' + userInfo.userId);
           emit('success', { isUpdate: unref(isUpdate), values: { ...values, id: rowId.value } });
+          closeModal();
         } finally {
           setModalProps({ confirmLoading: false });
         }

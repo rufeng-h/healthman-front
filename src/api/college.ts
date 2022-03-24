@@ -1,91 +1,100 @@
-import { ErrorMessageMode } from './../../types/axios.d';
+import { ErrorMessageMode } from '/#/axios';
 import { defHttp } from '/@/utils/http/axios';
-import { BasicColumn } from './../components/Table/src/types/table';
-import { MajorModel } from './major';
+import { BasicColumn } from '/@/components/Table';
 import { TreeItem } from '../components/Tree';
+
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-12 16:01:07
- * @LastEditTime: 2022-03-13 20:46:48
+ * @LastEditTime: 2022-03-24 13:28:24
  * @Version: 1.0
  * @Description: TODO
  */
 export const collegeColumns: BasicColumn[] = [
   {
-    dataIndex: 'id',
-    title: '代码',
+    dataIndex: 'clgCode',
+    title: '学院代码',
     fixed: 'left',
     width: 80,
     slots: { customRender: 'id' },
   },
   {
-    dataIndex: 'name',
+    dataIndex: 'clgName',
     title: '学院',
     width: 200,
   },
   {
-    dataIndex: 'principal',
+    dataIndex: 'clgPrincipal',
     title: '负责人',
     width: 150,
   },
   {
     title: '学院办公室',
-    dataIndex: 'office',
+    dataIndex: 'clgOffice',
     width: 200,
   },
   {
     title: '电话',
-    dataIndex: 'tel',
+    dataIndex: 'clgTel',
     width: 250,
   },
   {
     title: '创建时间',
-    dataIndex: 'createdTime',
+    dataIndex: 'clgCreated',
     width: 200,
   },
   {
     title: '学院网址',
-    dataIndex: 'home',
+    dataIndex: 'clgHome',
     slots: { customRender: 'home' },
     width: 80,
   },
 ];
 
 export interface CollegeModel {
-  id: number | string;
-  name: string;
-  office: string;
-  home: string;
-  tel: string;
-  createdTime: string;
-  principal: string;
+  clgCode: string;
+  clgName: string;
+  clgOffice: string;
+  clgHome: string;
+  clgTel: string;
+  clgCreated: string;
+  clgPrincipal: string;
 }
 
 export type CollegeQuery = Partial<CollegeModel>;
 
-export interface CollegeInfoModel {
-  id: number;
-  grades: number[];
-  majors: MajorModel[];
-}
-
 enum Api {
-  collegeList = '/api/college/list',
-  collegeGrade = '/api/college/info',
-  collegeTree = '/api/college/tree',
+  BaseUrl = '/api/college',
+  CollegeList = '/api/college/list',
+  CollegeGrade = '/api/college/info',
+  CollegeTree = '/api/college/tree',
+  CollegeUpload = '/api/college/upload',
+  TemplateDownload = '/api/college/template',
 }
 
 export function getCollegeList(msgMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<CollegeModel>({ url: Api.collegeList }, { errorMessageMode: msgMode });
+  return defHttp.get<CollegeModel>({ url: Api.CollegeList }, { errorMessageMode: msgMode });
 }
 
-export function getCollegeInfo(
-  params: { id: string },
-  errorMessageMode: ErrorMessageMode = 'modal',
-) {
-  return defHttp.get<CollegeInfoModel>({ url: Api.collegeGrade, params }, { errorMessageMode });
+export function getCollegeInfo(clgCode: string, errorMessageMode: ErrorMessageMode = 'modal') {
+  return defHttp.get<CollegeModel>({ url: Api.BaseUrl + `/${clgCode}` }, { errorMessageMode });
 }
 
 export function getCollegeTree(errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<TreeItem[]>({ url: Api.collegeTree }, { errorMessageMode });
+  return defHttp.get<TreeItem[]>({ url: Api.CollegeTree }, { errorMessageMode });
+}
+
+export function uploadCollege(
+  file: File,
+  name = 'file',
+  errorMessageMode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.uploadFile({ url: Api.CollegeUpload }, { file, name }, { errorMessageMode });
+}
+
+export async function downloadFileTemplate(
+  params: any = {},
+  errorMessageMode: ErrorMessageMode = 'modal',
+): Promise<void> {
+  return defHttp.downloadFileByData({ url: Api.TemplateDownload, params }, { errorMessageMode });
 }
