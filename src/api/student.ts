@@ -7,7 +7,7 @@ import { BasicColumn } from '/@/components/Table';
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-13 20:33:26
- * @LastEditTime: 2022-03-23 19:51:07
+ * @LastEditTime: 2022-03-24 18:21:43
  * @Version: 1.0
  * @Description: TODO
  */
@@ -80,6 +80,7 @@ export const studentColumns: BasicColumn[] = [
 ];
 
 enum Api {
+  BaseUrl = '/api/student',
   StudenPage = '/api/student',
   StudentTemplate = '/api/student/template',
   StudentUpload = '/api/student/upload',
@@ -91,6 +92,10 @@ export function getStudentPage(params: StudentQuery, errorMessageMode: ErrorMess
 
 export function downloadFileTemplate(errorMessageMode: ErrorMessageMode = 'modal') {
   return defHttp.downloadFileByData({ url: Api.StudentTemplate }, { errorMessageMode });
+}
+
+export function getStudentDetail(stuId: string, errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.get<StudentInfoModel>({ url: Api.BaseUrl + `/${stuId}` }, { errorMessageMode });
 }
 
 export function uploadStudent(

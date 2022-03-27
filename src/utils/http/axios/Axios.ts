@@ -9,6 +9,7 @@ import { cloneDeep } from 'lodash-es';
 import { ContentTypeEnum } from '/@/enums/httpEnum';
 import { RequestEnum } from '/@/enums/httpEnum';
 import { downloadByData } from '../../file/download';
+import { useMessage } from '/@/hooks/web/useMessage';
 
 export * from './axiosTransform';
 
@@ -181,13 +182,22 @@ export class VAxios {
 
   /* 下载文件流 */
   async downloadFileByData(config: AxiosRequestConfig, options?: RequestOptions): Promise<void> {
+    const { createMessage } = useMessage();
     const { headers, data } = await this.get<AxiosResponse>(
       { ...config, responseType: 'blob' },
       { ...options, isReturnNativeResponse: true },
     );
     const ret = /filename="(.+)"/.exec(headers['content-disposition']);
     if (!ret) {
-      throw new Error('未知文件名!');
+      /* 下载失败 */
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = e.target?.result;
+        const result: Result = JSON.parse(text as string);
+        createMessage.error(result.message);
+      };
+      reader.readAsText(data, 'utf-8');
+      return;
     }
     const filename = decodeURIComponent(ret[1]);
     downloadByData(data, filename);

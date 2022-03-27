@@ -6,10 +6,10 @@ import {
   ComputedRef,
   computed,
   onMounted,
-  watch,
   reactive,
   Ref,
   watchEffect,
+  watch,
 } from 'vue';
 import { useTimeoutFn } from '/@/hooks/core/useTimeout';
 import { buildUUID } from '/@/utils/uuid';
@@ -58,9 +58,6 @@ export function useDataSource(
     () => {
       const { dataSource, api } = unref(propsRef);
       !api && dataSource && (dataSourceRef.value = dataSource);
-    },
-    {
-      immediate: true,
     },
   );
 
@@ -199,7 +196,6 @@ export function useDataSource(
     if (!dataSourceRef.value || dataSourceRef.value.length == 0) return;
     index = index ?? dataSourceRef.value?.length;
     unref(dataSourceRef).splice(index, 0, record);
-    unref(propsRef).dataSource?.splice(index, 0, record);
     return unref(propsRef).dataSource;
   }
 

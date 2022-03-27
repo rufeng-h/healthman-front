@@ -1,7 +1,7 @@
 <!--
  * @Author: 黄纯峰
  * @Date: 2022-03-14 10:37:19
- * @LastEditTime: 2022-03-23 19:39:43
+ * @LastEditTime: 2022-03-24 18:30:50
  * @Version: 1.0
  * @Description: TODO
 -->
@@ -20,6 +20,19 @@
       <template #number="{ record }">
         <Tag color="green">{{ record.stuId }}</Tag>
       </template>
+
+      <template #action="{ record }">
+        <TableAction
+          :actions="[
+            {
+              icon: 'clarity:info-standard-line',
+              tooltip: '详情',
+              onClick: handleView.bind(null, record),
+            },
+          ]"
+        />
+      </template>
+
       <template #toolbar>
         <a-button type="primary" @click="downloadFileTemplate">下载模板</a-button>
         <ImpExcel @success="impSuccess">
@@ -34,7 +47,7 @@
 <script setup lang="ts">
   import { Icon } from '/@/components/Icon';
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, useTable } from '/@/components/Table';
+  import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { Image, Tag } from 'ant-design-vue';
   import {
     studentColumns,
@@ -52,6 +65,7 @@
   import { ExcelData, ImpExcel } from '/@/components/Excel';
   import ExcelModal from '../ExcelModal.vue';
   import { useModal } from '/@/components/Modal';
+  import { useGo } from '/@/hooks/web/usePage';
   const tableTitle = ref('未选择班级');
   const fetchClass = async (clgCode: string | undefined = undefined) => {
     const data = await getClassList({ clgCode });
@@ -156,6 +170,11 @@
     useSearchForm: true,
     formConfig,
     canResize: true,
+    actionColumn: {
+      title: '操作',
+      width: 50,
+      slots: { customRender: 'action' },
+    },
   });
   const [registerModal, { openModal }] = useModal();
   const impSuccess = (excelDataList: ExcelData[], file: File) => {
@@ -164,6 +183,16 @@
   const confirmUpload = (file: File) => {
     uploadStudent(file);
   };
+  const go = useGo();
+  function handleView(record) {
+    go({
+      // @ts-ignore
+      name: 'BaseDataStudentDetail',
+      params: {
+        stuId: record.stuId,
+      },
+    });
+  }
 </script>
 
 <style lang="less" scoped>

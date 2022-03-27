@@ -26,7 +26,7 @@ const basedata: AppRouteModule = {
         {
           path: ':clgCode',
           name: 'BaseDataCollegeDetail',
-          component: () => import('/@/views/basedata/college/Detail.vue'),
+          component: () => import('/@/views/basedata/college/CollegeDetail.vue'),
           meta: {
             title: '详情',
             hideMenu: true,
@@ -42,7 +42,20 @@ const basedata: AppRouteModule = {
       meta: {
         title: '班级信息',
         icon: 'ant-design:bank-outlined',
+        hideChildrenInMenu: true,
       },
+      children: [
+        {
+          path: ':clsCode',
+          name: 'BaseDataClassDetail',
+          component: () => import('/@/views/basedata/class/ClassDetail.vue'),
+          meta: {
+            title: '班级详情',
+            hideMenu: true,
+            currentActiveMenu: '/basedata/class',
+          },
+        },
+      ],
     },
     {
       path: 'admin',
@@ -56,11 +69,24 @@ const basedata: AppRouteModule = {
     {
       path: 'student',
       name: 'BaseDataStudent',
-      component: () => import('../../../views/basedata/student/index.vue'),
+      component: () => import('/@/views/basedata/student/index.vue'),
       meta: {
         title: '学生信息',
         icon: 'ant-design:aliwangwang-outlined',
+        hideChildrenInMenu: true,
       },
+      children: [
+        {
+          path: ':stuId',
+          name: 'BaseDataStudentDetail',
+          component: () => import('/@/views/basedata/student/StudentDetail.vue'),
+          meta: {
+            title: '学生详情',
+            hideMenu: true,
+            currentActiveMenu: '/basedata/student',
+          },
+        },
+      ],
     },
 
     {
@@ -70,7 +96,20 @@ const basedata: AppRouteModule = {
       meta: {
         title: '科目管理',
         icon: 'ant-design:deployment-unit-outlined',
+        hideChildrenInMenu: true,
       },
+      children: [
+        {
+          path: 'add',
+          name: 'BaseDataSubjectAdd',
+          component: () => import('/@/views/basedata/subject/step/index.vue'),
+          meta: {
+            title: '添加科目',
+            hideMenu: true,
+            currentActiveMenu: '/basedata/sbuject',
+          },
+        },
+      ],
     },
     {
       path: 'profile',

@@ -101,7 +101,6 @@
 
       const { prefixCls } = useDesign('basic-table');
       const [registerForm, formActions] = useForm();
-
       const getProps = computed(() => {
         return { ...props, ...unref(innerPropsRef) } as BasicTableProps;
       });

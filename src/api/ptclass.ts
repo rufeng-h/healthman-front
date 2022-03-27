@@ -1,17 +1,18 @@
 import { BasicColumn } from '../components/Table/src/types/table';
 import { TreeItem } from '../components/Tree';
-import { ContentTypeEnum } from '../enums/httpEnum';
+import { BasicFetchResult } from './model/baseModel';
 import { ErrorMessageMode } from '/#/axios';
 import { defHttp } from '/@/utils/http/axios';
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-12 17:41:02
- * @LastEditTime: 2022-03-24 11:52:01
+ * @LastEditTime: 2022-03-24 17:14:39
  * @Version: 1.0
  * @Description: TODO
  */
 
 enum Api {
+  BaseUrl = '/api/class',
   ClassPage = '/api/class',
   ClassTree = '/api/class/tree',
   ClassList = '/api/class/list',
@@ -74,14 +75,20 @@ export const classColumns: BasicColumn[] = [
   },
 ];
 
+/* 获取年级 */
 export function getGradeList(params: ClassQuery, errorMessageMode: ErrorMessageMode = 'modal') {
   return defHttp.get<number[]>({ url: Api.GradeList, params }, { errorMessageMode });
 }
 
+/* 班级详情 */
 export function getClassPage(query: ClassQuery, errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<ClassInfoModel[]>({ url: Api.ClassPage, params: query }, { errorMessageMode });
+  return defHttp.get<BasicFetchResult<ClassInfoModel>>(
+    { url: Api.ClassPage, params: query },
+    { errorMessageMode },
+  );
 }
 
+/*  */
 export function getClassTree(
   params: { collegeId: number | string },
   errorMessageMode: ErrorMessageMode = 'modal',
@@ -89,30 +96,27 @@ export function getClassTree(
   return defHttp.get<TreeItem[]>({ url: Api.ClassTree, params }, { errorMessageMode });
 }
 
+/* 班级列表 */
 export function getClassList(params: ClassQuery, errorMessageMode: ErrorMessageMode = 'modal') {
   return defHttp.get<ClassInfoModel[]>({ url: Api.ClassList, params }, { errorMessageMode });
 }
 
 export function downloadFileTemplate(
   params: any = {},
-  errorMessageMode: ErrorMessageMode = 'modal',
+  errorMessageMode: ErrorMessageMode = 'message',
 ) {
   return defHttp.downloadFileByData({ url: Api.ClassTemplate, params }, { errorMessageMode });
+}
+
+/* 详情页接口 */
+export function getClassDetail(clsCode: string, errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.get<ClassInfoModel>({ url: Api.BaseUrl + `/${clsCode}` }, { errorMessageMode });
 }
 
 export function uploadClass(
   file: File,
   name = 'file',
-  errorMessageMode: ErrorMessageMode = 'modal',
+  errorMessageMode: ErrorMessageMode = 'message',
 ) {
-  const formData = new window.FormData();
-  formData.append(name, file);
-  return defHttp.post<number>(
-    {
-      url: Api.ClassUpload,
-      data: formData,
-      headers: { 'Content-type': ContentTypeEnum.FORM_DATA },
-    },
-    { errorMessageMode },
-  );
+  return defHttp.uploadFile({ url: Api.ClassUpload }, { file, name }, { errorMessageMode });
 }

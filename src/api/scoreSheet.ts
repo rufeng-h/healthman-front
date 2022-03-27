@@ -5,10 +5,14 @@ import { ErrorMessageMode } from '/#/axios';
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-17 18:18:13
- * @LastEditTime: 2022-03-17 21:15:11
+ * @LastEditTime: 2022-03-25 12:41:41
  * @Version: 1.0
  * @Description: TODO
  */
+
+export const SCORE_SHEET_MAX = 9999;
+export const SCORE_SHEET_MIN = -9999;
+
 export interface ScoreSheetModel {
   subjectId: number;
   gender: 'M' | 'F' | undefined;
@@ -18,16 +22,13 @@ export interface ScoreSheetModel {
   score: number;
   createdTime: string;
   level: string;
+  text?: string;
 }
 
 export const scoreSheetColumns: BasicColumn[] = [
   {
-    title: '上区间',
-    dataIndex: 'upper',
-  },
-  {
-    title: '下区间',
-    dataIndex: 'lower',
+    dataIndex: 'text',
+    title: '标准',
   },
   {
     dataIndex: 'score',
@@ -36,10 +37,7 @@ export const scoreSheetColumns: BasicColumn[] = [
   {
     title: '等级',
     dataIndex: 'level',
-  },
-  {
-    title: '性别',
-    dataIndex: 'gender',
+    slots: { customRender: 'level' },
   },
 ];
 
@@ -51,7 +49,7 @@ enum Api {
 
 export function getScoreSheetList(
   params: ScoreSheetQuery,
-  errorMessageMode: ErrorMessageMode = 'modal',
+  errorMessageMode: ErrorMessageMode = 'message',
 ) {
-  return defHttp.get<ScoreSheetModel>({ params, url: Api.ScoreSheetList }, { errorMessageMode });
+  return defHttp.get<ScoreSheetModel[]>({ params, url: Api.ScoreSheetList }, { errorMessageMode });
 }

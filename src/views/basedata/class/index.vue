@@ -1,7 +1,7 @@
 <!--
  * @Author: 黄纯峰
  * @Date: 2022-03-11 00:36:06
- * @LastEditTime: 2022-03-23 14:13:36
+ * @LastEditTime: 2022-03-24 18:35:50
  * @Version: 1.0
  * @Description: TODO
 -->
@@ -11,10 +11,21 @@
       <template #code="{ record }">
         <Tag color="green">{{ record.clsCode }}</Tag>
       </template>
+      <template #action="{ record }">
+        <TableAction
+          :actions="[
+            {
+              icon: 'clarity:info-standard-line',
+              tooltip: '详情',
+              onClick: handleView.bind(null, record),
+            },
+          ]"
+        />
+      </template>
       <template #toolbar>
         <a-button type="primary" @click="downloadFileTemplate">下载模板</a-button>
         <ImpExcel @success="impSuccess">
-          <a-button type="primary">导入数据</a-button>
+          <a-button type="primary">导入新班级信息</a-button>
         </ImpExcel>
       </template>
     </BasicTable>
@@ -25,7 +36,7 @@
   import { Tag } from 'ant-design-vue';
   import { ExcelData, ImpExcel } from '/@/components/Excel';
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, useTable } from '/@/components/Table';
+  import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { FormProps } from '/@/components/Form';
   import {
     getClassPage,
@@ -39,6 +50,7 @@
   import ExcelModal from '../ExcelModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { useGo } from '/@/hooks/web/usePage';
   const tableTitle = ref('');
   const { createMessage } = useMessage();
   type OptionsItem = { label: string; value: string; disabled?: boolean };
@@ -107,7 +119,12 @@
     useSearchForm: true,
     rowKey: 'clsId',
     formConfig: formConfig,
-    tableSetting: { fullScreen: true, size: false },
+    tableSetting: { fullScreen: true },
+    actionColumn: {
+      title: '操作',
+      width: 50,
+      slots: { customRender: 'action' },
+    },
   });
 
   const [registerModal, { openModal }] = useModal();
@@ -119,4 +136,14 @@
     createMessage.success(`成功导入${cnt}条数据`);
     reload({ page: 1 });
   };
+  const go = useGo();
+  function handleView(record) {
+    go({
+      //@ts-ignore
+      name: 'BaseDataClassDetail',
+      params: {
+        clsCode: record.clsCode,
+      },
+    });
+  }
 </script>
