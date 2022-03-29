@@ -11,8 +11,8 @@ import { defHttp } from '../utils/http/axios';
 import { QueryOrder } from './common';
 import { ErrorMessageMode } from '/#/axios';
 
-export interface UserModel {
-  id: number;
+export interface AdminInfoModel {
+  userId: string;
   username: string;
   avatar: string;
   desp: string;
@@ -20,6 +20,7 @@ export interface UserModel {
   createdTime: string;
   phone: string;
   email: string;
+  clgName?: string;
 }
 
 export enum RoleType {
@@ -28,7 +29,7 @@ export enum RoleType {
   CLASS = 'CLASS',
 }
 
-export const userColumns: BasicColumn[] = [
+export const adminColumns: BasicColumn[] = [
   {
     title: '工号',
     dataIndex: 'userId',
@@ -52,10 +53,14 @@ export const userColumns: BasicColumn[] = [
     slots: { customRender: 'avatar' },
   },
   {
-    title: '角色',
-    dataIndex: 'roles[0].roleName',
-    width: 200,
+    title: '学院',
+    dataIndex: 'clgName',
   },
+  // {
+  //   title: '角色',
+  //   dataIndex: 'roles[0].roleName',
+  //   width: 200,
+  // },
   {
     title: '上次登录',
     dataIndex: 'lastLoginTime',
@@ -76,22 +81,28 @@ interface AddUserData {
   email: string;
 }
 
-export type UserQuery = Partial<UserModel> & QueryOrder;
+export type UserQuery = Partial<AdminInfoModel> & QueryOrder;
 
 enum Api {
-  UserList = '/api/user',
+  UserList = '/api/admin',
+  AdminPage = '/api/admin',
   UserAdd = '/api/user',
-  UserUpload = '/api/user/upload',
+  AdminUpload = '/api/admin/upload',
+  TemplateDownload = '/api/admin/template',
 }
 
-export function getUserList(params: UserQuery, errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<UserModel>({ url: Api.UserList, params }, { errorMessageMode });
+export function getAdminPage(params: UserQuery, errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.get<AdminInfoModel[]>({ url: Api.AdminPage, params }, { errorMessageMode });
 }
 
 export function addUser(data: AddUserData, errorMessageMode: ErrorMessageMode = 'modal') {
   return defHttp.post({ url: Api.UserAdd, data }, { errorMessageMode });
 }
 
-export function uploadUser(errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.post<string>({ url: Api.UserUpload }, { errorMessageMode });
+export function uploadAdmin(file: File, errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.uploadFile<number>({ url: Api.AdminUpload }, { file }, { errorMessageMode });
+}
+
+export function downloadFileTemplate(errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.downloadFileByData({ url: Api.TemplateDownload }, { errorMessageMode });
 }

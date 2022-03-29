@@ -92,13 +92,21 @@ const basedata: AppRouteModule = {
     {
       path: 'subject',
       name: 'BaseDataSubject',
-      component: () => import('/@/views/basedata/subject/index.vue'),
+      redirect: '/basedata/subject/single',
       meta: {
         title: '科目管理',
         icon: 'ant-design:deployment-unit-outlined',
-        hideChildrenInMenu: true,
       },
       children: [
+        {
+          path: 'single',
+          component: () => import('/@/views/basedata/subject/index.vue'),
+          name: 'BaseDataSubjectSingle',
+          meta: {
+            title: '科目信息',
+            icon: 'ant-design:deployment-unit-outlined',
+          },
+        },
         {
           path: 'add',
           name: 'BaseDataSubjectAdd',
@@ -108,6 +116,28 @@ const basedata: AppRouteModule = {
             hideMenu: true,
             currentActiveMenu: '/basedata/sbuject',
           },
+        },
+        {
+          path: 'group',
+          name: 'BaseDataSubjectGroup',
+          component: () => import('/@/views/basedata/subject/group/index.vue'),
+          meta: {
+            title: '科目组信息',
+            icon: 'ant-design:deployment-unit-outlined',
+            hideChildrenInMenu: true,
+          },
+          children: [
+            {
+              path: 'add',
+              name: 'BaseDataSubjectGroupAdd',
+              component: () => import('/@/views/basedata/subject/group/add/index.vue'),
+              meta: {
+                title: '添加科目组',
+                icon: 'ant-design:deployment-unit-outlined',
+                hideMenu: true,
+              },
+            },
+          ],
         },
       ],
     },

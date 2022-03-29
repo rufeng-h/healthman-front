@@ -4,10 +4,10 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, computed, unref, reactive } from 'vue';
+  import { defineComponent, ref, computed, unref } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
-  import { ClassQuery, getClassList } from '/@/api/ptclass';
+  import { getClassList } from '/@/api/ptclass';
   import { getCollegeList } from '/@/api/college';
   import { addUser, RoleType } from '../../../api/admin';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -15,17 +15,31 @@
   const { createMessage } = useMessage();
 
   export default defineComponent({
-    name: 'AccountModal',
+    name: 'UserModal',
     components: { BasicModal, BasicForm },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
       const rowId = ref('');
-      const classListParams: ClassQuery = reactive({ collegeId: undefined });
 
       const accountFormSchema: FormSchema[] = [
         {
-          field: 'username',
+          field: 'adminId',
+          label: '工号',
+          component: 'Input',
+          rules: [
+            {
+              required: true,
+              message: '请输入用户名',
+              trigger: 'blur',
+            },
+          ],
+          ifShow() {
+            return !isUpdate.value;
+          },
+        },
+        {
+          field: 'adminName',
           label: '用户名',
           component: 'Input',
           rules: [
@@ -41,16 +55,16 @@
           label: '密码',
           component: 'InputPassword',
           required: true,
+          ifShow() {
+            return !isUpdate.value;
+          },
         },
         {
-          field: 'roleType',
+          field: 'roleTypes',
           label: '角色',
-          component: 'RadioGroup',
+          component: 'CheckboxGroup',
           componentProps: () => {
             return {
-              onChange(e: Event) {
-                console.log(e);
-              },
               options: [
                 {
                   label: '系统管理员',
@@ -72,42 +86,49 @@
         {
           required: true,
           label: '学院',
-          field: 'collegeId',
+          field: 'clgCodes',
           component: 'ApiSelect',
           ifShow({ field, model }) {
             return (
-              field === 'collegeId' &&
-              (model.roleType === RoleType.COLLEGE || model.roleType === RoleType.CLASS)
+              field === 'clgCodes' &&
+              model.roleTypes &&
+              model.roleTypes.indexOf(RoleType.COLLEGE) !== -1
             );
           },
           componentProps() {
             return {
               api: getCollegeList,
-              labelField: 'name',
-              valueField: 'id',
-              onSelect(value: number) {
-                setFieldsValue({ classCode: undefined });
-                classListParams.collegeId = value;
-              },
+              labelField: 'clgName',
+              valueField: 'clgCode',
+              allowClear: true,
+              mode: 'multiple',
+              placeholder: '选择学院',
+              showSearch: true,
             };
           },
         },
         {
           required: true,
           label: '班级',
-          field: 'classCode',
+          field: 'clsCodes',
           component: 'ApiSelect',
           componentProps() {
             return {
-              immediate: false,
-              params: classListParams,
               api: getClassList,
-              labelField: 'name',
-              valueField: 'code',
+              allowClear: true,
+              labelField: 'clsName',
+              valueField: 'clsCode',
+              mode: 'multiple',
+              placeholder: '选择班级',
+              showSearch: true,
             };
           },
           ifShow({ field, model }) {
-            return field === 'classCode' && model.roleType === RoleType.CLASS;
+            return (
+              field === 'clsCodes' &&
+              model.roleTypes &&
+              model.roleTypes.indexOf(RoleType.CLASS) !== -1
+            );
           },
         },
         {
@@ -149,7 +170,7 @@
         },
       ];
 
-      const [registerForm, { setFieldsValue, updateSchema, resetFields, validate }] = useForm({
+      const [registerForm, { setFieldsValue, resetFields, validate }] = useForm({
         labelWidth: 100,
         schemas: accountFormSchema,
         showActionButtonGroup: false,
@@ -162,25 +183,19 @@
         resetFields();
         setModalProps({ confirmLoading: false });
         isUpdate.value = !!data?.isUpdate;
+        const { record } = data;
+        // TODO
+        console.log(record);
 
         if (unref(isUpdate)) {
-          rowId.value = data.record.id;
+          rowId.value = record.userId;
           setFieldsValue({
-            ...data.record,
+            adminName: record.username,
+            roleTypes: Array.from(new Set(record.roles.map((r) => r.roleType))),
+            clgCodes: [],
+            clsCodes: [],
           });
         }
-
-        // const treeData = await getDeptList();
-        // updateSchema([
-        //   {
-        //     field: 'pwd',
-        //     show: !unref(isUpdate),
-        //   },
-        //   {
-        //     field: 'dept',
-        //     componentProps: { treeData },
-        //   },
-        // ]);
       });
 
       const modalTitle = computed(() => (!unref(isUpdate) ? '新增账号' : '编辑账号'));

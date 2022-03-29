@@ -95,7 +95,7 @@
   const isAdmin = ref(false);
 
   const formData = reactive({
-    account: '0001',
+    account: '000000',
     password: '123456',
   });
 

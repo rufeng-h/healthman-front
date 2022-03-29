@@ -1,3 +1,5 @@
+import { ErrorMessageMode } from './../../types/axios.d';
+import { GenderEnum } from './../enums/genderEnum';
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-17 18:54:37
@@ -7,7 +9,6 @@
  */
 
 import { defHttp } from '../utils/http/axios';
-import { ErrorMessageMode } from '/#/axios';
 
 export interface SubjectModel {
   subId: number;
@@ -18,8 +19,17 @@ export interface SubjectModel {
 }
 
 enum Api {
-  SubjectList = '/subject/list',
-  SubjectAdd = '/subject',
+  SubjectList = '/api/subject/list',
+  SubjectAdd = '/api/subject',
+  SubjectPage = '/api/subject',
+}
+
+export interface SubjectInfoModel {
+  subId: string;
+  subCreated: string;
+  subName: string;
+  sheetInfos: { gender: GenderEnum; grade: number };
+  sbuDesp?: string;
 }
 
 export function getSubjectList(errorMessageMode: ErrorMessageMode = 'message') {
@@ -28,4 +38,8 @@ export function getSubjectList(errorMessageMode: ErrorMessageMode = 'message') {
 
 export function addSubject(data, errorMessageMode: ErrorMessageMode = 'message') {
   return defHttp.post<SubjectModel>({ url: Api.SubjectAdd, data }, { errorMessageMode });
+}
+
+export function pageSubjectInfo(params: any = {}) {
+  return defHttp.get({ url: Api.SubjectPage, params }, { errorMessageMode: 'message' });
 }
