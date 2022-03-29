@@ -61,16 +61,22 @@
         <a-list-item
           ><a-card hoverable bordered>
             <template #cover>
-              <img alt="example" src="https://www.swjtu.edu.cn/images/logo.png" />
+              <img alt="cover" src="https://www.swjtu.edu.cn/images/logo.png" />
             </template>
             <template #actions>
               <ellipsis-outlined key="ellipsis" />
               <plus-circle-outlined
                 key="plus-circle"
                 @click="addSubject(item)"
+                style="color: #308ecc"
                 v-if="formdata.subIds.indexOf(item.subId) === -1"
               />
-              <minus-circle-outlined key="minus-circle" @click="delSubject(item)" v-else />
+              <minus-circle-outlined
+                key="minus-circle"
+                @click="delSubject(item)"
+                style="color: salmon"
+                v-else
+              />
             </template>
             <a-card-meta :title="item.subName" :description="item.subDesp">
               <template #avatar>
