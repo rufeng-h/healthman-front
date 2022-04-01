@@ -6,50 +6,57 @@
  * @Description: TODO
 -->
 <template>
-  <PageWrapper contentBackground dense contentFullHeight fixed-height>
-    <BasicTable @register="registerTable">
-      <template #id="{ record }">
-        <Tag color="green">
-          {{ record.clgCode }}
-        </Tag>
-      </template>
-      <template #action="{ record }">
-        <TableAction
-          :actions="[
-            {
-              icon: 'clarity:info-standard-line',
-              tooltip: '详情',
-              onClick: handleView.bind(null, record),
-            },
-            // {
-            //   icon: 'clarity:note-edit-line',
-            //   tooltip: '编辑用户资料',
-            //   onClick: handleEdit.bind(null, record),
-            // },
-            // {
-            //   icon: 'ant-design:delete-outlined',
-            //   color: 'error',
-            //   tooltip: '删除此账号',
-            //   popConfirm: {
-            //     title: '是否确认删除',
-            //     confirm: handleDelete.bind(null, record),
-            //   },
-            // },
-          ]"
-        />
-      </template>
-      <template #home="{ record }">
-        <a-button type="primary" @click="openWindow(record.clgHome)">主页</a-button>
-      </template>
-      <template #toolbar>
-        <a-button type="primary" @click="downloadTemplate">下载模板文件</a-button>
-        <ImpExcel @success="impSuccess">
-          <a-button type="primary">导入数据</a-button>
-        </ImpExcel>
-      </template>
-    </BasicTable>
-    <ExcelModal @register="registerModal" @confirm="upload" />
-  </PageWrapper>
+  <div>
+    <PageWrapper contentBackground dense contentFullHeight fixed-height>
+      <BasicTable @register="registerTable">
+        <template #id="{ record }">
+          <Tag color="green">
+            {{ record.clgCode }}
+          </Tag>
+        </template>
+        <template #action="{ record }">
+          <TableAction
+            :actions="[
+              {
+                icon: 'clarity:info-standard-line',
+                tooltip: '详情',
+                onClick: handleView.bind(null, record),
+              },
+              {
+                icon: 'mdi:database-import',
+                tooltip: '导入班级数据',
+                onClick: handleImp.bind(null, record),
+              },
+              // {
+              //   icon: 'clarity:note-edit-line',
+              //   tooltip: '编辑用户资料',
+              //   onClick: handleEdit.bind(null, record),
+              // },
+              // {
+              //   icon: 'ant-design:delete-outlined',
+              //   color: 'error',
+              //   tooltip: '删除此账号',
+              //   popConfirm: {
+              //     title: '是否确认删除',
+              //     confirm: handleDelete.bind(null, record),
+              //   },
+              // },
+            ]"
+          />
+        </template>
+        <template #home="{ record }">
+          <a-button type="primary" @click="openWindow(record.clgHome)">主页</a-button>
+        </template>
+        <template #toolbar>
+          <a-button type="primary" @click="downloadTemplate">下载模板文件</a-button>
+          <ImpExcel @success="impSuccess" ref="impExcel">
+            <a-button type="primary">导入学院数据</a-button>
+          </ImpExcel>
+        </template>
+      </BasicTable>
+      <ExcelModal @register="registerModal" @confirm="upload" @cancel="cancelUpload" />
+    </PageWrapper>
+  </div>
 </template>
 <script lang="ts" setup>
   import { Tag } from 'ant-design-vue';
@@ -68,13 +75,10 @@
   import { useGo } from '/@/hooks/web/usePage';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { ref, unref } from 'vue';
   const { createMessage } = useMessage();
-  // const afterFetch = (data) => {
-  //   data.forEach((college: CollegeModel) => {
-  //     college.clgCode = college.clgCode.padStart(3, '0');
-  //   });
-  //   return data;
-  // };
+  const impExcel = ref();
+  let curUploadClg = null;
   const downloadTemplate = () => {
     downloadFileTemplate();
   };
@@ -83,6 +87,7 @@
     openModal(true, { excelDataList, file });
   };
   const upload = async (file: File) => {
+    console.log(curUploadClg);
     const cnt = await uploadCollege(file);
     createMessage.success(`成功导入${cnt}条数据`);
     reload({ page: 1 });
@@ -94,20 +99,27 @@
     titleHelpMessage: '温馨提示',
     bordered: true,
     striped: true,
-    // afterFetch,
     showTableSetting: true,
     inset: true,
     rowKey: 'clgCode',
+    canResize: false,
     tableSetting: { size: false, fullScreen: true },
-    actionColumn: {
-      title: '操作',
-      slots: { customRender: 'action' },
-      width: 50,
-    },
   });
+  function handleImp(record) {
+    curUploadClg = record;
+    unref(impExcel).handleUpload();
+  }
+  function cancelUpload() {
+    curUploadClg = null;
+    console.log(curUploadClg);
+  }
   const go = useGo();
   function handleView(record) {
-    go(`/basedata/college/${record.clgCode}`);
+    go({
+      // @ts-ignore
+      name: 'BaseDataCollegeDetail',
+      params: { clgCode: record.clgCode },
+    });
   }
 </script>
 

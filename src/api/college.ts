@@ -41,12 +41,17 @@ export const collegeColumns: BasicColumn[] = [
   {
     title: '创建时间',
     dataIndex: 'clgCreated',
-    width: 200,
+    width: 150,
   },
   {
     title: '学院网址',
     dataIndex: 'clgHome',
     slots: { customRender: 'home' },
+    width: 80,
+  },
+  {
+    title: '操作',
+    slots: { customRender: 'action' },
     width: 80,
   },
 ];

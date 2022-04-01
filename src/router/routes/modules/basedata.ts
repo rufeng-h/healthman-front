@@ -142,6 +142,15 @@ const basedata: AppRouteModule = {
       ],
     },
     {
+      path: 'measurement',
+      name: 'BaseDataMeasurement',
+      component: () => import('/@/views/basedata/measurement/index.vue'),
+      meta: {
+        title: '测试',
+        icon: 'ant-design:aliwangwang-outlined',
+      },
+    },
+    {
       path: 'profile',
       name: 'BaseDataProfile',
       component: () => import('/@/views/basedata/profile/index.vue'),

@@ -64,7 +64,7 @@
               <img alt="cover" src="https://www.swjtu.edu.cn/images/logo.png" />
             </template>
             <template #actions>
-              <ellipsis-outlined key="ellipsis" />
+              <ellipsis-outlined key="ellipsis" style="color: green" />
               <plus-circle-outlined
                 key="plus-circle"
                 @click="addSubject(item)"
@@ -80,7 +80,7 @@
             </template>
             <a-card-meta :title="item.subName" :description="item.subDesp">
               <template #avatar>
-                <a-avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                <a-avatar src="/src/assets/images/logo.png" />
               </template>
             </a-card-meta>
           </a-card>

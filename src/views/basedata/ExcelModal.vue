@@ -15,9 +15,11 @@
     okText="确认上传"
     cancelText="取消上传"
     @ok="confirmUpload"
+    @cancel="cancel"
+    :minHeight="400"
   >
     <BasicTable
-      v-for="(table, index) in tableListRef"
+      v-for="(table, index) in tableList"
       :key="index"
       :title="table.title"
       :columns="table.columns"
@@ -27,7 +29,7 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, reactive, toRefs } from 'vue';
 
   import { useModalInner } from '/@/components/Modal';
   import { BasicTable, BasicColumn } from '/@/components/Table';
@@ -36,19 +38,20 @@
   export default defineComponent({
     name: 'ExcelModal',
     components: { BasicTable, BasicModal },
-    emits: ['confirm'],
+    emits: ['confirm', 'register', 'cancel'],
     setup(_, { emit }) {
-      const tableListRef = ref<
-        {
-          title: string;
-          columns?: any[];
-          dataSource?: any[];
-        }[]
-      >([]);
+      type TableObj = {
+        title: string;
+        columns?: any[];
+        dataSource?: any[];
+      };
+      const state = reactive<{ tableList: TableObj[] }>({
+        tableList: [{ title: '', dataSource: [], columns: [] }],
+      });
       let curFile = undefined;
       const [registerModal, { closeModal }] = useModalInner(({ excelDataList, file }) => {
         curFile = file;
-        tableListRef.value = [];
+        state.tableList = [];
         for (const excelData of excelDataList) {
           const {
             header,
@@ -59,16 +62,21 @@
           for (const title of header) {
             columns.push({ title, dataIndex: title });
           }
-          tableListRef.value.push({ title: sheetName, dataSource: results, columns });
+          state.tableList.push({ title: sheetName, dataSource: results, columns });
         }
       });
       const confirmUpload = () => {
         emit('confirm', curFile);
         closeModal();
       };
+      function cancel() {
+        emit('cancel');
+        return true;
+      }
       return {
+        cancel,
         registerModal,
-        tableListRef,
+        ...toRefs(state),
         confirmUpload,
       };
     },

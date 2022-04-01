@@ -66,7 +66,10 @@
   import ExcelModal from '../ExcelModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useGo } from '/@/hooks/web/usePage';
+  import { useMessage } from '/@/hooks/web/useMessage';
   const tableTitle = ref('未选择班级');
+  const { createMessage } = useMessage();
+
   const fetchClass = async (clgCode: string | undefined = undefined) => {
     const data = await getClassList({ clgCode });
     classes.value.length = 0;
@@ -180,8 +183,11 @@
   const impSuccess = (excelDataList: ExcelData[], file: File) => {
     openModal(true, { excelDataList, file });
   };
-  const confirmUpload = (file: File) => {
-    uploadStudent(file);
+  const confirmUpload = async (file: File) => {
+    const data = await uploadStudent(file);
+    if (data) {
+      createMessage.success(`成功添加${data}条记录!`);
+    }
   };
   const go = useGo();
   function handleView(record) {

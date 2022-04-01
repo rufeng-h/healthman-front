@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper :class="prefixCls" title="科目组信息" content-full-height>
+  <PageWrapper :class="prefixCls" title="科目组信息" content-full-height dense>
     <template #headerContent>
       <a-form :model="query">
         <a-form-item label="科目组名" :labelCol="{ span: 2 }" :wrapperCol="{ span: 6 }">
@@ -39,15 +39,14 @@
                       {{ action.text }}
                     </div>
                   </template>
-                  <span :class="`${prefixCls}__time`"
-                    >由{{ item.createdAdminName }}于 {{ item.grpCreated }} 创建</span
-                  >
+                  <span :class="`${prefixCls}__time`">{{ item.grpCreated }}</span>
                 </div>
               </template>
               <template #title>
-                <p :class="`${prefixCls}__title`">
+                <div :class="`${prefixCls}__title`">
                   {{ item.grpName }}
-                </p>
+                  <span :class="`${prefixCls}__creator`"> {{ item.createdAdminName }}</span>
+                </div>
                 <div>
                   <template v-for="tag in item.subjects" :key="tag.subId">
                     <Tag class="mb-2" color="orange" style="fontsize: 1.1em">
@@ -153,13 +152,20 @@
     }
 
     &__container {
-      padding: 12px;
-      background-color: @component-background;
+      margin: 0.5rem;
+      border-radius: 8px;
     }
 
     &__title {
-      margin-bottom: 12px;
-      font-size: 18px;
+      margin-bottom: 0.3rem;
+      font-size: 1.2em;
+    }
+
+    &__creator {
+      position: absolute;
+      right: 1rem;
+      color: rgb(0 0 0 / 45%);
+      font-size: 0.8em;
     }
 
     &__content {
@@ -167,11 +173,11 @@
     }
 
     &__action {
-      margin-top: 10px;
+      margin-top: 0.3rem;
 
       &-item {
         display: inline-block;
-        padding: 0 16px;
+        padding: 0 0.3rem;
         color: @text-color-secondary;
 
         &:nth-child(1) {
@@ -185,14 +191,20 @@
       }
 
       &-icon {
-        margin-right: 3px;
+        margin-right: 0.1rem;
       }
     }
 
     &__time {
       position: absolute;
-      right: 20px;
+      right: 1rem;
       color: rgb(0 0 0 / 45%);
     }
+  }
+
+  ::v-deep(.ant-list-item) {
+    margin: 0.3rem;
+    background-color: @component-background;
+    border-radius: 10px;
   }
 </style>
