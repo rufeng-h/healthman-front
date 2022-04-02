@@ -28,6 +28,15 @@ export interface ClassQuery {
   grade?: number;
 }
 
+export interface ClassModel {
+  clsId: number;
+  clsCode: string;
+  clsName: string;
+  clgCode?: string;
+  clsEntryYear: number;
+  clsCreated: string;
+}
+
 export interface ClassInfoModel {
   clsId: number;
   clsCode: string;
@@ -115,8 +124,13 @@ export function getClassDetail(clsCode: string, errorMessageMode: ErrorMessageMo
 
 export function uploadClass(
   file: File,
+  clgCode: string | undefined = undefined,
   name = 'file',
   errorMessageMode: ErrorMessageMode = 'message',
-) {
-  return defHttp.uploadFile({ url: Api.ClassUpload }, { file, name }, { errorMessageMode });
+): Promise<number> {
+  return defHttp.uploadFile(
+    { url: Api.ClassUpload, params: { clgCode } },
+    { file, name },
+    { errorMessageMode },
+  );
 }

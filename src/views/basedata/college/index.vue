@@ -25,7 +25,7 @@
               {
                 icon: 'mdi:database-import',
                 tooltip: '导入班级数据',
-                onClick: handleImp.bind(null, record),
+                onClick: handleImpCls.bind(null, record),
               },
               // {
               //   icon: 'clarity:note-edit-line',
@@ -67,6 +67,7 @@
     getCollegeList,
     uploadCollege,
     downloadFileTemplate,
+    CollegeModel,
   } from '/@/api/college';
   import { useTable, TableAction } from '/@/components/Table';
   import { openWindow } from '/@/utils';
@@ -76,21 +77,41 @@
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { ref, unref } from 'vue';
+  import { uploadClass } from '/@/api/ptclass';
+  import { useLoading } from '/@/components/Loading';
   const { createMessage } = useMessage();
   const impExcel = ref();
-  let curUploadClg = null;
+  let curUploadClg: Nullable<CollegeModel> = null;
   const downloadTemplate = () => {
     downloadFileTemplate();
   };
+  const [openFullLoading, closeFullLoading] = useLoading({
+    tip: '正在上传...',
+  });
   const [registerModal, { openModal }] = useModal();
   const impSuccess = (excelDataList: ExcelData[], file: File) => {
     openModal(true, { excelDataList, file });
   };
   const upload = async (file: File) => {
-    console.log(curUploadClg);
-    const cnt = await uploadCollege(file);
-    createMessage.success(`成功导入${cnt}条数据`);
-    reload({ page: 1 });
+    try {
+      openFullLoading();
+      let cnt = 0;
+      /* 正在上传指定学院的班级数据 */
+      if (curUploadClg !== null) {
+        cnt = await uploadClass(file, curUploadClg.clgCode);
+      } else {
+        /* 上传学院数据 */
+        cnt = await uploadCollege(file);
+      }
+      closeFullLoading();
+      createMessage.success(`成功导入${cnt}条数据`);
+      reload({ page: 1 });
+    } catch (e) {
+      closeFullLoading();
+      throw e;
+    } finally {
+      curUploadClg = null;
+    }
   };
   const [registerTable, { reload }] = useTable({
     title: '学院信息',
@@ -105,13 +126,13 @@
     canResize: false,
     tableSetting: { size: false, fullScreen: true },
   });
-  function handleImp(record) {
+  function handleImpCls(record) {
     curUploadClg = record;
     unref(impExcel).handleUpload();
   }
   function cancelUpload() {
-    curUploadClg = null;
     console.log(curUploadClg);
+    curUploadClg = null;
   }
   const go = useGo();
   function handleView(record) {

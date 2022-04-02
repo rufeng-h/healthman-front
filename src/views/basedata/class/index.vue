@@ -51,7 +51,11 @@
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useGo } from '/@/hooks/web/usePage';
+  import { useLoading } from '/@/components/Loading';
   const tableTitle = ref('');
+  const [openFullLoading, closeFullLoading] = useLoading({
+    tip: '正在导入...',
+  });
   const { createMessage } = useMessage();
   type OptionsItem = { label: string; value: string; disabled?: boolean };
   const grades: Ref<OptionsItem[]> = ref<OptionsItem[]>([]);
@@ -132,9 +136,16 @@
     openModal(true, { excelDataList, file });
   };
   const confirmUpload = async (file: File) => {
-    const cnt = await uploadClass(file);
-    createMessage.success(`成功导入${cnt}条数据`);
-    reload({ page: 1 });
+    try {
+      openFullLoading();
+      const cnt = await uploadClass(file);
+      closeFullLoading();
+      createMessage.success(`成功导入${cnt}条数据`);
+      reload({ page: 1 });
+    } catch (e) {
+      closeFullLoading();
+      throw e;
+    }
   };
   const go = useGo();
   function handleView(record) {

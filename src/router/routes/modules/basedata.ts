@@ -146,9 +146,22 @@ const basedata: AppRouteModule = {
       name: 'BaseDataMeasurement',
       component: () => import('/@/views/basedata/measurement/index.vue'),
       meta: {
-        title: '测试',
+        title: '体测管理',
         icon: 'ant-design:aliwangwang-outlined',
+        hideChildrenInMenu: true,
       },
+
+      children: [
+        {
+          path: ':msId',
+          component: () => import('/@/views/basedata/measurement/Detail.vue'),
+          name: 'BaseDataMeasurementDetail',
+          meta: {
+            title: '体测详情',
+            hideMenu: true,
+          },
+        },
+      ],
     },
     {
       path: 'profile',

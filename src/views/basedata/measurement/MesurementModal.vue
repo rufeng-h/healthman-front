@@ -15,13 +15,12 @@
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
   import { getClassList } from '/@/api/ptclass';
 
-  import { addMeasurement } from '/@/api/measurement';
   import { getSubGroupList } from '/@/api/subgroup';
 
   export default defineComponent({
     name: 'UserModal',
     components: { BasicModal, BasicForm },
-    emits: ['success', 'register'],
+    emits: ['success', 'register', 'cancel'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
       const rowId = ref('');
@@ -103,22 +102,16 @@
         }
       });
 
-      const modalTitle = computed(() => (!unref(isUpdate) ? '新增测试' : '编辑测试'));
+      const modalTitle = computed(() => (!unref(isUpdate) ? '新增体测' : '编辑体测'));
 
       async function handleSubmit() {
-        try {
-          const values = await validate();
-          setModalProps({ confirmLoading: true });
-          const data = await addMeasurement(values);
-          if (data) {
-            emit('success', { isUpdate: unref(isUpdate), values: { ...values, id: rowId.value } });
-          }
-          closeModal();
-        } finally {
-          setModalProps({ confirmLoading: false });
-        }
+        const values = await validate();
+        emit('success', {
+          isUpdate: unref(isUpdate),
+          values: { ...values, msId: unref(isUpdate) ? rowId.value : '' },
+        });
+        closeModal();
       }
-
       return { registerForm, modalTitle, handleSubmit, registerModal };
     },
   });
