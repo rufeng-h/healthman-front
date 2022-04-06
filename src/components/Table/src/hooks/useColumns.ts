@@ -207,7 +207,9 @@ export function useColumns(
     }
 
     const firstColumn = columns[0];
-
+    if (cacheColumns.length === 0) {
+      cacheColumns = unref(propsRef).columns;
+    }
     const cacheKeys = cacheColumns.map((item) => item.dataIndex);
 
     if (!isString(firstColumn)) {
@@ -238,7 +240,8 @@ export function useColumns(
           );
         });
       }
-      columnsRef.value = newColumns;
+      columnsRef.value.length = 0;
+      columnsRef.value.push(...newColumns);
     }
   }
 

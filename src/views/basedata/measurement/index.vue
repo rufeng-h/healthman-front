@@ -166,7 +166,10 @@
       onMounted(() => {
         fetchData({ pageSize: DEFAULT_PAGE_SIZE });
       });
-      const fetchData = async (params = {}) => {
+      const fetchData = async (params: MeasurementQuery | undefined = undefined) => {
+        if (params === undefined) {
+          params = { page: state.pagination.current, pageSize: state.pagination.pageSize };
+        }
         try {
           state.loading = true;
           const data = await pageMeasurementInfo(params);
@@ -223,7 +226,6 @@
         openMsModal(true, { isUpdate: true, record: item });
       }
       async function handleDel(item: MeasurementInfoModel) {
-        console.log(item);
         createConfirm({
           iconType: 'warning',
           okText: '确定',
@@ -239,7 +241,6 @@
       }
       async function handleSubmit({ isUpdate, values }) {
         let success = false;
-        console.log(values);
         if (isUpdate) {
           success = await updateMeasurement(values);
           createMessage.success('更新成功!');
@@ -306,12 +307,14 @@
       border-radius: 10px;
 
       &-title {
-        font-size: 1.2em;
+        font-size: 1.1em;
+        font-weight: 700;
         vertical-align: middle;
         color: @text-color;
 
         &-creator {
           font-size: 0.9em;
+          font-weight: lighter;
           color: @text-color-secondary;
           position: absolute;
           right: 1rem;

@@ -34,6 +34,8 @@
                         v-if="action.icon"
                         :class="`${prefixCls}__action-icon`"
                         :icon="action.icon"
+                        :size="action.size"
+                        @click="action.action(item)"
                         :color="action.color"
                       />
                       {{ action.text }}
@@ -45,7 +47,7 @@
               <template #title>
                 <div :class="`${prefixCls}__title`">
                   {{ item.grpName }}
-                  <span :class="`${prefixCls}__creator`"> {{ item.createdAdminName }}</span>
+                  <span :class="`${prefixCls}__creator`"> {{ item.grpCreatedAdminName }}</span>
                 </div>
                 <div>
                   <template v-for="tag in item.subjects" :key="tag.subId">
@@ -69,7 +71,8 @@
   import { PageWrapper } from '/@/components/Page';
   import { List, InputSearch, Form } from 'ant-design-vue';
   import { useGo } from '/@/hooks/web/usePage';
-  import { pageSubGroupInfo, SubGroupInfoModel, SubGroupQuery } from '/@/api/subgroup';
+  import { delSubGrp, pageSubGroupInfo, SubGroupInfoModel, SubGroupQuery } from '/@/api/subgroup';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   export default defineComponent({
     components: {
@@ -85,32 +88,45 @@
     },
     setup() {
       const go = useGo();
+      const { createConfirm } = useMessage();
       const DEFAULT_PAGE_SIZE = 3;
       onMounted(() => {
-        fetchData({ pageSize: DEFAULT_PAGE_SIZE });
+        fetchData();
       });
-      const fetchData = async (params) => {
-        const data = await pageSubGroupInfo(params);
-        state.pagination.total = data.total;
-        state.pagination.current = data.current;
-        state.pagination.pageSize = data.pageSize;
-        state.dataSource = data.items;
+      const fetchData = async (params: SubGroupQuery | undefined = undefined) => {
+        if (params === undefined) {
+          params = { page: state.pagination.current, pageSize: state.pagination.pageSize };
+        }
+        try {
+          state.loading = true;
+          const data = await pageSubGroupInfo(params);
+          state.pagination.total = data.total;
+          state.pagination.current = data.current;
+          state.pagination.pageSize = data.pageSize;
+          state.dataSource = data.items;
+        } finally {
+          state.loading = false;
+        }
       };
       const doSearch = () => {
-        fetchData(state.query);
+        if (state.query.grpName != '') {
+          fetchData(state.query);
+        }
       };
       const onChange = (e) => {
         const value = e.target.value;
         if (value === '') {
-          fetchData({});
+          fetchData();
         }
       };
       const state = reactive<{
         dataSource: SubGroupInfoModel[];
         pagination: PaginationProps;
         query: SubGroupQuery;
+        loading: boolean;
       }>({
         dataSource: [],
+        loading: false,
         pagination: {
           current: 1,
           pageSize: DEFAULT_PAGE_SIZE,
@@ -127,11 +143,26 @@
           name: 'BaseDataSubjectGroupAdd',
         });
       };
-      const actions = [
-        { icon: 'clarity:star-line', text: '156', color: '#018ffb' },
-        { icon: 'bx:bxs-like', text: '156', color: '#459ae8' },
-        { icon: 'bx:bxs-message-dots', text: '2', color: '#42d27d' },
+      const actions: any[] = [
+        { icon: 'akar-icons:more-horizontal', color: '#33f834', action: () => {}, size: 20 },
+        { icon: 'bxs:edit', color: '#018ffb', action: () => {}, size: 20 },
+        { icon: 'ep:delete-filled', color: '#f00', action: handleDel, size: 20 },
+        // { icon: 'mdi:database-import', color: '#42d27d', action: () => {}, size: 20 },
       ];
+      async function handleDel(item: SubGroupInfoModel) {
+        createConfirm({
+          iconType: 'warning',
+          okText: '确定',
+          cancelText: '取消',
+          onOk: async () => {
+            const data = await delSubGrp(item.grpId);
+            if (data) {
+              fetchData();
+            }
+          },
+          title: `删除科目组${item.grpName}?`,
+        });
+      }
       return {
         prefixCls: 'list-search',
         ...toRefs(state),
@@ -173,11 +204,10 @@
     }
 
     &__action {
-      margin-top: 0.3rem;
-
+      margin-top: 0.4rem;
       &-item {
         display: inline-block;
-        padding: 0 0.3rem;
+        padding: 0 0.5rem;
         color: @text-color-secondary;
 
         &:nth-child(1) {

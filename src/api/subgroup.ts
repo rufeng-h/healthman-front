@@ -1,15 +1,16 @@
+import { BasicPageParams } from './model/baseModel';
 import { defHttp } from './../utils/http/axios/index';
 import { ErrorMessageMode } from './../../types/axios.d';
 enum Api {
+  BaseUrl = '/api/subGroup',
   SubGroupList = '/api/subGroup/list',
   SubGroupAdd = '/api/subGroup',
   PageSubGroup = '/api/subGroup',
 }
 
-export interface SubGroupQuery {
+export interface SubGroupQuery extends BasicPageParams {
   grpName?: string;
 }
-
 export interface SubGroupFormdata {
   grpName: string;
   grpDesp: string;
@@ -23,8 +24,8 @@ export interface SubGroupInfoModel {
   grpCreated: string;
   grpDesp: string;
   subjects: { subName: string; subId: number }[];
-  createdAdminId: string;
-  createdAdminName: string;
+  grpCreatedAdminId: string;
+  grpCreatedAdminName: string;
 }
 
 export function getSubGroupList(errorMessageMode: ErrorMessageMode = 'message') {
@@ -37,4 +38,11 @@ export function addSubGroup(data: SubGroupFormdata) {
 
 export function pageSubGroupInfo(params: any = {}) {
   return defHttp.get({ url: Api.PageSubGroup, params }, { errorMessageMode: 'message' });
+}
+
+export function delSubGrp(grpId: number) {
+  return defHttp.delete<Boolean>(
+    { url: Api.BaseUrl + `/${grpId}` },
+    { errorMessageMode: 'message' },
+  );
 }

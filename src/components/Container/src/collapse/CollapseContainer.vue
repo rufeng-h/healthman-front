@@ -9,7 +9,7 @@
       </template>
     </CollapseHeader>
 
-    <div class="p-2">
+    <div>
       <CollapseTransition :enable="canExpan">
         <Skeleton v-if="loading" :active="loading" />
         <div :class="`${prefixCls}__body`" v-else v-show="show">
@@ -35,6 +35,7 @@
   import { useDesign } from '/@/hooks/web/useDesign';
 
   const props = defineProps({
+    defaultExpand: { type: Boolean, default: true },
     title: { type: String, default: '' },
     loading: { type: Boolean },
     /**
@@ -59,7 +60,8 @@
     lazyTime: { type: Number, default: 0 },
   });
 
-  const show = ref(true);
+  const show = ref(props.defaultExpand);
+  console.log(props);
 
   const { prefixCls } = useDesign('collapse-container');
 
@@ -84,7 +86,7 @@
 
     &__header {
       display: flex;
-      height: 32px;
+      padding: 0.5rem;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid @border-color-light;

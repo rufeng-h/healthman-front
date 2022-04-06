@@ -10,6 +10,17 @@ import { GenderEnum } from './../enums/genderEnum';
 
 import { defHttp } from '../utils/http/axios';
 
+/**
+ * 增加是否完成，status字段
+ */
+export interface SubjectStatus {
+  subId: number;
+  subName: string;
+  subCreated: string;
+  subDesp: string;
+  status: boolean;
+}
+
 export interface SubjectModel {
   subId: number;
   subName: string;

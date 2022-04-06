@@ -1,6 +1,7 @@
 import { GenderEnum } from '../enums/genderEnum';
 import { defHttp } from '../utils/http/axios';
 import { QueryOrder } from './common';
+import { MeasurementModel } from './measurement';
 import { ErrorMessageMode } from '/#/axios';
 import { BasicColumn } from '/@/components/Table';
 
@@ -16,14 +17,37 @@ export interface StudentInfoModel {
   stuId: string;
   stuName: string;
   stuBirth: string;
-  stuGender: GenderEnum;
+  stuGender: GenderEnum | undefined;
   avatar: string;
   clsCode: string;
   clsName: string;
   stuLastLogin: string;
   stuCreated: string;
   stuDesp: string;
+  clgCode?: string;
+  clgName?: string;
 }
+
+export interface StuMeasurementInfoModel extends StudentInfoModel {
+  msStatus: (MeasurementModel & { status: boolean })[];
+}
+
+export const DEFAULT_STU: StuMeasurementInfoModel = {
+  sid: 0,
+  stuId: '',
+  stuName: '',
+  stuBirth: '',
+  avatar: '',
+  clsCode: '',
+  clsName: '',
+  stuLastLogin: '',
+  stuCreated: '',
+  stuDesp: '',
+  clgCode: undefined,
+  stuGender: undefined,
+  clgName: undefined,
+  msStatus: [],
+};
 
 export interface StudentQuery extends QueryOrder {
   stuId?: string;
@@ -94,8 +118,11 @@ export function downloadFileTemplate(errorMessageMode: ErrorMessageMode = 'modal
   return defHttp.downloadFileByData({ url: Api.StudentTemplate }, { errorMessageMode });
 }
 
-export function getStudentDetail(stuId: string, errorMessageMode: ErrorMessageMode = 'message') {
-  return defHttp.get<StudentInfoModel>({ url: Api.BaseUrl + `/${stuId}` }, { errorMessageMode });
+export function getStudentInfo(stuId: string, errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.get<StuMeasurementInfoModel>(
+    { url: Api.BaseUrl + `/${stuId}` },
+    { errorMessageMode },
+  );
 }
 
 export function uploadStudent(

@@ -57,8 +57,10 @@ export function useDataSource(
     () => unref(propsRef).dataSource,
     () => {
       const { dataSource, api } = unref(propsRef);
+      // !api && (dataSourceRef.value = dataSource);
       !api && dataSource && (dataSourceRef.value = dataSource);
     },
+    { immediate: true },
   );
 
   function handleTableChange(
