@@ -56,7 +56,6 @@
           value,
         },
       ];
-      console.log(data);
       watch(
         () => props.loading,
         () => {
@@ -65,7 +64,7 @@
           }
           setOptions({
             legend: {
-              bottom: 0,
+              right: 0,
               data: [radarName],
             },
             tooltip: {},

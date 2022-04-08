@@ -178,8 +178,7 @@
               }
             });
           });
-          tbCols.value.length = 0;
-          tbCols.value.push(...cols);
+          tbCols.value = cols;
           return items;
         },
         showIndexColumn: false,
@@ -211,7 +210,7 @@
         canResize: false,
         useSearchForm: true,
         //@ts-ignore
-        columns: tbCols.value,
+        columns: tbCols,
         bordered: true,
         immediate: false,
         beforeFetch(params: ScoreQuery) {

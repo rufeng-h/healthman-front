@@ -26,7 +26,7 @@
         :loading="loading"
         :pagination="pagination"
         :data-source="dataSource"
-        :grid="{ gutter: 8, xs: 1, sm: 2, md: 4, lg: 6, xl: 4, xxl: 8 }"
+        :grid="{ gutter: 8, xs: 1, sm: 1, md: 3, lg: 4, xl: 4, xxl: 6 }"
       >
         <template #renderItem="{ item }">
           <a-list-item>
@@ -47,15 +47,15 @@
                 <div :class="`${prefixCls}__card-detail-cnt`">
                   <a-row type="flex">
                     <a-col :span="8">
-                      <span :class="`${prefixCls}__card-detail-cnt-title`">科目数：</span>
+                      <span :class="`${prefixCls}__card-detail-cnt-title`">科目数 </span>
                       <span :class="`${prefixCls}__card-detail-cnt-value`">{{ item.subCnt }}</span>
                     </a-col>
                     <a-col :span="8">
-                      <span :class="`${prefixCls}__card-detail-cnt-title`">学生数：</span>
+                      <span :class="`${prefixCls}__card-detail-cnt-title`">学生数 </span>
                       <span :class="`${prefixCls}__card-detail-cnt-value`">{{ item.stuCnt }}</span>
                     </a-col>
                     <a-col :span="8"
-                      ><span :class="`${prefixCls}__card-detail-cnt-title`">已完成：</span>
+                      ><span :class="`${prefixCls}__card-detail-cnt-title`">已完成 </span>
                       <span :class="`${prefixCls}__card-detail-cnt-value`">{{
                         item.compStuCnt ? item.compStuCnt : 0
                       }}</span></a-col
@@ -311,6 +311,10 @@
         font-weight: 700;
         vertical-align: middle;
         color: @text-color;
+        overflow: hidden; //超出的文本隐藏
+        text-overflow: ellipsis; //溢出用省略号显示
+        white-space: nowrap; //溢出不换行
+        margin-right: 4rem;
 
         &-creator {
           font-size: 0.9em;
@@ -395,5 +399,9 @@
 
   ::v-deep(.ant-card-body) {
     padding: 1rem;
+  }
+
+  ::v-deep(.ant-list-item) {
+    margin-bottom: 0.5rem !important;
   }
 </style>

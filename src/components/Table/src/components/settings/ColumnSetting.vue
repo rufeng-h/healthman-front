@@ -245,8 +245,6 @@
         checkedList.sort((prev, next) => {
           return sortList.indexOf(prev) - sortList.indexOf(next);
         });
-        console.log(checkedList);
-
         setColumns(checkedList);
       }
       let sortable: Sortable;
