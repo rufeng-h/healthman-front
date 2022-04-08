@@ -3,7 +3,7 @@ node_modules
 dist
 .npmrc
 .cache
-.VSCodeCounter
+.VSCodeCounter/
 tests/server/static
 tests/server/static/upload
 
