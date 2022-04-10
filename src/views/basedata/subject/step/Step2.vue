@@ -58,6 +58,8 @@
   import { getGradeEnum, gradeMappings } from '/@/enums/gradeEnum';
   import { GenderEnum } from '/@/enums/genderEnum';
   import { addSubject } from '/@/api/subject';
+  import { scoreSheetColumns } from '/@/api/scoreSheet';
+  import { cloneDeep } from 'lodash';
   const currentEditKeyRef = ref('');
   const { createMessage: msg } = useMessage();
   function createActions(record: EditRecordRow, column: BasicColumn): ActionItem[] {
@@ -112,58 +114,7 @@
       value: item,
     };
   });
-  const columns: BasicColumn[] = [
-    {
-      dataIndex: 'lower',
-      title: '下限',
-      editRow: true,
-      editComponentProps: {
-        min: 0,
-      },
-      editValueMap(value) {
-        return value.toString();
-      },
-      editComponent: 'InputNumber',
-      editRule: true,
-    },
-    {
-      dataIndex: 'upper',
-      title: '上限',
-      editRow: true,
-      editComponent: 'InputNumber',
-      editComponentProps: {
-        min: 0,
-      },
-      editValueMap(value) {
-        return value.toString();
-      },
-    },
-    {
-      dataIndex: 'score',
-      title: '分数',
-      editComponent: 'InputNumber',
-      editRule: true,
-      editRow: true,
-      editComponentProps: {
-        min: 0,
-      },
-      editValueMap(value) {
-        return value.toString();
-      },
-    },
-    {
-      dataIndex: 'level',
-      title: '等级',
-      editComponent: 'Select',
-      editComponentProps: {
-        options: levelOptions,
-        placeholder: '请选择',
-        showSearch: true,
-      },
-      editRow: true,
-      editRule: true,
-    },
-  ];
+
   const emit = defineEmits(['next', 'prev']);
   const tableData = [
     {
@@ -174,6 +125,12 @@
       score: 60,
     },
   ];
+  const columns: BasicColumn[] = cloneDeep(scoreSheetColumns);
+  columns.forEach((c) => {
+    if (c.dataIndex === 'level' && c.editComponentProps !== undefined) {
+      c.editComponentProps.options = levelOptions;
+    }
+  });
   const [
     registerTable,
     { deleteTableDataRecord, getDataSource, setTableData, findTableDataRecord },
@@ -191,12 +148,6 @@
     titleHelpMessage: subDesp,
     autoCreateKey: false,
     tableSetting: { size: false, redo: false, setting: false, fullScreen: true },
-    actionColumn: {
-      width: 160,
-      title: '操作',
-      dataIndex: 'action',
-      slots: { customRender: 'action' },
-    },
   });
   function handleEdit(record: EditRecordRow) {
     currentEditKeyRef.value = record.key;

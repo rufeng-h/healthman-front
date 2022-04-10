@@ -15,11 +15,11 @@ export const SCORE_SHEET_MIN = -9999;
 
 export interface ScoreSheetModel {
   subjectId: number;
-  gender: 'M' | 'F' | undefined;
+  gender: 'M' | 'F';
   grade: number;
-  upper: number;
-  lower: number;
-  score: number;
+  upper: number | undefined;
+  lower: number | undefined;
+  score: number | undefined;
   createdTime: string;
   level: string;
   text?: string;
@@ -27,17 +27,60 @@ export interface ScoreSheetModel {
 
 export const scoreSheetColumns: BasicColumn[] = [
   {
-    dataIndex: 'text',
-    title: '标准',
+    dataIndex: 'lower',
+    title: '下限',
+    editRow: true,
+    editComponentProps: {
+      min: 0,
+    },
+    editValueMap(value) {
+      return value.toString();
+    },
+    editComponent: 'InputNumber',
+    editRule: true,
+  },
+  {
+    dataIndex: 'upper',
+    title: '上限',
+    editRow: true,
+    editComponent: 'InputNumber',
+    editComponentProps: {
+      min: 0,
+    },
+    editValueMap(value) {
+      return value.toString();
+    },
   },
   {
     dataIndex: 'score',
     title: '分数',
+    editComponent: 'InputNumber',
+    editRule: true,
+    editRow: true,
+    editComponentProps: {
+      min: 0,
+    },
+    editValueMap(value) {
+      return value.toString();
+    },
   },
   {
-    title: '等级',
     dataIndex: 'level',
-    slots: { customRender: 'level' },
+    title: '等级',
+    editComponent: 'Select',
+    editComponentProps: {
+      options: [],
+      placeholder: '请选择',
+      showSearch: true,
+    },
+    editRow: true,
+    editRule: true,
+  },
+  {
+    dataIndex: 'action',
+    title: '操作',
+    slots: { customRender: 'action' },
+    width: 100,
   },
 ];
 

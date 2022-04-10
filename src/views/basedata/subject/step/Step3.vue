@@ -8,7 +8,7 @@
       <a-button type="primary" @click="redo">继续添加新科目</a-button>
     </Col>
     <Col :xs="8" :lg="4" :md="6">
-      <a-button type="primary" @click="leave">返回科目管理界面</a-button>
+      <a-button type="primary" @click="compelete">完成</a-button>
     </Col>
   </Row>
 </template>
@@ -20,10 +20,8 @@
   import { Row, Col, Alert } from 'ant-design-vue';
   import { GenderEnum } from '/@/enums/genderEnum';
   import { gradeMappings } from '/@/enums/gradeEnum';
-  import { useGo } from '/@/hooks/web/usePage';
-  import { useTabs } from '/@/hooks/web/useTabs';
   const props = defineProps<{ subject: SubjectInfo; scoreSheet: ScoreSheetItem[] }>();
-  const emit = defineEmits(['redo']);
+  const emit = defineEmits(['redo', 'complete']);
   const { subName, subDesp, genders, grades } = toRefs(props.subject);
   const tableData = props.scoreSheet.map((s) => {
     let text = '';
@@ -63,25 +61,7 @@
   const redo = () => {
     emit('redo');
   };
-  const go = useGo();
-  const { close: closeTab } = useTabs();
-  const leave = () => {
-    closeTab();
-    go({
-      //@ts-ignore
-      name: 'BaseDataSubject',
-    });
+  const compelete = () => {
+    emit('complete');
   };
 </script>
-<style lang="less" scoped>
-  .step3 {
-    width: 600px;
-    margin: 0 auto;
-  }
-
-  .desc-wrap {
-    padding: 24px 40px;
-    margin-top: 24px;
-    background-color: @background-color-light;
-  }
-</style>

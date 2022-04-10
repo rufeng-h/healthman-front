@@ -108,16 +108,6 @@ const basedata: AppRouteModule = {
           },
         },
         {
-          path: 'add',
-          name: 'BaseDataSubjectAdd',
-          component: () => import('/@/views/basedata/subject/step/index.vue'),
-          meta: {
-            title: '添加科目',
-            hideMenu: true,
-            currentActiveMenu: '/basedata/sbuject',
-          },
-        },
-        {
           path: 'group',
           name: 'BaseDataSubjectGroup',
           component: () => import('/@/views/basedata/subject/group/index.vue'),

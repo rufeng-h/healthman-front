@@ -188,8 +188,8 @@ export class VAxios {
       { ...options, isReturnNativeResponse: true },
     );
     const ret = /filename="(.+)"/.exec(headers['content-disposition']);
+    /* 下载失败，读取message */
     if (!ret) {
-      /* 下载失败 */
       const reader = new FileReader();
       reader.onload = function (e) {
         const text = e.target?.result;
