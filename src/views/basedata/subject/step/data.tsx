@@ -16,6 +16,7 @@ export interface SubjectInfo {
   level: string[];
   genders: GenderEnum[];
   grades: number[];
+  compId?: number;
 }
 
 

@@ -1,10 +1,10 @@
 <template>
-  <a-card title="这是标题">
+  <a-card title="历史成绩">
     <div ref="chartRef" :style="{ height, width }"></div>
   </a-card>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { defineComponent, PropType, ref, Ref, onMounted, toRefs } from 'vue';
 
   import { useECharts } from '/@/hooks/web/useECharts';
   import { getLineData } from './data';
@@ -24,7 +24,7 @@
         default: 'calc(100vh - 78px)',
       },
     },
-    setup() {
+    setup(props) {
       const chartRef = ref<HTMLDivElement | null>(null);
       const { setOptions, echarts } = useECharts(chartRef as Ref<HTMLDivElement>);
       const { barData, lineData, category } = getLineData;
@@ -117,7 +117,7 @@
           ],
         });
       });
-      return { chartRef };
+      return { chartRef, ...toRefs(props) };
     },
   });
 </script>

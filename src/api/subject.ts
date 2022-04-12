@@ -10,7 +10,16 @@ import { GenderEnum } from './../enums/genderEnum';
  */
 
 import { defHttp } from '../utils/http/axios';
-import { gradeMappings, numberGradeToZhcn } from '../enums/gradeEnum';
+import { numberGradeToZhcn } from '../enums/gradeEnum';
+
+export const EMPTY_SUB: SubjectDetailModel = {
+  subCreated: '',
+  subDesp: '',
+  subModified: '',
+  subId: 0,
+  subName: '',
+  levels: [],
+};
 
 /**
  * 增加是否完成，status字段
@@ -30,28 +39,26 @@ export interface SubjectModel {
   subDesp: string;
   subCreated: string;
   subModified: string;
+  compId?: number;
 }
 
 enum Api {
-  SubjectList = '/api/subject/list',
-  SubjectAdd = '/api/subject',
+  BaseUrl = '/api/subject',
   SubjectPage = '/api/subject',
 }
 
 /* 包含评分标准 */
-export interface SubjectDetailModel {
-  subId: string;
-  subCreated: string;
-  subName: string;
-  sheetInfos: { gender: GenderEnum; grade: number };
-  sbuDesp?: string;
+export interface SubjectDetailModel extends SubjectModel {
+  levels: string[];
+  compName?: string;
 }
 
 /* 包含运动能力 */
 export interface SubjectInfoModel extends SubjectModel {
   compId: number;
   compName: string;
-  sheetInfos: { gender: GenderEnum; grade: number }[];
+  subStudents: { gender: GenderEnum; grade: number }[];
+  hasScore: boolean;
 
   /* afterFetch */
   msInfos: MsInfo[];
@@ -66,12 +73,19 @@ interface MsInfo {
   value: { grade: string; M: boolean; F: boolean }[];
 }
 
-export function getSubjectList(errorMessageMode: ErrorMessageMode = 'message') {
-  return defHttp.get<SubjectModel[]>({ url: Api.SubjectList }, { errorMessageMode });
+export function getSubjectDetail(subId: number): Promise<SubjectDetailModel> {
+  return defHttp.get<SubjectDetailModel>(
+    { url: Api.BaseUrl + `/${subId}` },
+    { errorMessageMode: 'message' },
+  );
 }
 
-export function addSubject(data, errorMessageMode: ErrorMessageMode = 'message') {
-  return defHttp.post<SubjectModel>({ url: Api.SubjectAdd, data }, { errorMessageMode });
+export function addSubject(data, errorMessageMode: ErrorMessageMode = 'message'): Promise<boolean> {
+  return defHttp.post<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode });
+}
+
+export function updateSubject(data): Promise<boolean> {
+  return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
 }
 
 export async function pageSubjectInfo(
@@ -82,6 +96,9 @@ export async function pageSubjectInfo(
     { errorMessageMode: 'message' },
   );
   data.items.forEach((item) => {
+    if (!item.subStudents) {
+      return;
+    }
     const msInfos: MsInfo[] = [
       { name: '小学', value: [] },
       { name: '初中', value: [] },
@@ -89,12 +106,10 @@ export async function pageSubjectInfo(
       { name: '大学', value: [] },
     ];
     const mappings: any = {};
-    for (const grade in gradeMappings) {
-      mappings[grade] = {};
-      mappings[grade]['M'] = false;
-      mappings[grade]['F'] = false;
-    }
-    item.sheetInfos.forEach((sh) => {
+    item.subStudents.forEach((sh) => {
+      if (mappings[sh.grade] === undefined) {
+        mappings[sh.grade] = {};
+      }
       mappings[sh.grade][sh.gender] = true;
     });
     for (const g in mappings) {
@@ -116,6 +131,12 @@ export async function pageSubjectInfo(
     }
     item.msInfos = msInfos.filter((m) => m.value.length !== 0);
   });
-  console.log(data);
   return Promise.resolve(data);
+}
+
+export function deleteSubject(subId: number) {
+  return defHttp.delete<boolean>(
+    { url: Api.BaseUrl + `/${subId}` },
+    { errorMessageMode: 'message' },
+  );
 }

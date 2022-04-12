@@ -112,6 +112,7 @@
 
       function compelete() {
         closeModal();
+        handleRedo();
       }
 
       function resetValues() {

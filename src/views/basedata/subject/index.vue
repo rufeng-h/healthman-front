@@ -18,7 +18,7 @@
       </template>
       <template #extra>
         <a-button type="primary" pre-icon="ant-design:plus-circle-outlined" @click="tryAddSubject"
-          >新建体测</a-button
+          >创建新科目</a-button
         >
       </template>
       <a-list
@@ -46,7 +46,10 @@
                 ></div
               >
               <div class="flex flex-row justify-between mb-2">
-                <div v-for="msInfo in item.msInfos" :key="msInfo.name">
+                <div v-if="item.msInfos === undefined || item.msInfos.length === 0">
+                  <a-tag color="red" style="font-size: 1.1em">暂无体测信息</a-tag>
+                </div>
+                <div v-else v-for="msInfo in item.msInfos" :key="msInfo.name">
                   <a-popover>
                     <template #content>
                       <a-table
@@ -62,7 +65,7 @@
                           <Icon v-else icon="codicon:error" color="red" />
                         </template>
                         <template #female="{ record }">
-                          <Icon v-if="record.M" icon="icon-park:correct" color="green" />
+                          <Icon v-if="record.F" icon="icon-park:correct" color="green" />
                           <Icon v-else icon="codicon:error" color="red" />
                         </template>
                       </a-table>
@@ -73,17 +76,53 @@
               </div>
               <div class="flex flex-row justify-between">
                 <div class="action">
-                  <div v-for="action in actions" :key="action.icon" class="action-item">
+                  <div class="action-item" v-if="item.hasScore">
                     <Icon
-                      v-if="action.icon"
-                      :icon="action.icon"
-                      :color="action.color"
-                      :size="action.size"
-                      @click="action.action(item)"
+                      icon="akar-icons:more-horizontal"
+                      color="#33f834"
                       class="aciton-icon"
+                      :size="20"
+                      @click="handleView(item)"
+                  /></div>
+                  <div v-else class="action-item">
+                    <a-tooltip title="无成绩标准，请导入">
+                      <Icon
+                        icon="ep:warning-filled"
+                        color="orange"
+                        class="aciton-icon"
+                        :size="20" /></a-tooltip
+                  ></div>
+
+                  <div class="action-item">
+                    <Icon
+                      icon="bxs:edit"
+                      color="#018ffb"
+                      class="aciton-icon"
+                      :size="20"
+                      @click="handleEdit(item)"
                     />
                   </div>
+                  <div class="action-item">
+                    <Icon
+                      icon="ep:delete-filled"
+                      color="#f00"
+                      class="aciton-icon"
+                      :size="20"
+                      @click="handleDel(item)"
+                    />
+                  </div>
+                  <div class="action-item">
+                    <ImpExcel @success="handleImpScoreSheet($event, item)">
+                      <Icon
+                        icon="mdi:database-import"
+                        :size="20"
+                        color="#42d27d"
+                        class="aciton-icon"
+                      />
+                    </ImpExcel>
+                  </div>
                 </div>
+
                 <div class="flex flex-col justify-center text-secondary">
                   {{ item.subCreated }}
                 </div>
@@ -92,12 +131,15 @@
           </a-list-item>
         </template>
       </a-list>
+      <SubjectModal @register="subjectModal" @submit="doSubmit" />
+      <ScoreSheetExcelModal @register="excelModal" @confirm="doUpload" />
     </PageWrapper>
   </div>
 </template>
 <script lang="ts">
   import { defineComponent, onMounted, reactive, toRefs } from 'vue';
   import { PageWrapper } from '/@/components/Page';
+  import ScoreSheetExcelModal from './ScoreSheetExcelModal.vue';
   import {
     List,
     PaginationProps,
@@ -109,11 +151,27 @@
     Table,
     Tooltip,
   } from 'ant-design-vue';
-  import { SubjectInfoModel, SubjectQuery, pageSubjectInfo } from '/@/api/subject';
+  import {
+    SubjectInfoModel,
+    SubjectQuery,
+    pageSubjectInfo,
+    updateSubject,
+    addSubject,
+    deleteSubject,
+  } from '/@/api/subject';
   import Icon from '/@/components/Icon';
+  import { useModal } from '/@/components/Modal';
+  import { ImpExcel } from '/@/components/Excel';
+  import { uploadScoreSheet } from '/@/api/scoreSheet';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  import SubjectModal from './SubjectModal.vue';
+  import { useGo } from '/@/hooks/web/usePage';
   export default defineComponent({
     components: {
+      ImpExcel,
+      ScoreSheetExcelModal,
       Icon,
+      SubjectModal,
       [Tooltip.name]: Tooltip,
       [Table.name]: Table,
       [Popover.name]: Popover,
@@ -143,7 +201,9 @@
           slots: { customRender: 'female' },
         },
       ];
+      const go = useGo();
       const DEFAULT_PAGE_SIZE = 8;
+      const { createMessage } = useMessage();
       onMounted(() => {
         fetchData();
       });
@@ -180,14 +240,42 @@
         loading: false,
         query: { subName: '' },
       });
-      const actions: any[] = [
-        { icon: 'akar-icons:more-horizontal', color: '#33f834', action: handleView, size: 20 },
-        { icon: 'bxs:edit', color: '#018ffb', action: handleEdit, size: 20 },
-        { icon: 'ep:delete-filled', color: '#f00', action: handleDel, size: 20 },
-      ];
-      async function handleDel() {}
-      function handleView() {}
-      function handleEdit() {}
+      async function handleDel(sub: SubjectInfoModel) {
+        const success = await deleteSubject(sub.subId);
+        if (success) {
+          createMessage.success({ content: '操作成功', key: 'delSubject' });
+          fetchData();
+        }
+      }
+      function handleImpScoreSheet({ excelDataList, file }, sub: SubjectInfoModel) {
+        openExcelModal(true, { excelDataList, file, subId: sub.subId });
+      }
+      async function doUpload(subId: number, file: File) {
+        const data = await uploadScoreSheet(subId, file);
+        createMessage.success(`导入${data}条数据`);
+      }
+      async function doSubmit({ isUpdate, sub }) {
+        let success = false;
+        if (isUpdate) {
+          success = await updateSubject(sub);
+        } else {
+          success = await addSubject(sub);
+        }
+        if (success) {
+          createMessage.success('操作成功!');
+          fetchData();
+        }
+      }
+      function handleView(sub: SubjectInfoModel) {
+        go({
+          //@ts-ignore
+          name: 'BaseDataSubjectDetail',
+          params: { subId: sub.subId },
+        });
+      }
+      function handleEdit(sub: SubjectInfoModel) {
+        openSubjectModal(true, { isUpdate: true, sub });
+      }
       const doSearch = () => {
         const query = state.query;
         if (query.subName && query.subName !== '') {
@@ -200,14 +288,26 @@
           fetchData();
         }
       };
-      function tryAddSubject() {}
+      function tryAddSubject() {
+        openSubjectModal(true, { isUpdate: false });
+      }
+      const [subjectModal, { openModal: openSubjectModal }] = useModal();
+      const [excelModal, { openModal: openExcelModal }] = useModal();
       return {
         ...toRefs(state),
         tryAddSubject,
         doSearch,
         onChange,
-        actions,
         msInfoColumns,
+        excelModal,
+        subjectModal,
+        doUpload,
+        doSubmit,
+
+        handleDel,
+        handleEdit,
+        handleImpScoreSheet,
+        handleView,
       };
     },
   });

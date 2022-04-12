@@ -159,8 +159,8 @@
   //   reload();
   // }
 
-  function impSuccess(excelDataList: ExcelData[], file: File) {
-    openExcelModal(true, { excelDataList, file });
+  function impSuccess({ excelData, rawFile }) {
+    openExcelModal(true, { excelDataList: excelData, file: rawFile });
   }
 
   async function confirmUpload(file: File) {

@@ -25,6 +25,11 @@ export const gradeMappings = {
   16: '大四',
 };
 
+const reverseGradeMappings = {};
+Object.keys(gradeMappings).forEach((key) => {
+  reverseGradeMappings[gradeMappings[key]] = key;
+});
+
 export const gradeOptions = Object.keys(gradeMappings).map((key) => {
   return {
     label: gradeMappings[key].toString(),
@@ -42,6 +47,14 @@ export function numberGradeToZhcn(grade: number | string): string {
   }
 
   return gradeMappings[grade];
+}
+
+export function zhCnToNumberGrade(grade: string): number {
+  const g = reverseGradeMappings[grade];
+  if (g === undefined) {
+    throw new Error('未知年级');
+  }
+  return g;
 }
 
 const gradeEnumMappings = {

@@ -7,15 +7,6 @@
             message="若无指定年级和性别的评分标准则认为该项科目无需测试。评分区间为左开右闭，若无上限或下限可不填"
             show-icon
           />
-          <div>
-            <a-button
-              pre-icon="ant-design:plus-circle-outlined"
-              type="primary"
-              @click="addSubject"
-              class="mt-1"
-              >添加新科目</a-button
-            >
-          </div>
         </div>
       </template>
       <div class="lg:w-2/3 mx-auto">
@@ -23,18 +14,18 @@
           <template #action="{ record, column }">
             <TableAction :actions="createActions(record, column)" />
           </template>
+          <template #gender="{ record }">
+            <Icon v-if="record.gender === 'M'" icon="twemoji:male-sign" />
+            <Icon v-else icon="twemoji:female-sign" />
+          </template>
           <template #toolbar>
             <a-button type="primary" @click="tryAddLevel" :disabled="getDataSource().length === 0"
               >新增等级</a-button
-            >
-            <a-button type="primary" @click="tryModifySub" :disabled="getDataSource().length === 0"
-              >修改科目基本信息</a-button
             >
           </template>
         </BasicTable>
       </div>
       <LevelModal @register="levelModal" @submit="addLevel" />
-      <SubjectModal @register="subjectModal" />
     </PageWrapper>
   </div>
 </template>
@@ -51,30 +42,35 @@
   } from '/@/components/Table';
   import {
     scoreSheetColumns,
-    getScoreSheetList,
+    pageScoreSheet,
     ScoreSheetModel,
     SCORE_SHEET_MAX,
     SCORE_SHEET_MIN,
+    ScoreSheetQuery,
   } from '/@/api/scoreSheet';
-  import { gradeOptions } from '/@/enums/gradeEnum';
-  import { getSubjectList } from '/@/api/subject';
-  import { defineComponent, reactive, toRefs } from 'vue';
+  import { gradeOptions, numberGradeToZhcn } from '/@/enums/gradeEnum';
+  import { defineComponent, onMounted, reactive, toRefs } from 'vue';
   import { FormSchema } from '/@/components/Form';
   import { useMessage } from '/@/hooks/web/useMessage';
   import LevelModal from './LevelModal.vue';
   import { useModal } from '/@/components/Modal';
-  import SubjectModal from './step/SubjectModal.vue';
+  import { EMPTY_SUB, getSubjectDetail, SubjectDetailModel } from '/@/api/subject';
+  import { useRoute } from 'vue-router';
+  import { useTabs } from '/@/hooks/web/useTabs';
+  import Icon from '/@/components/Icon';
   export default defineComponent({
     components: {
-      SubjectModal,
       PageWrapper,
       Alert,
       TableAction,
       BasicTable,
       LevelModal,
+      Icon,
     },
     setup() {
       const { createMessage: msg } = useMessage();
+      const { setTitle: setTabTitle } = useTabs();
+      const route = useRoute();
       function createActions(record: EditRecordRow, column: BasicColumn): ActionItem[] {
         if (!record.editable) {
           return [
@@ -86,7 +82,10 @@
             {
               label: '删除',
               disabled: getDataSource().length === 1,
-              onClick: handleDelete.bind(null, record),
+              popConfirm: {
+                title: '确认删除吗',
+                confirm: handleDelete.bind(null, record, column),
+              },
             },
           ];
         }
@@ -107,34 +106,21 @@
       const state: {
         currentEditKey: string;
         helpMessage: string;
+        sub: SubjectDetailModel;
+        tableTitle: string;
       } = reactive({
         helpMessage: '',
         currentEditKey: '',
+        sub: EMPTY_SUB,
+        tableTitle: '',
       });
-      const { helpMessage } = toRefs(state);
+      onMounted(async () => {
+        state.sub = await getSubjectDetail(route.params.subId as unknown as number);
+        setTabTitle(state.sub.subName);
+        state.helpMessage = state.sub.subDesp;
+      });
+      const { helpMessage, tableTitle } = toRefs(state);
       const formScheme: FormSchema[] = [
-        {
-          field: 'subjectId',
-          label: '科目',
-          component: 'ApiSelect',
-          colProps: {
-            span: 8,
-          },
-          componentProps: {
-            api: getSubjectList,
-            immediate: true,
-            labelField: 'subName',
-            valueField: 'subId',
-            showSearch: true,
-            onSelect(_, opt) {
-              console.log(opt);
-              if (opt.subDesp) {
-                helpMessage.value = opt.subDesp;
-              }
-            },
-          },
-          required: true,
-        },
         {
           field: 'grade',
           label: '年级',
@@ -145,7 +131,6 @@
           componentProps: {
             options: gradeOptions,
           },
-          required: true,
         },
         {
           field: 'gender',
@@ -160,18 +145,14 @@
               { label: '女', value: 'F' },
             ],
           },
-          required: true,
         },
       ];
-      const [tableRef, { getDataSource, deleteTableDataRecord, getColumns, setColumns }] = useTable(
-        {
+      const [tableRef, { getDataSource, deleteTableDataRecord, getColumns, setColumns, getForm }] =
+        useTable({
           afterFetch(data: ScoreSheetModel[]) {
-            const levels = new Set();
             const columns = getColumns();
             data.forEach((s) => {
-              if (!levels.has(s.level)) {
-                levels.add(s.level);
-              }
+              s.key = s.id.toString();
               if (s.upper !== undefined && s.upper >= SCORE_SHEET_MAX) {
                 s.upper = undefined;
               }
@@ -181,24 +162,41 @@
             });
             columns.forEach((c) => {
               if (c.dataIndex === 'level' && c.editComponentProps !== undefined) {
-                c.editComponentProps.options = Array.from(levels).map((l) => {
+                c.editComponentProps.options = state.sub.levels.map((l) => {
                   return { label: l, value: l };
                 });
               }
             });
             setColumns(columns);
+            /* 更新表格标题 */
+            let title = '';
+            const params = getForm().getFieldsValue();
+            if (state.sub.subName) {
+              title += state.sub.subName;
+            }
+            if (params.grade) {
+              title += ' ' + numberGradeToZhcn(params.grade);
+            }
+            if (params.gender) {
+              title += params.gender === 'M' ? ' 男' : ' 女';
+            }
+            state.tableTitle = title;
             return data;
           },
+          beforeFetch(params: ScoreSheetQuery) {
+            params.subId = parseInt(route.params.subId as string);
+            return params;
+          },
           columns: scoreSheetColumns,
-          api: getScoreSheetList,
-          rowKey: 'id',
+          api: pageScoreSheet,
+          rowKey: 'key',
           striped: true,
-          pagination: false,
-          immediate: false,
           showTableSetting: true,
           showIndexColumn: true,
-          tableSetting: { fullScreen: true, setting: false, redo: false },
-          title: '男生评分标准',
+          tableSetting: { fullScreen: true },
+          title: tableTitle,
+          size: 'small',
+          inset: true,
           titleHelpMessage: helpMessage,
           useSearchForm: true,
           formConfig: {
@@ -209,8 +207,7 @@
             schemas: formScheme,
           },
           bordered: true,
-        },
-      );
+        });
       function handleEdit(record: EditRecordRow) {
         state.currentEditKey = record.key;
         record.onEdit?.(true);
@@ -224,7 +221,7 @@
       }
       async function handleSave(record: EditRecordRow) {
         // 校验
-        msg.loading({ content: '正在保存...', duration: 0, key: 'saving' });
+        msg.loading({ content: '正在保存...', duration: 3, key: 'saving' });
         const valid = await record.onValid?.();
         if (valid) {
           try {
@@ -232,6 +229,7 @@
             if (pass) {
               state.currentEditKey = '';
             }
+            console.log(record);
             msg.success({ content: '数据已保存', key: 'saving' });
             /**
              * TODO
@@ -244,7 +242,6 @@
         }
       }
       const [levelModal, { openModal: openLevelModal }] = useModal();
-      const [subjectModal, { openModal: openSubjectModal }] = useModal();
       function tryAddLevel() {
         const columns = getColumns();
         let ls = [];
@@ -257,9 +254,6 @@
         });
         openLevelModal(true, ls);
       }
-      function addSubject() {
-        openSubjectModal(true);
-      }
       function addLevel(level: string) {
         const columns = getColumns();
         columns.forEach((l) => {
@@ -271,18 +265,12 @@
         });
         setColumns(columns);
       }
-      function tryModifySub() {
-        openSubjectModal(true);
-      }
       return {
-        tryModifySub,
-        addSubject,
         tableRef,
         createActions,
         tryAddLevel,
         getDataSource,
         addLevel,
-        subjectModal,
         levelModal,
       };
     },

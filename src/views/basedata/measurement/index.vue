@@ -256,7 +256,7 @@
         curMsItem = measurement;
         unref(impExcel).handleUpload();
       }
-      function loadSuccess(excelDataList, file) {
+      function loadSuccess({ excelDataList, file }) {
         openExcelModal(true, { excelDataList, file });
       }
       function handleView(measurement: MeasurementInfoModel) {
@@ -268,7 +268,7 @@
           },
         });
       }
-      async function doUpload(file) {
+      async function doUpload(file: File) {
         try {
           openFullLoading();
           const data = await uploadScore(file, curMsItem?.msId);

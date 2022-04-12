@@ -92,7 +92,7 @@
     ];
   }
   const props = defineProps<{ subject: SubjectInfo }>();
-  const { level, subName, subDesp, genders, grades } = toRefs(props.subject);
+  const { level, subName, subDesp, genders, grades, compId } = toRefs(props.subject);
 
   const tableTitle = computed(() => {
     let title = grades.value.map((g) => gradeMappings[parseInt(g)]).join('，');
@@ -214,6 +214,7 @@
         grades: grades.value.map((g) => getGradeEnum(g)),
         genders: genders.value,
         scoreSheet,
+        compId: compId?.value,
       });
       if (newSubject) {
         emit('next', scoreSheet);

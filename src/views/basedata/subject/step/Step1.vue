@@ -12,8 +12,9 @@
   import TagAdd from './TagAdd.vue';
   import { gradeOptions } from '/@/enums/gradeEnum';
   import { ref } from 'vue';
+  import { listCompetency } from '/@/api/competency';
   const defaultLevel = ['优秀', '良好', '及格', '不及格'];
-  const emit = defineEmits(['next', 'update:subject']);
+  const emit = defineEmits(['next']);
   const formRef = ref();
   defineExpose({ formRef });
   const step1Schemas: FormSchema[] = [
@@ -59,6 +60,17 @@
       slot: 'level',
       required: false,
       defaultValue: [],
+    },
+    {
+      field: 'compId',
+      component: 'ApiSelect',
+      componentProps: {
+        api: listCompetency,
+        labelField: 'compName',
+        valueField: 'compId',
+      },
+      label: '运动能力',
+      required: false,
     },
     {
       field: 'subDesp',

@@ -105,7 +105,20 @@ const basedata: AppRouteModule = {
           meta: {
             title: '科目信息',
             icon: 'ant-design:deployment-unit-outlined',
+            hideChildrenInMenu: true,
           },
+          children: [
+            {
+              path: ':subId',
+              component: () => import('/@/views/basedata/subject/Detail.vue'),
+              name: 'BaseDataSubjectDetail',
+              meta: {
+                title: '科目详情',
+                icon: 'ant-design:deployment-unit-outlined',
+                hideMenu: true,
+              },
+            },
+          ],
         },
         {
           path: 'group',
