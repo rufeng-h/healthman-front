@@ -9,9 +9,9 @@ import { checkStatus } from './checkStatus';
 import { useGlobSetting } from '/@/hooks/setting';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from '/@/enums/httpEnum';
-import { isString } from '/@/utils/is';
+import { isObject, isString } from '/@/utils/is';
 import { getToken } from '/@/utils/auth';
-import { deepMerge } from '/@/utils';
+import { deepMerge, setObjToUrlParams } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
@@ -53,8 +53,6 @@ const transform: AxiosTransform = {
       return result;
     }
 
-    console.log(code);
-
     // 在此处根据自己项目的实际情况对不同的code执行不同的操作
     // 如果不希望中断当前请求，请return数据，否则直接抛出异常即可
     // let timeoutMsg = '';
@@ -84,7 +82,7 @@ const transform: AxiosTransform = {
 
   // 请求之前处理config
   beforeRequestHook: (config, options) => {
-    const { apiUrl, joinPrefix, formatDate, joinTime = true, urlPrefix } = options;
+    const { apiUrl, joinPrefix, formatDate, joinTime = true, urlPrefix, joinParamsToUrl } = options;
 
     if (joinPrefix) {
       config.url = `${urlPrefix}${config.url}`;
@@ -96,6 +94,16 @@ const transform: AxiosTransform = {
     const params = config.params || {};
     const data = config.data || false;
     formatDate && data && !isString(data) && formatRequestDate(data);
+
+    /* 去除空串 */
+    if (isObject(params)) {
+      Object.keys(params).forEach((key) => {
+        if (params[key] === '') {
+          params[key] = undefined;
+        }
+      });
+    }
+
     if (config.method?.toUpperCase() === RequestEnum.GET) {
       if (!isString(params)) {
         // 给 get 请求加上时间戳参数，避免从缓存中拿数据。
@@ -108,20 +116,20 @@ const transform: AxiosTransform = {
     } else {
       if (!isString(params)) {
         formatDate && formatRequestDate(params);
-        // if (Reflect.has(config, 'data') && config.data && Object.keys(config.data).length > 0) {
-        //   config.data = data;
-        //   config.params = params;
-        // } else {
-        //   // 非GET请求如果没有提供data，则将params视为data
-        //   config.data = params;
-        //   config.params = undefined;
-        // }
-        // if (joinParamsToUrl) {
-        //   config.url = setObjToUrlParams(
-        //     config.url as string,
-        //     Object.assign({}, config.params, config.data),
-        //   );
-        // }
+        if (Reflect.has(config, 'data') && config.data && Object.keys(config.data).length > 0) {
+          config.data = data;
+          config.params = params;
+        } else {
+          // 非GET请求如果没有提供data，则将params视为data
+          config.data = params;
+          config.params = undefined;
+        }
+        if (joinParamsToUrl) {
+          config.url = setObjToUrlParams(
+            config.url as string,
+            Object.assign({}, config.params, config.data),
+          );
+        }
       } else {
         // 兼容restful风格
         config.url = config.url + params;

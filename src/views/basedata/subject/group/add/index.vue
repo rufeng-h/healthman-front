@@ -119,7 +119,7 @@
                   <a-tooltip title="无成绩标准，请导入">
                     <a-button
                       pre-icon="ep:warning-filled"
-                      type="warning"
+                      color="warning"
                       shape="circle"
                       size="small"
                       class="aciton-icon" /></a-tooltip
@@ -128,7 +128,7 @@
                 <div class="action-item" v-if="formdata.subIds.indexOf(item.subId) === -1">
                   <a-button
                     pre-icon="akar-icons:circle-plus-fill"
-                    type="success"
+                    color="success"
                     class="aciton-icon"
                     shape="circle"
                     size="small"
@@ -138,7 +138,7 @@
                 <div class="action-item" v-else>
                   <a-button
                     pre-icon="akar-icons:circle-minus-fill"
-                    type="error"
+                    color="error"
                     class="aciton-icon"
                     shape="circle"
                     size="small"
@@ -182,7 +182,7 @@
   import { useGo } from '/@/hooks/web/usePage';
   import Icon from '/@/components/Icon';
   import { FormSchema, useForm, BasicForm } from '/@/components/Form';
-  import { gradeOptions } from '/@/enums/gradeEnum';
+  import { gradeEnumOptions } from '/@/enums/gradeEnum';
   export default defineComponent({
     components: {
       [Tooltip.name]: Tooltip,
@@ -233,7 +233,7 @@
         pagination: {
           current: 1,
           onChange(page, pageSize) {
-            fetchData({ page, pageSize });
+            fetchData({ page, pageSize, ...getFieldsValue() });
           },
         },
         formdata: {
@@ -308,7 +308,11 @@
           },
           componentProps: {
             onSearch() {
-              fetchData(getFieldsValue());
+              const params = getFieldsValue();
+              if (!params.subName) {
+                return;
+              }
+              fetchData(params);
             },
             onChange(e) {
               const value = e.target.value;
@@ -330,15 +334,10 @@
           },
           componentProps: {
             placeholder: '选择年级搜索',
-            options: gradeOptions,
-            // onSelect() {
-            //   fetchData(getFieldsValue());
-            // },
+            options: gradeEnumOptions,
             onChange(grade) {
               const params = getFieldsValue();
-              if (grade === undefined) {
-                params.grade = undefined;
-              }
+              params.grade = grade;
               fetchData(params);
             },
           },

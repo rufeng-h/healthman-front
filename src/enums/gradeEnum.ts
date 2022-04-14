@@ -25,7 +25,7 @@ export const gradeMappings = {
   16: '大四',
 };
 
-const reverseGradeMappings = {};
+export const reverseGradeMappings = {};
 Object.keys(gradeMappings).forEach((key) => {
   reverseGradeMappings[gradeMappings[key]] = key;
 });
@@ -75,6 +75,10 @@ const gradeEnumMappings = {
   15: 'COLLEGE_THREE',
   16: 'COLLEGE_FOUR',
 };
+
+export const gradeEnumOptions = Object.keys(gradeEnumMappings).map((key) => {
+  return { label: gradeMappings[key], value: gradeEnumMappings[key] };
+});
 
 export function getGradeEnum(grade: number | string): string {
   if (typeof grade === 'string') {
