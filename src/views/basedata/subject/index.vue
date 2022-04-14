@@ -203,7 +203,7 @@
       ];
       const go = useGo();
       const DEFAULT_PAGE_SIZE = 8;
-      const { createMessage } = useMessage();
+      const { createMessage, createConfirm } = useMessage();
       onMounted(() => {
         fetchData();
       });
@@ -241,11 +241,19 @@
         query: { subName: '' },
       });
       async function handleDel(sub: SubjectInfoModel) {
-        const success = await deleteSubject(sub.subId);
-        if (success) {
-          createMessage.success({ content: '操作成功', key: 'delSubject' });
-          fetchData();
-        }
+        createConfirm({
+          iconType: 'warning',
+          okText: '确定',
+          cancelText: '取消',
+          onOk: async () => {
+            const success = await deleteSubject(sub.subId);
+            if (success) {
+              createMessage.success({ content: '操作成功', key: 'delSubject' });
+              fetchData();
+            }
+          },
+          title: `此操作将会删除科目${sub.subName}及其所有评分标准，确认继续？`,
+        });
       }
       function handleImpScoreSheet({ excelDataList, file }, sub: SubjectInfoModel) {
         openExcelModal(true, { excelDataList, file, subId: sub.subId });

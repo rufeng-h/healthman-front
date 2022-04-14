@@ -34,7 +34,7 @@
       </template>
 
       <template #toolbar>
-        <a-button type="primary" @click="downloadFileTemplate">下载模板</a-button>
+        <a-button type="primary" @click="downloadTemplate">下载模板</a-button>
         <ImpExcel @success="impSuccess">
           <a-button type="primary">导入数据</a-button>
         </ImpExcel>
@@ -62,11 +62,12 @@
   import { getCollegeList } from '/@/api/college';
   import { getClassList } from '/@/api/ptclass';
   import { isArray } from '/@/utils/is';
-  import { ExcelData, ImpExcel } from '/@/components/Excel';
+  import { ImpExcel } from '/@/components/Excel';
   import ExcelModal from '../ExcelModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useGo } from '/@/hooks/web/usePage';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { useLoading } from '/@/components/Loading';
   const tableTitle = ref('未选择班级');
   const { createMessage } = useMessage();
 
@@ -142,6 +143,10 @@
     ],
   };
 
+  const [openFullLoading, closeFullLoading] = useLoading({
+    tip: '正在上传...',
+  });
+
   const beforeFetch = (params: StudentQuery) => {
     const { field, order } = params;
     if (field && order) {
@@ -160,7 +165,7 @@
     }
     return params;
   };
-  const [tableRef, { getForm }] = useTable({
+  const [tableRef, { getForm, reload }] = useTable({
     bordered: true,
     title: tableTitle,
     columns: studentColumns,
@@ -180,15 +185,31 @@
     },
   });
   const [registerModal, { openModal }] = useModal();
-  const impSuccess = (excelDataList: ExcelData[], file: File) => {
+  const impSuccess = ({ excelDataList, file }) => {
     openModal(true, { excelDataList, file });
   };
   const confirmUpload = async (file: File) => {
-    const data = await uploadStudent(file);
-    if (data) {
-      createMessage.success(`成功添加${data}条记录!`);
+    try {
+      openFullLoading();
+      const data = await uploadStudent(file);
+      closeFullLoading();
+      if (data) {
+        createMessage.success(`成功添加${data}条记录!`);
+        reload();
+      }
+    } catch (e) {
+      closeFullLoading();
     }
   };
+  async function downloadTemplate() {
+    try {
+      openFullLoading();
+      downloadFileTemplate();
+      closeFullLoading();
+    } catch (e) {
+      closeFullLoading();
+    }
+  }
   const go = useGo();
   function handleView(record) {
     go({

@@ -2,7 +2,6 @@ export interface SubStuSelectItem {
   grade: string;
   M: boolean;
   F: boolean;
-  prevSelected: boolean;
 }
 
 export interface SubStuSelect {

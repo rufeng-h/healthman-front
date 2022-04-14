@@ -52,7 +52,9 @@
                     </a-col>
                     <a-col :span="8">
                       <span :class="`${prefixCls}__card-detail-cnt-title`">学生数 </span>
-                      <span :class="`${prefixCls}__card-detail-cnt-value`">{{ item.stuCnt }}</span>
+                      <span :class="`${prefixCls}__card-detail-cnt-value`">{{
+                        item.stuCnt ? item.stuCnt : 0
+                      }}</span>
                     </a-col>
                     <a-col :span="8"
                       ><span :class="`${prefixCls}__card-detail-cnt-title`">已完成 </span>

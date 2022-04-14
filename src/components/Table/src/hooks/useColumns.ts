@@ -201,14 +201,10 @@ export function useColumns(
     const columns = cloneDeep(columnList);
     if (!isArray(columns)) return;
 
-    if (columns.length === 0) {
+    if (columns.length <= 0) {
       columnsRef.value = [];
       return;
     }
-
-    // if (cacheColumns.length === 0) {
-    //   cacheColumns = unref(propsRef).columns;
-    // }
 
     const firstColumn = columns[0];
 

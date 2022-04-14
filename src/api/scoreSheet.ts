@@ -1,9 +1,10 @@
 import { numberGradeToZhcn } from './../enums/gradeEnum';
 import { GenderEnum } from './../enums/genderEnum';
 import { BasicPageParams } from './model/baseModel';
-import { BasicColumn } from '../components/Table';
 import { defHttp } from '../utils/http/axios';
 import { ErrorMessageMode } from '/#/axios';
+import { isBlank } from '../utils/is';
+import { BasicColumn } from '../components/Table/src/types/table';
 
 /*
  * @Author: 黄纯峰
@@ -26,11 +27,13 @@ export interface ScoreSheetModel {
   score: number | undefined;
   createdTime: string;
   level: string;
+}
 
-  /**
-   *
-   */
-  key: string;
+export async function validateScoreSheet(record: ScoreSheetModel): Promise<boolean> {
+  if (record.upper === undefined && record.lower === undefined) {
+    return false;
+  }
+  return record.upper === undefined || record.lower === undefined || record.upper > record.lower;
 }
 
 export const scoreSheetColumns: BasicColumn[] = [
@@ -56,24 +59,52 @@ export const scoreSheetColumns: BasicColumn[] = [
     editComponentProps: {
       min: 0,
     },
+    editRule: async (value, record) => {
+      console.log(record);
+      console.log(value);
+      if (isBlank(value) && isBlank(record.editValueRefs.upper)) {
+        return '请填写正确的数据';
+      }
+      if (
+        isBlank(record.editValueRefs.upper) ||
+        isBlank(value) ||
+        value < record.editValueRefs.upper
+      ) {
+        return '';
+      }
+      return '请填写正确的数据';
+    },
     editValueMap(value) {
       return value ? value.toString() : '-';
     },
     editComponent: 'InputNumber',
-    // editRule: true,
   },
   {
     dataIndex: 'upper',
     title: '上限',
     width: 100,
-
     editRow: true,
     editComponent: 'InputNumber',
     editComponentProps: {
       min: 0,
     },
     editValueMap(value) {
-      return value ? value.toString() : '-';
+      return isBlank(value) ? '-' : value.toString();
+    },
+    editRule: async (value, record) => {
+      console.log(record);
+      console.log(value);
+      if (isBlank(value) && isBlank(record.editValueRefs.lower)) {
+        return '请填写正确的数据';
+      }
+      if (
+        isBlank(record.editValueRefs.lower) ||
+        isBlank(value) ||
+        value > record.editValueRefs.lower
+      ) {
+        return '';
+      }
+      return '请填写正确的数据';
     },
   },
   {
@@ -81,13 +112,13 @@ export const scoreSheetColumns: BasicColumn[] = [
     width: 100,
     title: '分数',
     editComponent: 'InputNumber',
-    // editRule: true,
+    editRule: true,
     editRow: true,
     editComponentProps: {
       min: 0,
     },
     editValueMap(value) {
-      return value ? value.toString() : '-';
+      return isBlank(value) ? '-' : value.toString();
     },
   },
   {
@@ -98,13 +129,9 @@ export const scoreSheetColumns: BasicColumn[] = [
     editComponentProps: {
       options: [],
       placeholder: '请选择',
-      showSearch: true,
     },
     editRow: true,
-    // editRule: true,
-    editValueMap(value) {
-      return value ? value.toString() : '-';
-    },
+    editRule: true,
   },
   {
     dataIndex: 'action',
@@ -138,4 +165,12 @@ export function uploadScoreSheet(subId: number, file: File): Promise<number> {
     { file },
     { errorMessageMode: 'message' },
   );
+}
+
+export function updateScoreSheet(data) {
+  return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
+}
+
+export function deleteScoreSheet(id: number) {
+  return defHttp.delete<boolean>({ url: Api.BaseUrl + `/${id}` }, { errorMessageMode: 'message' });
 }

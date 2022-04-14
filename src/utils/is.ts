@@ -97,3 +97,10 @@ export function isUrl(path: string): boolean {
     /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
   return reg.test(path);
 }
+
+export function isBlank(value: any) {
+  if (isString(value)) {
+    return value.length === 0;
+  }
+  return value === undefined || value === null;
+}

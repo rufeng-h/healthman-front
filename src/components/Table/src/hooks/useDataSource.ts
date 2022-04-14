@@ -6,10 +6,10 @@ import {
   ComputedRef,
   computed,
   onMounted,
+  watch,
   reactive,
   Ref,
   watchEffect,
-  watch,
 } from 'vue';
 import { useTimeoutFn } from '/@/hooks/core/useTimeout';
 import { buildUUID } from '/@/utils/uuid';
@@ -57,10 +57,11 @@ export function useDataSource(
     () => unref(propsRef).dataSource,
     () => {
       const { dataSource, api } = unref(propsRef);
-      // !api && (dataSourceRef.value = dataSource);
       !api && dataSource && (dataSourceRef.value = dataSource);
     },
-    { immediate: true },
+    {
+      immediate: true,
+    },
   );
 
   function handleTableChange(
@@ -195,8 +196,10 @@ export function useDataSource(
   }
 
   function insertTableDataRecord(record: Recordable, index: number): Recordable | undefined {
+    if (!dataSourceRef.value || dataSourceRef.value.length == 0) return;
     index = index ?? dataSourceRef.value?.length;
     unref(dataSourceRef).splice(index, 0, record);
+    unref(propsRef).dataSource?.splice(index, 0, record);
     return unref(propsRef).dataSource;
   }
 

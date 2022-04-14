@@ -19,7 +19,7 @@
             <Icon v-else icon="twemoji:female-sign" />
           </template>
           <template #toolbar>
-            <a-button type="primary" @click="tryAddLevel" :disabled="getDataSource().length === 0"
+            <a-button type="primary" @click="tryAddLevel" :disabled="currentEditKey !== ''"
               >新增等级</a-button
             >
           </template>
@@ -47,9 +47,11 @@
     SCORE_SHEET_MAX,
     SCORE_SHEET_MIN,
     ScoreSheetQuery,
+    updateScoreSheet,
+    deleteScoreSheet,
   } from '/@/api/scoreSheet';
-  import { gradeOptions, numberGradeToZhcn } from '/@/enums/gradeEnum';
-  import { defineComponent, onMounted, reactive, toRefs } from 'vue';
+  import { getGradeEnum, gradeOptions, numberGradeToZhcn } from '/@/enums/gradeEnum';
+  import { defineComponent, onMounted, reactive, toRefs, watch } from 'vue';
   import { FormSchema } from '/@/components/Form';
   import { useMessage } from '/@/hooks/web/useMessage';
   import LevelModal from './LevelModal.vue';
@@ -81,7 +83,7 @@
             },
             {
               label: '删除',
-              disabled: getDataSource().length === 1,
+              disabled: state.currentEditKey !== '',
               popConfirm: {
                 title: '确认删除吗',
                 confirm: handleDelete.bind(null, record, column),
@@ -147,67 +149,104 @@
           },
         },
       ];
-      const [tableRef, { getDataSource, deleteTableDataRecord, getColumns, setColumns, getForm }] =
-        useTable({
-          afterFetch(data: ScoreSheetModel[]) {
-            const columns = getColumns();
-            data.forEach((s) => {
-              s.key = s.id.toString();
-              if (s.upper !== undefined && s.upper >= SCORE_SHEET_MAX) {
-                s.upper = undefined;
-              }
-              if (s.lower !== undefined && s.lower <= SCORE_SHEET_MIN) {
-                s.lower = undefined;
-              }
+      watch(
+        () => state.currentEditKey,
+        () => {
+          if (state.currentEditKey !== '') {
+            setShowPagination(false);
+            setTableProps({ tableSetting: { redo: false, fullScreen: true } });
+            getForm().setProps({
+              resetButtonOptions: {
+                disabled: true,
+              },
+              submitButtonOptions: {
+                disabled: true,
+              },
             });
-            columns.forEach((c) => {
-              if (c.dataIndex === 'level' && c.editComponentProps !== undefined) {
-                c.editComponentProps.options = state.sub.levels.map((l) => {
-                  return { label: l, value: l };
-                });
-              }
+          } else {
+            setShowPagination(true);
+            setTableProps({ tableSetting: { redo: true, fullScreen: true } });
+            getForm().setProps({
+              resetButtonOptions: {
+                disabled: false,
+              },
+              submitButtonOptions: {
+                disabled: false,
+              },
             });
-            setColumns(columns);
-            /* 更新表格标题 */
-            let title = '';
-            const params = getForm().getFieldsValue();
-            if (state.sub.subName) {
-              title += state.sub.subName;
+          }
+        },
+      );
+      const [
+        tableRef,
+        {
+          getDataSource,
+          reload,
+          getColumns,
+          setColumns,
+          getForm,
+          setShowPagination,
+          setProps: setTableProps,
+        },
+      ] = useTable({
+        afterFetch(data: ScoreSheetModel[]) {
+          const columns = getColumns();
+          data.forEach((s) => {
+            if (s.upper !== undefined && s.upper >= SCORE_SHEET_MAX) {
+              s.upper = undefined;
             }
-            if (params.grade) {
-              title += ' ' + numberGradeToZhcn(params.grade);
+            if (s.lower !== undefined && s.lower <= SCORE_SHEET_MIN) {
+              s.lower = undefined;
             }
-            if (params.gender) {
-              title += params.gender === 'M' ? ' 男' : ' 女';
+          });
+          columns.forEach((c) => {
+            if (c.dataIndex === 'level' && c.editComponentProps !== undefined) {
+              c.editComponentProps.options = state.sub.levels.map((l) => {
+                return { label: l, value: l };
+              });
             }
-            state.tableTitle = title;
-            return data;
-          },
-          beforeFetch(params: ScoreSheetQuery) {
-            params.subId = parseInt(route.params.subId as string);
-            return params;
-          },
-          columns: scoreSheetColumns,
-          api: pageScoreSheet,
-          rowKey: 'key',
-          striped: true,
-          showTableSetting: true,
-          showIndexColumn: true,
-          tableSetting: { fullScreen: true },
-          title: tableTitle,
-          size: 'small',
-          inset: true,
-          titleHelpMessage: helpMessage,
-          useSearchForm: true,
-          formConfig: {
-            submitOnReset: false,
-            labelWidth: 100,
-            showAdvancedButton: true,
-            compact: true,
-            schemas: formScheme,
-          },
-          bordered: true,
-        });
+          });
+          setColumns(columns);
+          /* 更新表格标题 */
+          let title = '';
+          const params = getForm().getFieldsValue();
+          if (state.sub.subName) {
+            title += state.sub.subName;
+          }
+          if (params.grade) {
+            title += ' ' + numberGradeToZhcn(params.grade);
+          }
+          if (params.gender) {
+            title += params.gender === 'M' ? ' 男' : ' 女';
+          }
+          state.tableTitle = title;
+          return data;
+        },
+        beforeFetch(params: ScoreSheetQuery) {
+          params.subId = parseInt(route.params.subId as string);
+          return params;
+        },
+        columns: scoreSheetColumns,
+        api: pageScoreSheet,
+        striped: true,
+        showTableSetting: true,
+        autoCreateKey: true,
+        showIndexColumn: true,
+        tableSetting: { fullScreen: true },
+        title: tableTitle,
+        size: 'small',
+        inset: true,
+        titleHelpMessage: helpMessage,
+        useSearchForm: true,
+        formConfig: {
+          submitOnReset: false,
+          labelWidth: 100,
+          showAdvancedButton: true,
+          compact: true,
+          schemas: formScheme,
+        },
+        bordered: true,
+      });
       function handleEdit(record: EditRecordRow) {
         state.currentEditKey = record.key;
         record.onEdit?.(true);
@@ -216,24 +255,48 @@
         state.currentEditKey = '';
         record.onEdit?.(false, false);
       }
-      function handleDelete(record: EditRecordRow) {
-        deleteTableDataRecord(record.key);
+      async function handleDelete(record: EditRecordRow & ScoreSheetModel) {
+        const key = 'deleteScoreSheet';
+        msg.loading({ content: '正在执行...', key });
+        try {
+          const success = await deleteScoreSheet(record.id);
+          if (success) {
+            msg.success({ content: '操作成功!', key });
+            reload();
+            state.currentEditKey = '';
+          } else {
+            msg.error({ content: '操作失败', key });
+          }
+        } catch (e) {
+          msg.error({ content: '操作失败', key });
+        }
       }
-      async function handleSave(record: EditRecordRow) {
+      async function handleSave(record: EditRecordRow & ScoreSheetModel) {
         // 校验
         msg.loading({ content: '正在保存...', duration: 3, key: 'saving' });
         const valid = await record.onValid?.();
         if (valid) {
           try {
-            const pass = await record.onEdit?.(false, true);
-            if (pass) {
-              state.currentEditKey = '';
+            const data = {
+              id: record.id,
+              subId: record.subId,
+              gender: record.gender,
+              grade: getGradeEnum(record.grade),
+              upper: record.editValueRefs?.upper,
+              lower: record.editValueRefs?.lower,
+              level: record.editValueRefs?.level,
+              score: record.editValueRefs?.score,
+            };
+            const success = await updateScoreSheet(data);
+            if (success) {
+              msg.success({ content: '数据已保存', key: 'saving' });
+              const pass = await record.onEdit?.(false, true);
+              if (pass) {
+                state.currentEditKey = '';
+              }
+            } else {
+              msg.error({ content: '保存失败', key: 'saving' });
             }
-            console.log(record);
-            msg.success({ content: '数据已保存', key: 'saving' });
-            /**
-             * TODO
-             */
           } catch (error) {
             msg.error({ content: '保存失败', key: 'saving' });
           }
@@ -265,6 +328,7 @@
         });
         setColumns(columns);
       }
+
       return {
         tableRef,
         createActions,
@@ -272,6 +336,7 @@
         getDataSource,
         addLevel,
         levelModal,
+        ...toRefs(state),
       };
     },
   });

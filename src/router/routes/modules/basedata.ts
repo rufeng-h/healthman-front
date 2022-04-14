@@ -62,7 +62,7 @@ const basedata: AppRouteModule = {
       name: 'BaseDataAdmin',
       component: () => import('/@/views/basedata/account/Admin.vue'),
       meta: {
-        title: '管理员信息',
+        title: '教师信息',
         icon: 'ant-design:aliwangwang-outlined',
       },
     },
