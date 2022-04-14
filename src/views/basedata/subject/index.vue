@@ -158,6 +158,7 @@
     updateSubject,
     addSubject,
     deleteSubject,
+    msInfoColumns,
   } from '/@/api/subject';
   import Icon from '/@/components/Icon';
   import { useModal } from '/@/components/Modal';
@@ -185,22 +186,6 @@
       [Avatar.name]: Avatar,
     },
     setup() {
-      const msInfoColumns = [
-        {
-          title: '年级',
-          dataIndex: 'grade',
-        },
-        {
-          title: '男',
-          dataIndex: 'M',
-          slots: { customRender: 'male' },
-        },
-        {
-          title: '女',
-          dataIndex: 'F',
-          slots: { customRender: 'female' },
-        },
-      ];
       const go = useGo();
       const DEFAULT_PAGE_SIZE = 8;
       const { createMessage, createConfirm } = useMessage();
@@ -311,7 +296,6 @@
         subjectModal,
         doUpload,
         doSubmit,
-
         handleDel,
         handleEdit,
         handleImpScoreSheet,

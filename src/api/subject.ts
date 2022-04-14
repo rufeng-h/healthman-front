@@ -66,12 +66,30 @@ export interface SubjectInfoModel extends SubjectModel {
 
 export interface SubjectQuery extends BasicPageParams {
   subName?: string;
+  grade?: number;
 }
 
 interface MsInfo {
   name: string;
   value: { grade: string; M: boolean; F: boolean }[];
 }
+
+export const msInfoColumns = [
+  {
+    title: '年级',
+    dataIndex: 'grade',
+  },
+  {
+    title: '男',
+    dataIndex: 'M',
+    slots: { customRender: 'male' },
+  },
+  {
+    title: '女',
+    dataIndex: 'F',
+    slots: { customRender: 'female' },
+  },
+];
 
 export function getSubjectDetail(subId: number): Promise<SubjectDetailModel> {
   return defHttp.get<SubjectDetailModel>(

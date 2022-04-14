@@ -1,88 +1,155 @@
 <template>
-  <PageWrapper content-full-height>
+  <PageWrapper content-full-height dense content-background>
     <template #headerContent>
-      <a-form layout="inline" :rules="rules" ref="formRef" :model="formdata">
-        <a-form-item
-          name="grpName"
-          label="科目组名"
-          :wrapperCol="{ span: 18, style: { width: '30rem' } }"
-          :labelCol="{ span: 6 }"
-          required
-        >
-          <a-input v-model:value="formdata.grpName" placeholder="请输入名称" />
-        </a-form-item>
-        <a-form-item
-          name="grpDesp"
-          label="说明"
-          :wrapperCol="{ span: 20, style: { width: '30rem' } }"
-          :labelCol="{ span: 4 }"
-          required
-        >
-          <a-input v-model:value="formdata.grpDesp" placeholder="科目组说明" />
-        </a-form-item>
-        <a-button type="primary" @click="handleSubmit">确认提交</a-button>
-      </a-form>
-
-      <a-row class="my-4 mx-16 h-4" type="flex" justify="center" :gutter="16">
-        <a-col
-          v-if="selectedSubs.length === 0"
-          style="color: #ccc; font-size: 1.2em; font-weight: 700"
-          :span="4"
-          >请在下方选择科目</a-col
-        >
-        <a-col v-else v-for="sub in selectedSubs" :key="sub.subId" :span="2">
-          <a-tag color="orange" style="font-size: 1.1em; padding: 0.2rem">
-            {{ sub.subName }}
-          </a-tag>
-        </a-col>
-      </a-row>
+      <div class="flex flex-start flex-row flex-wrap">
+        <div class="text-xl font-bold">新增科目组</div>
+        <div>
+          <a-form layout="inline" :rules="rules" ref="formRef" :model="formdata">
+            <a-form-item
+              name="grpName"
+              label="科目组名"
+              :wrapperCol="{ span: 18, style: { width: '25rem' } }"
+              :labelCol="{ span: 6 }"
+              required
+            >
+              <a-input v-model:value="formdata.grpName" placeholder="请输入名称" />
+            </a-form-item>
+            <a-form-item
+              name="grpDesp"
+              label="说明"
+              :wrapperCol="{ span: 21, style: { width: '25rem' } }"
+              :labelCol="{ span: 3 }"
+              required
+            >
+              <a-input v-model:value="formdata.grpDesp" placeholder="科目组说明" />
+            </a-form-item>
+          </a-form>
+          <a-row class="mt-1">
+            <a-col :span="3" class="text-right">已选科目：</a-col>
+            <a-col :span="18">
+              <div v-if="selectedSubs.length === 0"
+                ><a-alert message="请在下方添加科目" show-icon
+              /></div>
+              <div v-else>
+                <a-tag
+                  color="blue"
+                  v-for="sub in selectedSubs"
+                  :key="sub.subId"
+                  style="padding: 0.2rem; font-size: 1.1em"
+                >
+                  {{ sub.subName }}
+                </a-tag>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row type="flex" justify="end" class="m-3" :gutter="{ xs: 4, sm: 8, md: 12, lg: 8 }">
+            <a-col :xs="8" :lg="2" :md="6"><a-button @click="handleReset">重置</a-button></a-col>
+            <a-col :xs="8" :lg="2" :md="6"
+              ><a-button type="primary" @click="handleSubmit">提交</a-button></a-col
+            >
+          </a-row>
+        </div>
+      </div>
     </template>
-
     <BasicForm @register="subSearchForm" />
     <a-list
-      style="margin-top: -2rem"
-      :grid="{
-        gutter: 8,
-        xs: 1,
-        sm: 2,
-        md: 4,
-        lg: 4,
-        xl: 6,
-        xxl: 3,
-        type: 'flex',
-        justify: 'center',
-        align: 'center',
-      }"
-      rowKey="subId"
       :data-source="dataSource"
       :pagination="pagination"
-    >
-      <template #renderItem="{ item }">
-        <a-list-item
-          ><a-card hoverable bordered>
-            <template #cover>
-              <img alt="cover" src="https://www.swjtu.edu.cn/images/logo.png" />
-            </template>
-            <template #actions>
-              <ellipsis-outlined key="ellipsis" style="color: green" />
-              <plus-circle-outlined
-                key="plus-circle"
-                @click="addSubject(item)"
-                style="color: #308ecc"
-                v-if="formdata.subIds.indexOf(item.subId) === -1"
-              />
-              <minus-circle-outlined
-                key="minus-circle"
-                @click="delSubject(item)"
-                style="color: salmon"
-                v-else
-              />
-            </template>
-            <a-card-meta :title="item.subName" :description="item.subDesp">
-              <template #avatar>
-                <a-avatar src="/src/assets/images/logo.png" />
-              </template>
-            </a-card-meta>
+      :grid="{ gutter: 8, xs: 1, sm: 1, md: 3, lg: 4, xl: 4, xxl: 6 }"
+      :loading="loading"
+      ><template #renderItem="{ item }">
+        <a-list-item>
+          <a-card class="!rounded-lg relative" hoverable>
+            <div class="font-semibold flex flex-row justify-between">
+              <div><a-avatar src="/src/assets/images/logo.png" /> {{ item.subName }}</div>
+              <div class="text-center flex align-middle"
+                ><a-tag
+                  v-if="item.compName !== undefined"
+                  color="orange"
+                  style="font-size: 1.1em; font-weight: 500; margin: auto auto"
+                  >{{ item.compName }}</a-tag
+                ></div
+              >
+            </div>
+            <div class="my-2"
+              ><a-tooltip :title="item.subDesp"
+                ><div class="truncate text-secondary">{{ item.subDesp }}</div></a-tooltip
+              ></div
+            >
+            <div class="flex flex-row justify-between mb-2">
+              <div v-if="item.msInfos === undefined || item.msInfos.length === 0">
+                <a-tag color="red" style="font-size: 1.1em">暂无体测信息</a-tag>
+              </div>
+              <div v-else v-for="msInfo in item.msInfos" :key="msInfo.name">
+                <a-popover>
+                  <template #content>
+                    <a-table
+                      bordered
+                      size="small"
+                      row-key="grade"
+                      :columns="msInfoColumns"
+                      :dataSource="msInfo.value"
+                      :pagination="false"
+                    >
+                      <template #male="{ record }">
+                        <Icon v-if="record.M" icon="icon-park:correct" color="green" />
+                        <Icon v-else icon="codicon:error" color="red" />
+                      </template>
+                      <template #female="{ record }">
+                        <Icon v-if="record.F" icon="icon-park:correct" color="green" />
+                        <Icon v-else icon="codicon:error" color="red" />
+                      </template>
+                    </a-table>
+                  </template>
+                  <a-tag color="green" style="font-size: 1.1em">{{ msInfo.name }}</a-tag>
+                </a-popover>
+              </div>
+            </div>
+            <div class="flex flex-row justify-between">
+              <div class="action">
+                <div class="action-item" v-if="item.hasScore">
+                  <a-button
+                    pre-icon="akar-icons:more-horizontal"
+                    class="aciton-icon !bg-blue-400"
+                    size="small"
+                    shape="circle"
+                    @click="handleView(item)"
+                /></div>
+                <div v-else class="action-item">
+                  <a-tooltip title="无成绩标准，请导入">
+                    <a-button
+                      pre-icon="ep:warning-filled"
+                      type="warning"
+                      shape="circle"
+                      size="small"
+                      class="aciton-icon" /></a-tooltip
+                ></div>
+
+                <div class="action-item" v-if="formdata.subIds.indexOf(item.subId) === -1">
+                  <a-button
+                    pre-icon="akar-icons:circle-plus-fill"
+                    type="success"
+                    class="aciton-icon"
+                    shape="circle"
+                    size="small"
+                    @click="addSubject(item)"
+                  />
+                </div>
+                <div class="action-item" v-else>
+                  <a-button
+                    pre-icon="akar-icons:circle-minus-fill"
+                    type="error"
+                    class="aciton-icon"
+                    shape="circle"
+                    size="small"
+                    @click="removeSubject(item)"
+                  />
+                </div>
+              </div>
+              <div class="flex flex-col justify-center text-secondary">
+                {{ item.subCreated }}
+              </div>
+            </div>
           </a-card>
         </a-list-item>
       </template>
@@ -93,6 +160,8 @@
   import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import {
+    Row,
+    Col,
     Card,
     List,
     Alert,
@@ -100,73 +169,80 @@
     PaginationProps,
     Form,
     FormItem,
-    Row,
-    Col,
     Tag,
+    Popover,
+    Tooltip,
+    Table,
+    Select,
   } from 'ant-design-vue';
-  import { PlusCircleOutlined, EllipsisOutlined, MinusCircleOutlined } from '@ant-design/icons-vue';
-  import BasicForm from '/@/components/Form/src/BasicForm.vue';
-  import { FormSchema, useForm } from '/@/components/Form';
-  import { SubjectInfoModel, pageSubjectInfo } from '/@/api/subject';
+  import { SubjectInfoModel, pageSubjectInfo, msInfoColumns, SubjectQuery } from '/@/api/subject';
   import { SubGroupFormdata, addSubGroup } from '/@/api/subgroup';
-  import { gradeOptions } from '/@/enums/gradeEnum';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useTabs } from '/@/hooks/web/useTabs';
   import { useGo } from '/@/hooks/web/usePage';
-
+  import Icon from '/@/components/Icon';
+  import { FormSchema, useForm, BasicForm } from '/@/components/Form';
+  import { gradeOptions } from '/@/enums/gradeEnum';
   export default defineComponent({
     components: {
+      [Tooltip.name]: Tooltip,
+      [Table.name]: Table,
       [Tag.name]: Tag,
-      [Row.name]: Row,
-      [Col.name]: Col,
       [Form.name]: Form,
       [Form.Item.name]: FormItem,
-      PlusCircleOutlined,
-      EllipsisOutlined,
-      MinusCircleOutlined,
+      [Popover.name]: Popover,
       [Avatar.name]: Avatar,
       [Alert.name]: Alert,
       PageWrapper,
       [Card.name]: Card,
-      [Card.Meta.name]: Card.Meta,
       [List.name]: List,
       [List.Item.name]: List.Item,
-      [List.Item.Meta.name]: List.Item.Meta,
+      [Select.name]: Select,
+      [Row.name]: Row,
+      [Col.name]: Col,
+      Icon,
       BasicForm,
     },
     setup() {
       const { createMessage } = useMessage();
       const { close: closeTab } = useTabs();
       const go = useGo();
-      const DEFAULT_PAGE_SIZE = 6;
-      const fetchData = async (params) => {
-        const data = await pageSubjectInfo(params);
-        state.dataSource = data.items;
-        state.pagination.total = data.total;
-        state.pagination.pageSize = data.pageSize;
-        state.pagination.current = data.current;
+      const fetchData = async (params: SubjectQuery | undefined = undefined) => {
+        if (params === undefined) {
+          params = { page: state.pagination.current, pageSize: state.pagination.pageSize };
+        }
+        try {
+          state.loading = true;
+          const data = await pageSubjectInfo(params);
+          state.dataSource = data.items;
+          state.pagination.total = data.total;
+          state.pagination.pageSize = data.pageSize;
+          state.pagination.current = data.current;
+        } finally {
+          state.loading = false;
+        }
       };
       const state = reactive<{
         dataSource: SubjectInfoModel[];
         pagination: PaginationProps;
         formdata: SubGroupFormdata;
         selectedSubs: SubjectInfoModel[];
+        loading: boolean;
       }>({
         dataSource: [],
         pagination: {
           current: 1,
-          pageSize: DEFAULT_PAGE_SIZE,
-          defaultPageSize: DEFAULT_PAGE_SIZE,
           onChange(page, pageSize) {
             fetchData({ page, pageSize });
           },
         },
         formdata: {
           grpName: '',
-          grpDesp: '',
+          grpDesp: '无',
           subIds: [],
         },
         selectedSubs: [],
+        loading: false,
       });
       const rules = {
         grpName: [
@@ -184,14 +260,51 @@
           },
         ],
       };
-      onMounted(() => fetchData({ pageSize: DEFAULT_PAGE_SIZE }));
+      onMounted(() => fetchData());
+      function removeSubject(item) {
+        const idx = state.formdata.subIds.indexOf(item.subId);
+        if (idx !== -1) {
+          state.selectedSubs.splice(idx, 1);
+          state.formdata.subIds.splice(idx, 1);
+        }
+      }
+      function addSubject(item) {
+        if (state.formdata.subIds.indexOf(item.subId) === -1) {
+          state.selectedSubs.push(item);
+          state.formdata.subIds.push(item.subId);
+        }
+      }
+      async function handleSubmit() {
+        await formRef.value.validate();
+        if (state.formdata.subIds.length === 0) {
+          createMessage.error('请选择科目!');
+          return;
+        }
+        const key = 'addSubGroup';
+        createMessage.loading({ content: '正在添加', key });
+        try {
+          const data = await addSubGroup(state.formdata);
+          if (data) {
+            createMessage.success({ content: '添加成功！2秒后跳转到科目组界面...', key });
+            setTimeout(() => {
+              closeTab();
+              go({
+                //@ts-ignore
+                name: 'BaseDataSubjectGroup',
+              });
+            }, 2000);
+          }
+        } catch (e) {
+          createMessage.error({ content: '添加失败', key });
+        }
+      }
       const searchFormScheme: FormSchema[] = [
         {
           field: 'subName',
           label: '科目名',
           component: 'InputSearch',
           colProps: {
-            span: 8,
+            span: 6,
           },
           componentProps: {
             onSearch() {
@@ -213,7 +326,7 @@
           label: '年级',
           component: 'Select',
           colProps: {
-            span: 8,
+            span: 6,
           },
           componentProps: {
             placeholder: '选择年级搜索',
@@ -235,81 +348,83 @@
         labelWidth: 80,
         submitOnReset: false,
         schemas: searchFormScheme,
-        compact: true,
-        showAdvancedButton: false,
         showResetButton: false,
         showSubmitButton: false,
-        actionColOptions: {
-          span: 24,
-        },
+        compact: true,
       });
-      function delSubject(item) {
-        const idx = state.formdata.subIds.indexOf(item.subId);
-        if (idx !== -1) {
-          state.selectedSubs.splice(idx, 1);
-          state.formdata.subIds.splice(idx, 1);
-        }
-      }
-      function addSubject(item) {
-        if (state.formdata.subIds.indexOf(item.subId) === -1) {
-          state.selectedSubs.push(item);
-          state.formdata.subIds.push(item.subId);
-        }
-      }
-      async function handleSubmit() {
-        await formRef.value.validate();
-        if (state.formdata.subIds.length === 0) {
-          createMessage.error('请选择科目!');
-          return;
-        }
-        await addSubGroup(state.formdata);
-        createMessage.success('添加成功！2秒后跳转到科目组界面...');
-        setTimeout(() => {
-          closeTab(),
-            go({
-              //@ts-ignore
-              name: 'BaseDataSubjectGroup',
-            });
-        }, 2000);
-      }
       const formRef = ref();
+      function handleView(sub: SubjectInfoModel) {
+        go({
+          //@ts-ignore
+          name: 'BaseDataSubjectDetail',
+          params: { subId: sub.subId },
+        });
+      }
+      function handleReset() {
+        formRef.value.clearValidate();
+        Object.assign(state.formdata, { grpName: '', grpDesp: '无', subIds: [] });
+        state.selectedSubs = [];
+      }
       return {
+        subSearchForm,
         formRef,
         rules,
-        subSearchForm,
-        delSubject,
+        removeSubject,
         addSubject,
         handleSubmit,
+        handleReset,
+        handleView,
         ...toRefs(state),
+        msInfoColumns,
       };
     },
   });
 </script>
 <style lang="less" scoped>
-  ::v-deep(.ant-spin-container) {
-    background-color: white;
-  }
+  .action {
+    margin-top: 0.4rem;
+    &-item {
+      display: inline-block;
+      padding: 0 0.5rem;
+      color: @text-color-secondary;
 
-  ::v-deep(.ant-card-cover) {
-    background-color: #308ecc;
-  }
+      &:nth-child(1) {
+        padding-left: 0;
+      }
 
-  ::v-deep(.ant-card-meta-title) {
-    font-weight: 600;
-    font-size: 1.2em;
-  }
-
-  ::v-deep(.ant-card-meta-description) {
-    font-size: 0.9em;
-  }
-
-  ::v-deep(.ant-card-actions) {
-    height: 2rem !important;
-
-    li {
-      height: 20px !important;
-      margin-top: 0;
-      margin-bottom: 0;
+      &:nth-child(1),
+      &:nth-child(2),
+      &:nth-child(3) {
+        border-right: 1px solid @border-color-base;
+      }
     }
+
+    &-icon {
+      margin-right: 0.1rem;
+    }
+  }
+
+  ::v-deep(.ant-list) {
+    margin: 0 0.5rem;
+  }
+
+  ::v-deep(.ant-card-body) {
+    padding: 1rem;
+  }
+
+  ::v-deep(.ant-list-item) {
+    margin-bottom: 0.5rem !important;
+  }
+
+  ::v-deep(tbody.ant-table-tbody tr.ant-table-row td) {
+    padding: 0.2rem !important;
+  }
+
+  ::v-deep(.ant-form-item, .ant-form-item-with-help) {
+    margin-bottom: 0;
+  }
+
+  ::v-deep(.ant-alert) {
+    padding: 0.18rem 0;
   }
 </style>
