@@ -161,7 +161,7 @@ export function pageScoreSheet(
 
 export function uploadScoreSheet(subId: number, file: File): Promise<number> {
   return defHttp.uploadFile(
-    { url: Api.UploadScoreSheet, params: { subId } },
+    { url: Api.UploadScoreSheet + `/${subId}` },
     { file },
     { errorMessageMode: 'message' },
   );
