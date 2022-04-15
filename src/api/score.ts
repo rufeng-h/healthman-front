@@ -111,7 +111,7 @@ export const scoreColumns: BasicColumn[] = [
 
 export function uploadScore(file: File, msId: number | undefined, name = 'file'): Promise<number> {
   return defHttp.uploadFile(
-    { url: Api.UploadScore, params: { msId } },
+    { url: Api.UploadScore + `/${msId}` },
     { file, name },
     { errorMessageMode: 'message' },
   );

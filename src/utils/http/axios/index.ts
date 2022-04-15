@@ -11,7 +11,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from '/@/enums/httpEnum';
 import { isObject, isString } from '/@/utils/is';
 import { getToken } from '/@/utils/auth';
-import { deepMerge, setObjToUrlParams } from '/@/utils';
+import { deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
@@ -82,7 +82,7 @@ const transform: AxiosTransform = {
 
   // 请求之前处理config
   beforeRequestHook: (config, options) => {
-    const { apiUrl, joinPrefix, formatDate, joinTime = true, urlPrefix, joinParamsToUrl } = options;
+    const { apiUrl, joinPrefix, formatDate, joinTime = true, urlPrefix } = options;
 
     if (joinPrefix) {
       config.url = `${urlPrefix}${config.url}`;
@@ -116,20 +116,20 @@ const transform: AxiosTransform = {
     } else {
       if (!isString(params)) {
         formatDate && formatRequestDate(params);
-        if (Reflect.has(config, 'data') && config.data && Object.keys(config.data).length > 0) {
-          config.data = data;
-          config.params = params;
-        } else {
-          // 非GET请求如果没有提供data，则将params视为data
-          config.data = params;
-          config.params = undefined;
-        }
-        if (joinParamsToUrl) {
-          config.url = setObjToUrlParams(
-            config.url as string,
-            Object.assign({}, config.params, config.data),
-          );
-        }
+        // if (Reflect.has(config, 'data') && config.data && Object.keys(config.data).length > 0) {
+        //   config.data = data;
+        //   config.params = params;
+        // } else {
+        //   // 非GET请求如果没有提供data，则将params视为data
+        //   config.data = params;
+        //   config.params = undefined;
+        // }
+        // if (joinParamsToUrl) {
+        //   config.url = setObjToUrlParams(
+        //     config.url as string,
+        //     Object.assign({}, config.params, config.data),
+        //   );
+        // }
       } else {
         // 兼容restful风格
         config.url = config.url + params;

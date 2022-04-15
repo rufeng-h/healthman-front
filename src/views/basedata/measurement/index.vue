@@ -67,18 +67,43 @@
                 <span :class="`${prefixCls}__card-detail-desp`">{{ item.msDesp }}</span>
               </div>
               <div :class="`${prefixCls}__card-action`">
-                <template v-for="action in actions" :key="action.icon">
-                  <div :class="`${prefixCls}__card-action-item`">
+                <div :class="`${prefixCls}__card-action-item`">
+                  <Icon
+                    icon="akar-icons:more-horizontal"
+                    color="#33f834"
+                    :class="`${prefixCls}__card-action-icon`"
+                    :size="20"
+                    @click="handleView(item)"
+                /></div>
+
+                <div :class="`${prefixCls}__card-action-item`">
+                  <Icon
+                    icon="bxs:edit"
+                    color="#018ffb"
+                    :class="`${prefixCls}__card-action-icon`"
+                    :size="20"
+                    @click="handleEdit(item)"
+                  />
+                </div>
+                <div :class="`${prefixCls}__card-action-item`">
+                  <Icon
+                    icon="ep:delete-filled"
+                    color="#f00"
+                    :about="`${prefixCls}__card-action-icon`"
+                    :size="20"
+                    @click="handleDel(item)"
+                  />
+                </div>
+                <div :class="`${prefixCls}__card-action-item`">
+                  <ImpExcel @success="handleImpScore($event, item)">
                     <Icon
-                      v-if="action.icon"
+                      icon="mdi:database-import"
+                      :size="20"
+                      color="#42d27d"
                       :class="`${prefixCls}__card-action-icon`"
-                      :icon="action.icon"
-                      :color="action.color"
-                      :size="action.size"
-                      @click="action.action(item)"
                     />
-                  </div>
-                </template>
+                  </ImpExcel>
+                </div>
               </div>
               <div :class="`${prefixCls}__card-progress`"
                 ><a-progress
@@ -96,14 +121,12 @@
         </template>
       </a-list>
     </PageWrapper>
-    <ImpExcel @success="loadSuccess" ref="impExcel" />
     <MeasurementModal @register="measureModal" @success="addSuccess" />
-    <ExcelModal @confirm="doUpload" @register="excelModal" />
+    <ScoreExcelModal @confirm="doUpload" @register="excelModal" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, onMounted, reactive, ref, toRefs, unref } from 'vue';
-  import { ImpExcel } from '/@/components/Excel';
+  import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { Icon } from '/@/components/Icon/index';
   import {
@@ -129,11 +152,12 @@
   } from '/@/api/measurement';
   import { useModal } from '/@/components/Modal';
   import MeasurementModal from './MesurementModal.vue';
-  import ExcelModal from '../ExcelModal.vue';
+  import ScoreExcelModal from './ScoreExcelModal.vue';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { uploadScore } from '/@/api/score';
   import { useGo } from '/@/hooks/web/usePage';
   import { useLoading } from '/@/components/Loading';
+  import { ImpExcel } from '/@/components/Excel';
 
   export default defineComponent({
     components: {
@@ -154,7 +178,7 @@
       [Row.name]: Row,
       [Col.name]: Col,
       [InputSearch.name]: InputSearch,
-      ExcelModal,
+      ScoreExcelModal,
     },
     setup() {
       const impExcel = ref();
@@ -162,7 +186,6 @@
       const [openFullLoading, closeFullLoading] = useLoading({
         tip: '正在导入...',
       });
-      let curMsItem: Nullable<MeasurementInfoModel> = null;
       const DEFAULT_PAGE_SIZE = 8;
       const { createConfirm, createMessage } = useMessage();
       onMounted(() => {
@@ -213,12 +236,6 @@
         query: { msName: '' },
         loading: false,
       });
-      const actions: any[] = [
-        { icon: 'akar-icons:more-horizontal', color: '#33f834', action: handleView, size: 20 },
-        { icon: 'bxs:edit', color: '#018ffb', action: handleEdit, size: 20 },
-        { icon: 'ep:delete-filled', color: '#f00', action: handleDel, size: 20 },
-        { icon: 'mdi:database-import', color: '#42d27d', action: handleImpScore, size: 20 },
-      ];
       const [measureModal, { openModal: openMsModal }] = useModal();
       const [excelModal, { openModal: openExcelModal }] = useModal();
       function tryAddMeasurement() {
@@ -254,12 +271,8 @@
           fetchData();
         }
       }
-      function handleImpScore(measurement: MeasurementInfoModel) {
-        curMsItem = measurement;
-        unref(impExcel).handleUpload();
-      }
-      function loadSuccess({ excelDataList, file }) {
-        openExcelModal(true, { excelDataList, file });
+      function handleImpScore({ excelDataList, file }, ms: MeasurementInfoModel) {
+        openExcelModal(true, { excelDataList, file, msId: ms.msId });
       }
       function handleView(measurement: MeasurementInfoModel) {
         go({
@@ -270,10 +283,12 @@
           },
         });
       }
-      async function doUpload(file: File) {
+      async function doUpload(msId: number, file: File) {
+        console.log(msId, file);
+
         try {
           openFullLoading();
-          const data = await uploadScore(file, curMsItem?.msId);
+          const data = await uploadScore(file, msId);
           closeFullLoading();
           if (data) {
             createMessage.success(`成功添加${data}条数据`);
@@ -288,7 +303,6 @@
         impExcel,
         excelModal,
         doUpload,
-        loadSuccess,
         handleImpScore,
         addSuccess: handleSubmit,
         measureModal,
@@ -296,8 +310,11 @@
         prefixCls: 'list-card',
         ...toRefs(state),
         doSearch,
-        actions,
         onChange,
+
+        handleView,
+        handleEdit,
+        handleDel,
       };
     },
   });
