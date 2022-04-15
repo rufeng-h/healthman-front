@@ -68,41 +68,59 @@
               </div>
               <div :class="`${prefixCls}__card-action`">
                 <div :class="`${prefixCls}__card-action-item`">
-                  <Icon
-                    icon="akar-icons:more-horizontal"
-                    color="#33f834"
-                    :class="`${prefixCls}__card-action-icon`"
-                    :size="20"
-                    @click="handleView(item)"
-                /></div>
+                  <a-tooltip title="查看成绩详情">
+                    <Icon
+                      icon="akar-icons:more-horizontal"
+                      color="#33f834"
+                      :class="`${prefixCls}__card-action-icon`"
+                      :size="20"
+                      @click="handleView(item)" /></a-tooltip
+                ></div>
 
                 <div :class="`${prefixCls}__card-action-item`">
-                  <Icon
-                    icon="bxs:edit"
-                    color="#018ffb"
-                    :class="`${prefixCls}__card-action-icon`"
-                    :size="20"
-                    @click="handleEdit(item)"
-                  />
-                </div>
-                <div :class="`${prefixCls}__card-action-item`">
-                  <Icon
-                    icon="ep:delete-filled"
-                    color="#f00"
-                    :about="`${prefixCls}__card-action-icon`"
-                    :size="20"
-                    @click="handleDel(item)"
-                  />
-                </div>
-                <div :class="`${prefixCls}__card-action-item`">
-                  <ImpExcel @success="handleImpScore($event, item)">
+                  <a-tooltip title="编辑体测信息">
                     <Icon
-                      icon="mdi:database-import"
-                      :size="20"
-                      color="#42d27d"
+                      icon="bxs:edit"
+                      color="#018ffb"
                       :class="`${prefixCls}__card-action-icon`"
+                      :size="20"
+                      @click="handleEdit(item)"
                     />
-                  </ImpExcel>
+                  </a-tooltip>
+                </div>
+                <div :class="`${prefixCls}__card-action-item`">
+                  <a-tooltip title="删除本次体测">
+                    <Icon
+                      icon="ep:delete-filled"
+                      color="#f00"
+                      :about="`${prefixCls}__card-action-icon`"
+                      :size="20"
+                      @click="handleDel(item)"
+                    />
+                  </a-tooltip>
+                </div>
+                <div :class="`${prefixCls}__card-action-item`">
+                  <a-tooltip title="导入体测数据">
+                    <ImpExcel @success="handleImpScore($event, item)">
+                      <Icon
+                        icon="mdi:database-import"
+                        :size="20"
+                        color="#42d27d"
+                        :class="`${prefixCls}__card-action-icon`"
+                      />
+                    </ImpExcel>
+                  </a-tooltip>
+                </div>
+                <div :class="`${prefixCls}__card-action-item`">
+                  <a-tooltip title="下载成绩模板">
+                    <Icon
+                      icon="el:download"
+                      :size="20"
+                      color="#42d2dd"
+                      :class="`${prefixCls}__card-action-icon`"
+                      @click="downloadFileTemplate(item)"
+                    />
+                  </a-tooltip>
                 </div>
               </div>
               <div :class="`${prefixCls}__card-progress`"
@@ -141,6 +159,7 @@
     Tag,
     PaginationProps,
     Statistic,
+    Tooltip,
   } from 'ant-design-vue';
   import {
     pageMeasurementInfo,
@@ -149,6 +168,7 @@
     delMeasurement,
     addMeasurement,
     updateMeasurement,
+    downloadMsTemplate,
   } from '/@/api/measurement';
   import { useModal } from '/@/components/Modal';
   import MeasurementModal from './MesurementModal.vue';
@@ -163,6 +183,7 @@
     components: {
       [Statistic.name]: Statistic,
       Icon,
+      [Tooltip.name]: Tooltip,
       ImpExcel,
       MeasurementModal,
       [Tag.name]: Tag,
@@ -184,7 +205,7 @@
       const impExcel = ref();
       const go = useGo();
       const [openFullLoading, closeFullLoading] = useLoading({
-        tip: '正在导入...',
+        tip: '请稍后...',
       });
       const DEFAULT_PAGE_SIZE = 8;
       const { createConfirm, createMessage } = useMessage();
@@ -283,6 +304,14 @@
           },
         });
       }
+      async function downloadFileTemplate(measurement: MeasurementInfoModel) {
+        try {
+          openFullLoading();
+          await downloadMsTemplate(measurement.msId);
+        } finally {
+          closeFullLoading();
+        }
+      }
       async function doUpload(msId: number, file: File) {
         console.log(msId, file);
 
@@ -315,6 +344,7 @@
         handleView,
         handleEdit,
         handleDel,
+        downloadFileTemplate,
       };
     },
   });
@@ -382,7 +412,8 @@
 
           &:nth-child(1),
           &:nth-child(2),
-          &:nth-child(3) {
+          &:nth-child(3),
+          &:nth-child(4) {
             border-right: 1px solid @border-color-base;
           }
         }

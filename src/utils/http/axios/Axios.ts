@@ -181,7 +181,7 @@ export class VAxios {
   }
 
   /* 下载文件流 */
-  async downloadFileByData(config: AxiosRequestConfig, options?: RequestOptions): Promise<void> {
+  async downloadFileByData(config: AxiosRequestConfig, options?: RequestOptions): Promise<boolean> {
     const { createMessage } = useMessage();
     const { headers, data } = await this.get<AxiosResponse>(
       { ...config, responseType: 'blob' },
@@ -197,10 +197,11 @@ export class VAxios {
         createMessage.error(result.message);
       };
       reader.readAsText(data, 'utf-8');
-      return;
+      return Promise.reject(false);
     }
     const filename = decodeURIComponent(ret[1]);
     downloadByData(data, filename);
+    return Promise.resolve(true);
   }
 
   get<T = any>(config: AxiosRequestConfig, options?: RequestOptions): Promise<T> {

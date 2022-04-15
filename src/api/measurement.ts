@@ -8,6 +8,7 @@ import { SubjectStatus } from './subject';
 enum Api {
   BaseUrl = '/api/measurement',
   StuUrl = '/api/measurement/stu',
+  Template = '/api/measurement/template',
 }
 export const DEFAULT_MS: MeasurementDetailModel = {
   msCreated: '',
@@ -116,6 +117,13 @@ export function pageStuMeasurementDetail(stuId: string, params: BasicPageParams)
       url: Api.StuUrl + `/${stuId}`,
       params,
     },
+    { errorMessageMode: 'message' },
+  );
+}
+
+export async function downloadMsTemplate(msId: number): Promise<boolean> {
+  return defHttp.downloadFileByData(
+    { url: Api.Template + `/${msId}` },
     { errorMessageMode: 'message' },
   );
 }
