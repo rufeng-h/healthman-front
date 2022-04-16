@@ -35,7 +35,7 @@
 
       <template #toolbar>
         <a-button type="primary" @click="downloadTemplate">下载模板</a-button>
-        <ImpExcel @success="impSuccess">
+        <ImpExcel @success="impSuccess" dateFormat="yyyy-MM-DD">
           <a-button type="primary">导入数据</a-button>
         </ImpExcel>
       </template>
@@ -192,12 +192,11 @@
     try {
       openFullLoading();
       const data = await uploadStudent(file);
-      closeFullLoading();
       if (data) {
         createMessage.success(`成功添加${data}条记录!`);
         reload();
       }
-    } catch (e) {
+    } finally {
       closeFullLoading();
     }
   };
@@ -205,8 +204,7 @@
     try {
       openFullLoading();
       downloadFileTemplate();
-      closeFullLoading();
-    } catch (e) {
+    } finally {
       closeFullLoading();
     }
   }

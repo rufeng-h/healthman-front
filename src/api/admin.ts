@@ -103,6 +103,6 @@ export function uploadAdmin(file: File, errorMessageMode: ErrorMessageMode = 'me
   return defHttp.uploadFile<number>({ url: Api.AdminUpload }, { file }, { errorMessageMode });
 }
 
-export function downloadFileTemplate(errorMessageMode: ErrorMessageMode = 'message') {
+export function downloadTemplate(errorMessageMode: ErrorMessageMode = 'message') {
   return defHttp.downloadFileByData({ url: Api.TemplateDownload }, { errorMessageMode });
 }

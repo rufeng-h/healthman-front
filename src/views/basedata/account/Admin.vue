@@ -44,7 +44,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { ExcelData, ImpExcel } from '/@/components/Excel';
+  import { ImpExcel } from '/@/components/Excel';
   import { Image } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
@@ -55,13 +55,14 @@
     adminColumns,
     getAdminPage,
     uploadAdmin,
-    downloadFileTemplate,
+    downloadTemplate,
     AdminInfoModel,
   } from '../../../api/admin';
   import UserModal from './UserModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { getCollegeList } from '/@/api/college';
+  import { useLoading } from '/@/components/Loading';
   const { createMessage: message } = useMessage();
   const tableTitle = ref('');
   const actionColumn = {
@@ -107,7 +108,9 @@
       },
     ],
   };
-
+  const [openFullLoading, closeFullLoading] = useLoading({
+    tip: '请稍后...',
+  });
   const [userModal, { openModal: openUserModal }] = useModal();
   const [excelModal, { openModal: openExcelModal }] = useModal();
   const [tableRef, { reload }] = useTable({
@@ -159,14 +162,28 @@
   //   reload();
   // }
 
-  function impSuccess({ excelData, rawFile }) {
-    openExcelModal(true, { excelDataList: excelData, file: rawFile });
+  function impSuccess({ excelDataList, file }) {
+    openExcelModal(true, { excelDataList, file });
   }
 
   async function confirmUpload(file: File) {
-    const cnt = await uploadAdmin(file);
-    message.success(`成功导入${cnt}条数据`);
-    reload({ page: 1 });
+    try {
+      openFullLoading();
+      const cnt = await uploadAdmin(file);
+      message.success(`成功导入${cnt}条数据`);
+      reload({ page: 1 });
+    } finally {
+      closeFullLoading();
+    }
+  }
+
+  async function downloadFileTemplate() {
+    try {
+      openFullLoading();
+      await downloadTemplate();
+    } finally {
+      closeFullLoading();
+    }
   }
 </script>
 

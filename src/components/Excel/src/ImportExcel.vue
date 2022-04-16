@@ -24,6 +24,7 @@
       // 日期时间格式。如果不提供或者提供空值，将返回原始Date对象
       dateFormat: {
         type: String,
+        default: 'yyyy-MM-DD',
       },
       // 时区调整。实验性功能，仅为了解决读取日期时间值有偏差的问题。目前仅提供了+08:00时区的偏差修正值
       // https://github.com/SheetJS/sheetjs/issues/1470#issuecomment-501108554
