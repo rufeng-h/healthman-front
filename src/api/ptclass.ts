@@ -52,7 +52,6 @@ export const classColumns: BasicColumn[] = [
   {
     dataIndex: 'clsCode',
     title: '代码',
-    fixed: 'left',
     width: 100,
     slots: { customRender: 'code' },
   },
@@ -82,6 +81,11 @@ export const classColumns: BasicColumn[] = [
     dataIndex: 'clsCreated',
     title: '创建时间',
   },
+  {
+    title: '操作',
+    width: 50,
+    slots: { customRender: 'action' },
+  },
 ];
 
 /* 获取年级 */
@@ -110,10 +114,7 @@ export function getClassList(params: ClassQuery, errorMessageMode: ErrorMessageM
   return defHttp.get<ClassInfoModel[]>({ url: Api.ClassList, params }, { errorMessageMode });
 }
 
-export function downloadFileTemplate(
-  params: any = {},
-  errorMessageMode: ErrorMessageMode = 'message',
-) {
+export function downloadTemplate(params: any = {}, errorMessageMode: ErrorMessageMode = 'message') {
   return defHttp.downloadFileByData({ url: Api.ClassTemplate, params }, { errorMessageMode });
 }
 

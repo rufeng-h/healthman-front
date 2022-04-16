@@ -23,9 +23,11 @@
         />
       </template>
       <template #toolbar>
-        <a-button type="primary" @click="downloadFileTemplate">下载模板</a-button>
+        <a-button type="primary" @click="downloadFileTemplate" pre-icon="akar-icons:cloud-download"
+          >下载模板</a-button
+        >
         <ImpExcel @success="impSuccess">
-          <a-button type="primary">导入新班级信息</a-button>
+          <a-button pre-icon="akar-icons:cloud-upload" type="primary">导入数据</a-button>
         </ImpExcel>
       </template>
     </BasicTable>
@@ -34,7 +36,7 @@
 </template>
 <script lang="ts" setup>
   import { Tag } from 'ant-design-vue';
-  import { ExcelData, ImpExcel } from '/@/components/Excel';
+  import { ImpExcel } from '/@/components/Excel';
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { FormProps } from '/@/components/Form';
@@ -42,7 +44,7 @@
     getClassPage,
     classColumns,
     getGradeList,
-    downloadFileTemplate,
+    downloadTemplate,
     uploadClass,
   } from '/@/api/ptclass';
   import { onMounted, Ref, ref } from 'vue';
@@ -54,7 +56,7 @@
   import { useLoading } from '/@/components/Loading';
   const tableTitle = ref('');
   const [openFullLoading, closeFullLoading] = useLoading({
-    tip: '正在导入...',
+    tip: '请稍后...',
   });
   const { createMessage } = useMessage();
   type OptionsItem = { label: string; value: string; disabled?: boolean };
@@ -121,18 +123,14 @@
     showTableSetting: true,
     titleHelpMessage: '温馨提示',
     useSearchForm: true,
-    rowKey: 'clsId',
+    rowKey: 'clsCode',
     formConfig: formConfig,
+    showIndexColumn: false,
     tableSetting: { fullScreen: true },
-    actionColumn: {
-      title: '操作',
-      width: 50,
-      slots: { customRender: 'action' },
-    },
   });
 
   const [registerModal, { openModal }] = useModal();
-  const impSuccess = (excelDataList: ExcelData[], file: File) => {
+  const impSuccess = ({ excelDataList, file }) => {
     openModal(true, { excelDataList, file });
   };
   const confirmUpload = async (file: File) => {
@@ -147,6 +145,14 @@
       throw e;
     }
   };
+  async function downloadFileTemplate() {
+    try {
+      openFullLoading();
+      await downloadTemplate();
+    } finally {
+      closeFullLoading();
+    }
+  }
   const go = useGo();
   function handleView(record) {
     go({
@@ -158,3 +164,8 @@
     });
   }
 </script>
+<style lang="less" scoped>
+  ::v-deep(tbody.ant-table-tbody tr.ant-table-row td) {
+    padding: 0.5rem !important;
+  }
+</style>

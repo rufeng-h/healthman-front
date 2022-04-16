@@ -34,6 +34,7 @@
   import { useModalInner } from '/@/components/Modal';
   import { BasicTable, BasicColumn } from '/@/components/Table';
   import { BasicModal } from '/@/components/Modal';
+  import { isString } from '/@/utils/is';
 
   export default defineComponent({
     name: 'ExcelModal',
@@ -50,6 +51,7 @@
       });
       let curFile = undefined;
       const [registerModal, { closeModal }] = useModalInner(({ excelDataList, file }) => {
+        console.log(excelDataList);
         curFile = file;
         state.tableList = [];
         for (const excelData of excelDataList) {
@@ -62,6 +64,13 @@
           for (const title of header) {
             columns.push({ title, dataIndex: title });
           }
+          results.forEach((item) => {
+            Object.keys(item).forEach((k) => {
+              if (!isString(item[k])) {
+                item[k] = item[k].toString();
+              }
+            });
+          });
           state.tableList.push({ title: sheetName, dataSource: results, columns });
         }
       });

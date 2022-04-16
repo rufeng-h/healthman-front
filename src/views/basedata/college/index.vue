@@ -7,7 +7,7 @@
 -->
 <template>
   <div>
-    <PageWrapper contentBackground dense contentFullHeight fixed-height>
+    <PageWrapper contentBackground dense contentFullHeight>
       <BasicTable @register="registerTable">
         <template #id="{ record }">
           <Tag color="green">
@@ -71,7 +71,7 @@
   } from '/@/api/college';
   import { useTable, TableAction } from '/@/components/Table';
   import { openWindow } from '/@/utils';
-  import { ExcelData, ImpExcel } from '/@/components/Excel';
+  import { ImpExcel } from '/@/components/Excel';
   import ExcelModal from '../ExcelModal.vue';
   import { useGo } from '/@/hooks/web/usePage';
   import { useModal } from '/@/components/Modal';
@@ -82,14 +82,19 @@
   const { createMessage } = useMessage();
   const impExcel = ref();
   let curUploadClg: Nullable<CollegeModel> = null;
-  const downloadTemplate = () => {
-    downloadFileTemplate();
-  };
   const [openFullLoading, closeFullLoading] = useLoading({
-    tip: '正在上传...',
+    tip: '请稍后...',
   });
+  const downloadTemplate = async () => {
+    try {
+      openFullLoading();
+      await downloadFileTemplate();
+    } finally {
+      closeFullLoading();
+    }
+  };
   const [registerModal, { openModal }] = useModal();
-  const impSuccess = (excelDataList: ExcelData[], file: File) => {
+  const impSuccess = ({ excelDataList, file }) => {
     openModal(true, { excelDataList, file });
   };
   const upload = async (file: File) => {
@@ -123,7 +128,6 @@
     showTableSetting: true,
     inset: true,
     rowKey: 'clgCode',
-    canResize: false,
     tableSetting: { size: false, fullScreen: true },
   });
   function handleImpCls(record) {
@@ -131,7 +135,6 @@
     unref(impExcel).handleUpload();
   }
   function cancelUpload() {
-    console.log(curUploadClg);
     curUploadClg = null;
   }
   const go = useGo();
