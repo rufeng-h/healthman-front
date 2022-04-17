@@ -1,17 +1,14 @@
 <template>
-  <CollapseContainer title="账号绑定" :canExpan="false">
+  <div class="mx-6">
     <List>
       <template v-for="item in list" :key="item.key">
         <ListItem>
           <ListItemMeta>
-            <template #avatar>
-              <Icon v-if="item.avatar" class="avatar" :icon="item.avatar" :color="item.color" />
-            </template>
             <template #title>
               {{ item.title }}
-              <a-button type="link" size="small" v-if="item.extra" class="extra">
+              <div class="extra" v-if="item.extra">
                 {{ item.extra }}
-              </a-button>
+              </div>
             </template>
             <template #description>
               <div>{{ item.description }}</div>
@@ -20,40 +17,29 @@
         </ListItem>
       </template>
     </List>
-  </CollapseContainer>
+  </div>
 </template>
 <script lang="ts">
   import { List } from 'ant-design-vue';
   import { defineComponent } from 'vue';
-  import { CollapseContainer } from '/@/components/Container/index';
-  import Icon from '/@/components/Icon/index';
-
-  import { accountBindList } from './data';
+  import { secureSettingList } from './data';
 
   export default defineComponent({
-    components: {
-      CollapseContainer,
-      List,
-      ListItem: List.Item,
-      ListItemMeta: List.Item.Meta,
-      Icon,
-    },
+    components: { List, ListItem: List.Item, ListItemMeta: List.Item.Meta },
     setup() {
       return {
-        list: accountBindList,
+        list: secureSettingList,
       };
     },
   });
 </script>
 <style lang="less" scoped>
-  .avatar {
-    font-size: 40px !important;
-  }
-
   .extra {
     float: right;
     margin-top: 10px;
     margin-right: 30px;
+    font-weight: normal;
+    color: #1890ff;
     cursor: pointer;
   }
 </style>

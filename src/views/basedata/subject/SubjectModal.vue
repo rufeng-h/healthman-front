@@ -27,6 +27,7 @@
   import TableSelect from './TableSelect.vue';
   import { SubStuSelect, SubStuSelectItem } from './prop';
   import { Form, Tabs } from 'ant-design-vue';
+  import { useMessage } from '/@/hooks/web/useMessage';
   export default defineComponent({
     name: 'SubjectModal',
     components: {
@@ -40,6 +41,7 @@
     },
     emits: ['submit', 'register'],
     setup(_, { emit }) {
+      const { createConfirm } = useMessage();
       const defaultSubStus: SubStuSelect[] = [
         { name: '小学', value: [] },
         { name: '初中', value: [] },
@@ -171,23 +173,29 @@
       }
       async function submit() {
         const values = await validate();
-        const subStudents: any = [];
-        values.subStudents.forEach((s) => {
-          s.value.forEach((item) => {
-            if (item.M) {
-              subStudents.push({ grade: zhCnToNumberGrade(item.grade), gender: 'M' });
-            }
-            if (item.F) {
-              subStudents.push({ grade: zhCnToNumberGrade(item.grade), gender: 'F' });
-            }
-          });
+        createConfirm({
+          iconType: 'warning',
+          content: '添加后请导入对应的评分标准！删除测试对象会删除其评分标准！',
+          onOk() {
+            const subStudents: any = [];
+            values.subStudents.forEach((s) => {
+              s.value.forEach((item) => {
+                if (item.M) {
+                  subStudents.push({ grade: zhCnToNumberGrade(item.grade), gender: 'M' });
+                }
+                if (item.F) {
+                  subStudents.push({ grade: zhCnToNumberGrade(item.grade), gender: 'F' });
+                }
+              });
+            });
+            values.subStudents = subStudents;
+            emit('submit', {
+              isUpdate: state.isUpdate,
+              sub: state.isUpdate ? { ...values, subId: state.subId } : values,
+            });
+            closeModal();
+          },
         });
-        values.subStudents = subStudents;
-        emit('submit', {
-          isUpdate: state.isUpdate,
-          sub: state.isUpdate ? { ...values, subId: state.subId } : values,
-        });
-        closeModal();
       }
 
       return {

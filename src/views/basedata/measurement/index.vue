@@ -9,6 +9,7 @@
             :wrapperCol="{ span: 20, style: { width: '20rem' } }"
             :labelCol="{ span: 4 }"
             ><a-input-search
+              allowClear
               v-model:value="query.msName"
               @search="doSearch"
               @change="onChange"

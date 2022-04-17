@@ -77,13 +77,14 @@
               <div class="flex flex-row justify-between">
                 <div class="action">
                   <div class="action-item" v-if="item.hasScore">
-                    <Icon
-                      icon="akar-icons:more-horizontal"
-                      color="#33f834"
-                      class="aciton-icon"
-                      :size="20"
-                      @click="handleView(item)"
-                  /></div>
+                    <a-tooltip title="查看评分标准">
+                      <Icon
+                        icon="akar-icons:more-horizontal"
+                        color="#33f834"
+                        class="aciton-icon"
+                        :size="20"
+                        @click="handleView(item)" /></a-tooltip
+                  ></div>
                   <div v-else class="action-item">
                     <a-tooltip title="无成绩标准，请导入">
                       <Icon
@@ -94,32 +95,37 @@
                   ></div>
 
                   <div class="action-item">
-                    <Icon
-                      icon="bxs:edit"
-                      color="#018ffb"
-                      class="aciton-icon"
-                      :size="20"
-                      @click="handleEdit(item)"
-                    />
-                  </div>
-                  <div class="action-item">
-                    <Icon
-                      icon="ep:delete-filled"
-                      color="#f00"
-                      class="aciton-icon"
-                      :size="20"
-                      @click="handleDel(item)"
-                    />
-                  </div>
-                  <div class="action-item">
-                    <ImpExcel @success="handleImpScoreSheet($event, item)">
+                    <a-tooltip title="编辑科目信息">
                       <Icon
-                        icon="mdi:database-import"
-                        :size="20"
-                        color="#42d27d"
+                        icon="bxs:edit"
+                        color="#018ffb"
                         class="aciton-icon"
-                      />
-                    </ImpExcel>
+                        :size="20"
+                        @click="handleEdit(item)"
+                    /></a-tooltip>
+                  </div>
+
+                  <div class="action-item">
+                    <a-tooltip title="删除该科目">
+                      <Icon
+                        icon="ep:delete-filled"
+                        color="#f00"
+                        class="aciton-icon"
+                        :size="20"
+                        @click="handleDel(item)"
+                    /></a-tooltip>
+                  </div>
+                  <div class="action-item">
+                    <a-tooltip title="导入评分标准">
+                      <ImpExcel @success="handleImpScoreSheet($event, item)">
+                        <Icon
+                          icon="mdi:database-import"
+                          :size="20"
+                          color="#42d27d"
+                          class="aciton-icon"
+                        />
+                      </ImpExcel>
+                    </a-tooltip>
                   </div>
                 </div>
 

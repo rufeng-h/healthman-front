@@ -1,48 +1,43 @@
 <template>
-  <CollapseContainer title="基本设置" :canExpan="false">
-    <a-row :gutter="24">
-      <a-col :span="14">
-        <BasicForm @register="register" />
-      </a-col>
-      <a-col :span="10">
-        <div class="change-avatar">
-          <div class="mb-2">头像</div>
-          <CropperAvatar
-            :uploadApi="uploadApi"
-            :value="avatar"
-            btnText="更换头像"
-            :btnProps="{ preIcon: 'ant-design:cloud-upload-outlined' }"
-            @change="updateAvatar"
-            width="150"
-          />
-        </div>
-      </a-col>
-    </a-row>
-    <Button type="primary" @click="handleSubmit"> 更新基本信息 </Button>
-  </CollapseContainer>
+  <a-row>
+    <a-col :span="18">
+      <BasicForm @register="register" />
+    </a-col>
+    <a-col :span="6">
+      <div class="change-avatar">
+        <div class="mb-2">头像</div>
+        <CropperAvatar
+          :uploadApi="uploadApi"
+          :value="avatar"
+          btnText="更换头像"
+          :btnProps="{ preIcon: 'ant-design:cloud-upload-outlined' }"
+          @change="updateAvatar"
+        />
+      </div>
+    </a-col>
+  </a-row>
+  <div class="my-4 flex justify-center">
+    <a-button type="primary" @click="handleSubmit"> 更新基本信息 </a-button>
+  </div>
 </template>
 <script lang="ts">
-  import { Button, Row, Col } from 'ant-design-vue';
   import { computed, defineComponent, onMounted } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { CollapseContainer } from '/@/components/Container';
   import { CropperAvatar } from '/@/components/Cropper';
 
   import { useMessage } from '/@/hooks/web/useMessage';
 
   import headerImg from '/@/assets/images/header.jpg';
-  import { accountInfoApi } from '/@/api/demo/account';
   import { baseSetschemas } from './data';
   import { useUserStore } from '/@/store/modules/user';
   import { uploadApi } from '/@/api/sys/upload';
+  import { Col, Row } from 'ant-design-vue';
 
   export default defineComponent({
     components: {
+      [Row.name]: Row,
+      [Col.name]: Col,
       BasicForm,
-      CollapseContainer,
-      Button,
-      ARow: Row,
-      ACol: Col,
       CropperAvatar,
     },
     setup() {
@@ -56,7 +51,8 @@
       });
 
       onMounted(async () => {
-        const data = await accountInfoApi();
+        const data = userStore.getUserInfo;
+        console.log(data);
         setFieldsValue(data);
       });
 
@@ -88,7 +84,6 @@
   .change-avatar {
     img {
       display: block;
-      margin-bottom: 15px;
       border-radius: 50%;
     }
   }

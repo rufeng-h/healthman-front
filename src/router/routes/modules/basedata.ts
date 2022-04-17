@@ -166,15 +166,6 @@ const basedata: AppRouteModule = {
         },
       ],
     },
-    {
-      path: 'profile',
-      name: 'BaseDataProfile',
-      component: () => import('/@/views/basedata/profile/index.vue'),
-      meta: {
-        title: '个人中心',
-        icon: 'ant-design:deployment-unit-outlined',
-      },
-    },
   ],
 };
 

@@ -91,7 +91,10 @@
       // open doc
       function openDoc() {
         const go = useGo(router);
-        go('/basedata/profile');
+        go({
+          //@ts-ignore
+          name: 'UserProfile',
+        });
       }
 
       function handleMenuClick(e: { key: MenuEvent }) {
