@@ -13,6 +13,9 @@ export function role2Authorities(roles: RoleInfo[]): string[] {
     if (authorities.indexOf(r) === -1) {
       authorities.push(r);
     }
+    if (!target) {
+      return;
+    }
     if ((value & SELECT_MASK) != 0) {
       authorities.push(target + ':' + 'SELECT');
     }

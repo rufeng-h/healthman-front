@@ -92,7 +92,6 @@ export const useUserStore = defineStore({
         const { goHome = true, mode, ...loginParams } = params;
         const data = await loginApi(loginParams, mode);
         const { token } = data;
-        console.log(token);
         this.setToken(token);
         return this.afterLoginAction(goHome);
       } catch (error) {
@@ -137,7 +136,7 @@ export const useUserStore = defineStore({
     /**
      * @description: logout
      */
-    async logout(goLogin = false) {
+    async logout(goLogin = true) {
       if (this.getToken) {
         try {
           await doLogout();

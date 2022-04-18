@@ -1,3 +1,4 @@
+import { UserTypeEnum } from '/@/enums/userTypeEnum';
 import { defHttp } from '/@/utils/http/axios';
 import { LoginQuery, LoginResult } from './model/userModel';
 
@@ -10,6 +11,14 @@ enum Api {
   UserInfo = '/api/userInfo',
   PermCode = '/getPermCode',
   AvatarUpload = '/upload/avatar',
+  UpdatePwd = '/api/password',
+}
+
+export interface PwdModifyFormdata {
+  userId: string;
+  userType: UserTypeEnum;
+  oldPwd: string;
+  newPwd: string;
 }
 
 /**
@@ -25,6 +34,10 @@ export function loginApi(params: LoginQuery, mode: ErrorMessageMode = 'modal') {
       errorMessageMode: mode,
     },
   );
+}
+
+export function updatePwd(data: PwdModifyFormdata) {
+  return defHttp.put<boolean>({ url: Api.UpdatePwd, data }, { errorMessageMode: 'message' });
 }
 
 export function getPermCode() {
