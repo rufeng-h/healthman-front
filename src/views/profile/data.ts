@@ -1,5 +1,3 @@
-import { FormSchema } from '/@/components/Form/index';
-
 export interface ListItem {
   key: string;
   title: string;
@@ -30,34 +28,6 @@ export const settingList = [
     key: '4',
     name: '新消息通知',
     component: 'MsgNotify',
-  },
-];
-
-// 基础设置 form
-export const baseSetschemas: FormSchema[] = [
-  {
-    field: 'email',
-    component: 'Input',
-    label: '邮箱',
-    colProps: { span: 18 },
-  },
-  {
-    field: 'username',
-    component: 'Input',
-    label: '用户名',
-    colProps: { span: 18 },
-  },
-  {
-    field: 'introduction',
-    component: 'InputTextArea',
-    label: '个人简介',
-    colProps: { span: 18 },
-  },
-  {
-    field: 'phone',
-    component: 'Input',
-    label: '联系电话',
-    colProps: { span: 18 },
   },
 ];
 

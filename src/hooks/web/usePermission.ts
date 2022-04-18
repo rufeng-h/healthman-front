@@ -11,7 +11,6 @@ import { router, resetRouter } from '/@/router';
 
 import projectSetting from '/@/settings/projectSetting';
 import { PermissionModeEnum } from '/@/enums/appEnum';
-import { RoleEnum } from '/@/enums/roleEnum';
 
 import { intersection } from 'lodash-es';
 import { isArray } from '/@/utils/is';
@@ -56,7 +55,7 @@ export function usePermission() {
   /**
    * Determine whether there is permission
    */
-  function hasPermission(value?: RoleEnum | RoleEnum[] | string | string[], def = true): boolean {
+  function hasPermission(value?: string[] | string, def = true): boolean {
     // Visible by default
     if (!value) {
       return def;
@@ -66,9 +65,9 @@ export function usePermission() {
 
     if ([PermissionModeEnum.ROUTE_MAPPING, PermissionModeEnum.ROLE].includes(permMode)) {
       if (!isArray(value)) {
-        return userStore.getRoleList?.includes(value as RoleEnum);
+        return userStore.getAuthorities?.includes(value);
       }
-      return (intersection(value, userStore.getRoleList) as RoleEnum[]).length > 0;
+      return intersection(value, userStore.getAuthorities).length > 0;
     }
 
     if (PermissionModeEnum.BACK === permMode) {
@@ -83,19 +82,19 @@ export function usePermission() {
 
   /**
    * Change roles
-   * @param roles
+   * @param authorities
    */
-  async function changeRole(roles: RoleEnum | RoleEnum[]): Promise<void> {
+  async function changeRole(authorities: string[]): Promise<void> {
     if (projectSetting.permissionMode !== PermissionModeEnum.ROUTE_MAPPING) {
       throw new Error(
         'Please switch PermissionModeEnum to ROUTE_MAPPING mode in the configuration to operate!',
       );
     }
 
-    if (!isArray(roles)) {
-      roles = [roles];
+    if (!isArray(authorities)) {
+      authorities = [authorities];
     }
-    userStore.setRoleList(roles);
+    userStore.setAuthorities(authorities);
     await resume();
   }
 

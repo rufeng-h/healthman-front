@@ -275,6 +275,7 @@
             const data = await delMeasurement(item.msId);
             if (data) {
               fetchData();
+              createMessage.success('操作成功');
             }
           },
           title: `删除测试${item.msName}?`,
@@ -314,8 +315,6 @@
         }
       }
       async function doUpload(msId: number, file: File) {
-        console.log(msId, file);
-
         try {
           openFullLoading();
           const data = await uploadScore(file, msId);

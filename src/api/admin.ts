@@ -23,7 +23,7 @@ export interface AdminInfoModel {
   clgName?: string;
 }
 
-export enum RoleType {
+export enum AdminRoleTypeEnum {
   SYSTEM = 'SYSTEM',
   COLLEGE = 'COLLEGE',
   CLASS = 'CLASS',
@@ -74,17 +74,25 @@ export const adminColumns: BasicColumn[] = [
 interface AddUserData {
   username: string;
   password: string;
-  roleType: RoleType;
+  roleType: AdminRoleTypeEnum;
   collegeId?: string;
   classCode?: string;
   phone: string;
   email: string;
 }
 
+export interface AdminUpdateFormdata {
+  avatar: string;
+  desp: string;
+  phone: string;
+  email: string;
+  adminId: string;
+}
+
 export type UserQuery = Partial<AdminInfoModel> & QueryOrder;
 
 enum Api {
-  UserList = '/api/admin',
+  BaseUrl = '/api/admin',
   AdminPage = '/api/admin',
   UserAdd = '/api/user',
   AdminUpload = '/api/admin/upload',
@@ -105,4 +113,8 @@ export function uploadAdmin(file: File, errorMessageMode: ErrorMessageMode = 'me
 
 export function downloadTemplate(errorMessageMode: ErrorMessageMode = 'message') {
   return defHttp.downloadFileByData({ url: Api.TemplateDownload }, { errorMessageMode });
+}
+
+export function updateAdmin(data: AdminUpdateFormdata) {
+  return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
 }

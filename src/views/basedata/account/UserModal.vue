@@ -9,7 +9,7 @@
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
   import { getClassList } from '/@/api/ptclass';
   import { getCollegeList } from '/@/api/college';
-  import { addUser, RoleType } from '../../../api/admin';
+  import { addUser, AdminRoleTypeEnum } from '/@/api/admin';
   import { useMessage } from '/@/hooks/web/useMessage';
 
   const { createMessage } = useMessage();
@@ -68,15 +68,15 @@
               options: [
                 {
                   label: '系统管理员',
-                  value: RoleType.SYSTEM,
+                  value: AdminRoleTypeEnum.SYSTEM,
                 },
                 {
                   label: '学院管理员',
-                  value: RoleType.COLLEGE,
+                  value: AdminRoleTypeEnum.COLLEGE,
                 },
                 {
                   label: '班级管理员',
-                  value: RoleType.CLASS,
+                  value: AdminRoleTypeEnum.CLASS,
                 },
               ],
             };
@@ -92,7 +92,7 @@
             return (
               field === 'clgCodes' &&
               model.roleTypes &&
-              model.roleTypes.indexOf(RoleType.COLLEGE) !== -1
+              model.roleTypes.indexOf(AdminRoleTypeEnum.COLLEGE) !== -1
             );
           },
           componentProps() {
@@ -127,7 +127,7 @@
             return (
               field === 'clsCodes' &&
               model.roleTypes &&
-              model.roleTypes.indexOf(RoleType.CLASS) !== -1
+              model.roleTypes.indexOf(AdminRoleTypeEnum.CLASS) !== -1
             );
           },
         },

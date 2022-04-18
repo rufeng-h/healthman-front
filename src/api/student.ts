@@ -56,6 +56,13 @@ export interface StudentQuery extends QueryOrder {
   clsCode?: string;
 }
 
+export interface StudentUpdateFormdata {
+  stuId: string;
+  avatar: string;
+  desp: string;
+  birth: string;
+}
+
 export const studentColumns: BasicColumn[] = [
   {
     title: '学号',
@@ -131,4 +138,8 @@ export function uploadStudent(
   errorMessageMode: ErrorMessageMode = 'modal',
 ) {
   return defHttp.uploadFile({ url: Api.StudentUpload }, { file, name }, { errorMessageMode });
+}
+
+export function updateStudent(data: StudentUpdateFormdata) {
+  return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
 }

@@ -1,3 +1,4 @@
+import { GenderEnum } from './../../../enums/genderEnum';
 import type { RoleInfo } from '/#/store';
 import { UserTypeEnum } from '/@/enums/userTypeEnum';
 
@@ -8,6 +9,13 @@ export interface LoginQuery {
   userId: string;
   password: string;
   userType: UserTypeEnum;
+}
+
+export enum RoleTypeEnum {
+  COLLEGE = 'COLLEGE',
+  CLASS = 'CLASS',
+  SYSTEM = 'SYSTEM',
+  STUDENT = 'STUDENT',
 }
 
 /**
@@ -25,13 +33,23 @@ export interface UserInfoModel {
   avatar: string;
   lastLoginTime: string;
   createdTime: string;
+  lastModifyTime: string;
   desp: string;
+  roles: RoleInfoModel[];
+  userType: UserTypeEnum;
+  gender: GenderEnum;
+  birth: string;
   email?: string;
   phone?: string;
-  roles: RoleInfoModel[];
+  clgName?: string;
+  clsName?: string;
 }
 
 export interface RoleInfoModel {
   roleName: string;
-  value: string;
+  roleValue: number;
+  roleCreated: string;
+  roleId: string;
+  roleType: RoleTypeEnum;
+  target: string | undefined;
 }

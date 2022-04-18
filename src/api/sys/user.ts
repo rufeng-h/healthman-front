@@ -9,6 +9,7 @@ enum Api {
   Logout = '/api/logout',
   UserInfo = '/api/userInfo',
   PermCode = '/getPermCode',
+  AvatarUpload = '/upload/avatar',
 }
 
 /**
@@ -36,4 +37,12 @@ export function doLogout() {
 
 export function getUserInfo(errorMessageMode: ErrorMessageMode = 'modal') {
   return defHttp.get<UserInfo>({ url: Api.UserInfo }, { errorMessageMode });
+}
+
+export function uploadAvatar({ file, name, filename }) {
+  return defHttp.uploadFile<string>(
+    { url: Api.AvatarUpload },
+    { file, name, filename },
+    { errorMessageMode: 'message' },
+  );
 }

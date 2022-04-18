@@ -2,7 +2,6 @@ import type { UserInfo } from '/#/store';
 import type { ErrorMessageMode } from '/#/axios';
 import { defineStore } from 'pinia';
 import { store } from '/@/store';
-import { RoleEnum } from '/@/enums/roleEnum';
 import { PageEnum } from '/@/enums/pageEnum';
 import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
@@ -16,11 +15,12 @@ import { RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 import { isArray } from '/@/utils/is';
 import { h } from 'vue';
+import { role2Authorities } from './authority';
 
 interface UserState {
   userInfo: Nullable<UserInfo>;
   token?: string;
-  roleList: RoleEnum[];
+  authorities: string[];
   sessionTimeout?: boolean;
   lastUpdateTime: number;
 }
@@ -33,7 +33,7 @@ export const useUserStore = defineStore({
     // token
     token: undefined,
     // roleList
-    roleList: [],
+    authorities: [],
     // Whether the login expired
     sessionTimeout: false,
     // Last fetch time
@@ -46,8 +46,8 @@ export const useUserStore = defineStore({
     getToken(): string {
       return this.token || getAuthCache<string>(TOKEN_KEY);
     },
-    getRoleList(): RoleEnum[] {
-      return this.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
+    getAuthorities(): string[] {
+      return this.authorities.length > 0 ? this.authorities : getAuthCache<string[]>(ROLES_KEY);
     },
     getSessionTimeout(): boolean {
       return !!this.sessionTimeout;
@@ -61,9 +61,9 @@ export const useUserStore = defineStore({
       this.token = info ? info : ''; // for null or undefined value
       setAuthCache(TOKEN_KEY, info);
     },
-    setRoleList(roleList: RoleEnum[]) {
-      this.roleList = roleList;
-      setAuthCache(ROLES_KEY, roleList);
+    setAuthorities(authorities: string[]) {
+      this.authorities = authorities;
+      setAuthCache(ROLES_KEY, authorities);
     },
     setUserInfo(info: UserInfo | null) {
       this.userInfo = info;
@@ -76,7 +76,7 @@ export const useUserStore = defineStore({
     resetState() {
       this.userInfo = null;
       this.token = '';
-      this.roleList = [];
+      this.authorities = [];
       this.sessionTimeout = false;
     },
     /**
@@ -125,11 +125,11 @@ export const useUserStore = defineStore({
       const userInfo = await getUserInfo();
       const { roles = [] } = userInfo;
       if (isArray(roles)) {
-        const roleList = roles.map((item) => item.value) as RoleEnum[];
-        this.setRoleList(roleList);
+        const authorities = role2Authorities(userInfo.roles);
+        this.setAuthorities(authorities);
       } else {
         userInfo.roles = [];
-        this.setRoleList([]);
+        this.setAuthorities([]);
       }
       this.setUserInfo(userInfo);
       return userInfo;
