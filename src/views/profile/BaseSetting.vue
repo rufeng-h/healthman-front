@@ -140,8 +140,6 @@
 
       async function handleModifyPwd(values: PwdModifyFormdata) {
         try {
-          values.userId = state.userInfo.userId;
-          values.userType = state.userInfo.userType;
           openFullLoading();
           const success = await updatePwd(values);
           if (success) {
