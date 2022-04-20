@@ -1,3 +1,4 @@
+import { GenderEnum } from './../enums/genderEnum';
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-15 10:51:07
@@ -11,16 +12,17 @@ import { defHttp } from '../utils/http/axios';
 import { QueryOrder } from './common';
 import { ErrorMessageMode } from '/#/axios';
 
-export interface AdminInfoModel {
-  userId: string;
-  username: string;
+export interface TeacherInfoModel {
+  teaId: string;
+  teaName: string;
   avatar: string;
-  desp: string;
-  lastLoginTime: string;
-  createdTime: string;
-  phone: string;
   email: string;
-  clgName?: string;
+  teaLastLogin: string;
+  phone: string;
+  clgCode: string;
+  clgName: string;
+  teaGender: GenderEnum;
+  principal: boolean;
 }
 
 export enum AdminRoleTypeEnum {
@@ -29,15 +31,19 @@ export enum AdminRoleTypeEnum {
   CLASS = 'CLASS',
 }
 
-export const adminColumns: BasicColumn[] = [
+export const teaColumns: BasicColumn[] = [
   {
     title: '工号',
-    dataIndex: 'userId',
+    dataIndex: 'teaId',
     fixed: 'left',
   },
   {
     title: '用户名',
-    dataIndex: 'username',
+    dataIndex: 'teaName',
+  },
+  {
+    title: '性别',
+    slots: { customRender: 'gender' },
   },
   {
     title: '邮箱',
@@ -48,26 +54,26 @@ export const adminColumns: BasicColumn[] = [
     dataIndex: 'phone',
   },
   {
+    title: '学院',
+    dataIndex: 'clgName',
+  },
+  {
+    title: '身份',
+    dataIndex: 'principal',
+    slots: { customRender: 'principal' },
+  },
+  {
     title: '头像',
     dataIndex: 'avatar',
     slots: { customRender: 'avatar' },
   },
   {
-    title: '学院',
-    dataIndex: 'clgName',
-  },
-  // {
-  //   title: '角色',
-  //   dataIndex: 'roles[0].roleName',
-  //   width: 200,
-  // },
-  {
     title: '上次登录',
-    dataIndex: 'lastLoginTime',
+    dataIndex: 'teaLastLogin',
   },
   {
     title: '创建时间',
-    dataIndex: 'createdTime',
+    dataIndex: 'teaCreated',
   },
 ];
 
@@ -81,40 +87,26 @@ interface AddUserData {
   email: string;
 }
 
-export interface AdminUpdateFormdata {
-  avatar: string;
-  desp: string;
-  phone: string;
-  email: string;
-  adminId: string;
-}
-
-export type UserQuery = Partial<AdminInfoModel> & QueryOrder;
+export type UserQuery = Partial<TeacherInfoModel> & QueryOrder;
 
 enum Api {
-  BaseUrl = '/api/admin',
-  AdminPage = '/api/admin',
-  UserAdd = '/api/user',
-  AdminUpload = '/api/admin/upload',
-  TemplateDownload = '/api/admin/template',
+  BaseUrl = '/api/teacher',
+  TeacherUpload = '/api/teacher/upload',
+  TemplateDownload = '/api/teacher/template',
 }
 
-export function getAdminPage(params: UserQuery, errorMessageMode: ErrorMessageMode = 'message') {
-  return defHttp.get<AdminInfoModel[]>({ url: Api.AdminPage, params }, { errorMessageMode });
+export function pageTeacher(params: UserQuery, errorMessageMode: ErrorMessageMode = 'message') {
+  return defHttp.get<TeacherInfoModel[]>({ url: Api.BaseUrl, params }, { errorMessageMode });
 }
 
 export function addUser(data: AddUserData, errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.post({ url: Api.UserAdd, data }, { errorMessageMode });
+  return defHttp.post({ url: '/', data }, { errorMessageMode });
 }
 
 export function uploadAdmin(file: File, errorMessageMode: ErrorMessageMode = 'message') {
-  return defHttp.uploadFile<number>({ url: Api.AdminUpload }, { file }, { errorMessageMode });
+  return defHttp.uploadFile<number>({ url: Api.TeacherUpload }, { file }, { errorMessageMode });
 }
 
 export function downloadTemplate(errorMessageMode: ErrorMessageMode = 'message') {
   return defHttp.downloadFileByData({ url: Api.TemplateDownload }, { errorMessageMode });
-}
-
-export function updateAdmin(data: AdminUpdateFormdata) {
-  return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
 }

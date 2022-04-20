@@ -11,11 +11,20 @@ enum Api {
   PermCode = '/getPermCode',
   AvatarUpload = '/upload/avatar',
   UpdatePwd = '/api/password',
+  UpdateUser = '/api/user',
 }
 
 export interface PwdModifyFormdata {
   oldPwd: string;
   newPwd: string;
+}
+
+export interface UpdateUserFormdata {
+  avatar: string;
+  desp: string;
+  phone: string;
+  email: string;
+  birth?: string;
 }
 
 /**
@@ -55,4 +64,8 @@ export function uploadAvatar({ file, name, filename }) {
     { file, name, filename },
     { errorMessageMode: 'message' },
   );
+}
+
+export function updateUser(data: UpdateUserFormdata) {
+  return defHttp.put<boolean>({ url: Api.UpdateUser, data }, { errorMessageMode: 'message' });
 }

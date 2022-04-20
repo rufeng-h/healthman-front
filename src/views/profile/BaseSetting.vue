@@ -20,7 +20,7 @@
     <a-button type="primary" @click="handleSubmit"> 更新基本信息 </a-button>
   </div> -->
   <div class="mx-6">
-    <a-descriptions bordered title="个人详情" v-if="userInfo.userType === 'ADMIN'">
+    <a-descriptions bordered title="个人详情" v-if="userInfo.userType === UserTypeEnum.TEACHER">
       <template #extra>
         <a-button class="mr-2" type="primary" @click="tryEditUser">修改个人信息</a-button>
         <a-button type="primary" @click="tryModifyPwd">修改密码</a-button>
@@ -31,20 +31,23 @@
       <a-descriptions-item label="性别"><Icon icon="twemoji:female-sign" /></a-descriptions-item>
       <a-descriptions-item label="邮箱">{{ userInfo.email }}</a-descriptions-item>
       <a-descriptions-item label="手机">{{ userInfo.phone }}</a-descriptions-item>
-      <a-descriptions-item v-if="userInfo.clgName" label="学院">{{
-        userInfo.clgName
-      }}</a-descriptions-item>
+      <a-descriptions-item v-if="userInfo.clgName" label="学院"
+        ><a-tag color="orange">{{ userInfo.clgName }}</a-tag></a-descriptions-item
+      >
       <a-descriptions-item label="创建时间">{{ userInfo.createdTime }}</a-descriptions-item>
       <a-descriptions-item label="上次登录">{{ userInfo.lastLoginTime }}</a-descriptions-item>
       <a-descriptions-item label="上次修改" v-if="userInfo.lastModifyTime">{{
         userInfo.lastModifyTime
       }}</a-descriptions-item>
-      <a-descriptions-item label="备注信息" />
-      <a-descriptions-item label="备注信息">暂无信息</a-descriptions-item>
+      <a-descriptions-item label="备注信息">{{ userInfo.desp }}</a-descriptions-item>
     </a-descriptions>
-    <a-descriptions v-else bordered title="个人详情">
+    <a-descriptions
+      v-else-if="userInfo.userType === UserTypeEnum.STUDENT"
+      bordered
+      title="个人详情"
+    >
       <template #extra>
-        <a-button type="primary" @click="tryEditUser">修改基本信息</a-button>
+        <a-button class="mr-2" type="primary" @click="tryEditUser">修改基本信息</a-button>
         <a-button type="primary" @click="tryModifyPwd">修改密码</a-button>
       </template>
       <a-descriptions-item label="学号">{{ userInfo.userId }}</a-descriptions-item>
@@ -63,30 +66,47 @@
       }}</a-descriptions-item>
       <a-descriptions-item label="备注信息">暂无信息</a-descriptions-item>
     </a-descriptions>
+    <a-descriptions v-else title="个人详情" bordered>
+      <template #extra>
+        <a-button class="mr-2" type="primary" @click="tryEditUser">修改基本信息</a-button>
+        <a-button type="primary" @click="tryModifyPwd">修改密码</a-button>
+      </template>
+      <a-descriptions-item label="账号">{{ userInfo.userId }}</a-descriptions-item>
+      <a-descriptions-item label="姓名">{{ userInfo.username }}</a-descriptions-item>
+      <a-descriptions-item label="身份">系统管理员</a-descriptions-item>
+      <a-descriptions-item label="性别"><Icon icon="twemoji:female-sign" /></a-descriptions-item>
+      <a-descriptions-item label="邮箱">{{ userInfo.email }}</a-descriptions-item>
+      <a-descriptions-item label="手机">{{ userInfo.phone }}</a-descriptions-item>
+      <a-descriptions-item label="创建时间">{{ userInfo.createdTime }}</a-descriptions-item>
+      <a-descriptions-item label="上次登录">{{ userInfo.lastLoginTime }}</a-descriptions-item>
+      <a-descriptions-item label="上次修改" v-if="userInfo.lastModifyTime">{{
+        userInfo.lastModifyTime
+      }}</a-descriptions-item>
+      <a-descriptions-item label="备注信息">暂无信息</a-descriptions-item>
+    </a-descriptions>
   </div>
   <EditModal @register="userModal" @submit="handleSubmit" />
   <ChangePwdModal @register="pwdModal" @submit="handleModifyPwd" />
 </template>
 <script lang="ts">
-  import { computed, defineComponent, onMounted, reactive, toRefs } from 'vue';
+  import { defineComponent, onMounted, reactive, toRefs } from 'vue';
   import { useUserStore } from '/@/store/modules/user';
-  import { Col, Descriptions, Row } from 'ant-design-vue';
+  import { Col, Descriptions, Row, Tag } from 'ant-design-vue';
   import Icon from '/@/components/Icon';
   import { useModal } from '/@/components/Modal';
   import EditModal from './EditModal.vue';
   import { UserTypeEnum } from '/@/enums/userTypeEnum';
-  import { StudentUpdateFormdata, updateStudent } from '/@/api/student';
-  import { AdminUpdateFormdata, updateAdmin } from '/@/api/admin';
   import { useLoading } from '/@/components/Loading';
   import { dateUtil } from '/@/utils/dateUtil';
   import { useMessage } from '/@/hooks/web/useMessage';
   import ChangePwdModal from './ChangePwdModal.vue';
-  import { PwdModifyFormdata, updatePwd } from '/@/api/sys/user';
+  import { PwdModifyFormdata, updatePwd, updateUser } from '/@/api/sys/user';
 
   export default defineComponent({
     components: {
       Icon,
       [Row.name]: Row,
+      [Tag.name]: Tag,
       [Col.name]: Col,
       EditModal,
       ChangePwdModal,
@@ -100,11 +120,6 @@
       const state = reactive({
         userInfo: userStore.getUserInfo,
       });
-      computed(() => {
-        const rs = [];
-        state.userInfo.roles.forEach((r) => {});
-        return rs;
-      });
 
       const [userModal, { openModal: openUserModal }] = useModal();
       const [pwdModal, { openModal: openPwdModal }] = useModal();
@@ -115,23 +130,18 @@
         console.log(data);
         // setFieldsValue(data);
       });
-      async function handleSubmit({ userId, userType, ...rest }) {
-        if (rest.birth) {
-          rest.birth = dateUtil(rest.birth).format('yyyy-MM-DD');
+      async function handleSubmit(formdata) {
+        if (formdata.birth) {
+          formdata.birth = dateUtil(formdata.birth).format('yyyy-MM-DD');
         }
         try {
-          let success = false;
           openFullLoading();
-          if (userType === UserTypeEnum.ADMIN) {
-            rest.adminId = userId;
-            success = await updateAdmin(rest as AdminUpdateFormdata);
-          } else if (userType === UserTypeEnum.STUDENT) {
-            rest.stuId = userId;
-            success = await updateStudent(rest as StudentUpdateFormdata);
-          }
+          const success = await updateUser(formdata);
           if (success) {
-            Object.assign(state.userInfo, rest);
+            Object.assign(state.userInfo, formdata);
             createMessage.success('更新个人信息成功！');
+          } else {
+            createMessage.error('更新失败！');
           }
         } finally {
           closeFullLoading();
@@ -167,6 +177,8 @@
         tryModifyPwd,
         pwdModal,
         handleModifyPwd,
+
+        UserTypeEnum,
       };
     },
   });

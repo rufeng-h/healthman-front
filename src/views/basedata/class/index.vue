@@ -54,6 +54,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useGo } from '/@/hooks/web/usePage';
   import { useLoading } from '/@/components/Loading';
+  import { numberGradeToZhcn } from '/@/enums/gradeEnum';
   const tableTitle = ref('');
   const [openFullLoading, closeFullLoading] = useLoading({
     tip: '请稍后...',
@@ -63,11 +64,11 @@
   const grades: Ref<OptionsItem[]> = ref<OptionsItem[]>([]);
   const fetchGrades = async (clgCode: string | undefined = undefined) => {
     grades.value.length = 0;
-    const gs: number[] = await getGradeList({ clgCode });
+    const gs: number[] = await getGradeList(clgCode);
     grades.value.push(
       ...gs.map((g) => {
         return {
-          label: g.toString(),
+          label: numberGradeToZhcn(g),
           value: g.toString(),
         };
       }),

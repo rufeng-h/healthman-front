@@ -38,6 +38,13 @@
       <template #avatar="{ record }">
         <Image :src="record.avatar" :width="30" :height="30" />
       </template>
+      <template #principal="{ record }">
+        <span>{{ record.principal ? '负责人' : '教职工' }}</span>
+      </template>
+      <template #gender="{ record }">
+        <Icon v-if="record.teaGender === 'M'" icon="twemoji:male-sign" />
+        <Icon v-else icon="twemoji:female-sign" />
+      </template>
     </BasicTable>
     <UserModal @register="userModal" @success="handleSuccess" />
     <ExcelModal @register="excelModal" @confirm="confirmUpload" />
@@ -52,17 +59,18 @@
   import ExcelModal from '../ExcelModal.vue';
   import { ref } from 'vue';
   import {
-    adminColumns,
-    getAdminPage,
+    teaColumns,
+    pageTeacher,
     uploadAdmin,
     downloadTemplate,
-    AdminInfoModel,
-  } from '../../../api/admin';
+    TeacherInfoModel,
+  } from '/@/api/teacher';
   import UserModal from './UserModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { getCollegeList } from '/@/api/college';
   import { useLoading } from '/@/components/Loading';
+  import Icon from '/@/components/Icon';
   const { createMessage: message } = useMessage();
   const tableTitle = ref('');
   const actionColumn = {
@@ -91,7 +99,7 @@
         },
       },
       {
-        field: 'adminName',
+        field: 'teaName',
         label: '姓名',
         component: 'Input',
         colProps: {
@@ -99,7 +107,7 @@
         },
       },
       {
-        field: 'adminId',
+        field: 'teaId',
         label: '工号',
         component: 'Input',
         colProps: {
@@ -114,15 +122,15 @@
   const [userModal, { openModal: openUserModal }] = useModal();
   const [excelModal, { openModal: openExcelModal }] = useModal();
   const [tableRef, { reload }] = useTable({
-    api: getAdminPage,
+    api: pageTeacher,
     titleHelpMessage: '温馨提示',
     actionColumn,
-    rowKey: 'userId',
+    rowKey: 'teaId',
     tableSetting: { fullScreen: true },
     formConfig,
     useSearchForm: true,
     showTableSetting: true,
-    columns: adminColumns,
+    columns: teaColumns,
     showIndexColumn: false,
     title: tableTitle,
   });
@@ -133,7 +141,7 @@
     });
   }
 
-  function handleEdit(record: AdminInfoModel) {
+  function handleEdit(record: TeacherInfoModel) {
     openUserModal(true, {
       record,
       isUpdate: true,
@@ -153,7 +161,7 @@
     }
   }
 
-  function handleDelete(record: AdminInfoModel) {
+  function handleDelete(record: TeacherInfoModel) {
     console.log(record);
   }
 

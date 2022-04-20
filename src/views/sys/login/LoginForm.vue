@@ -25,17 +25,21 @@
       />
     </FormItem>
 
-    <ARow class="enter-x">
-      <ACol :span="12">
+    <ARow>
+      <ACol :span="10">
         <FormItem>
           <!-- No logic, you need to deal with it yourself -->
-          <Checkbox v-model:checked="isAdmin" size="small">管理员登录 </Checkbox>
+          <Select :options="userTypeOptions" v-model:value="userType" />
+        </FormItem>
+      </ACol>
+      <ACol :span="6">
+        <FormItem class="text-right">
           <Checkbox v-model:checked="rememberMe" size="small">{{
             t('sys.login.rememberMe')
           }}</Checkbox>
         </FormItem>
       </ACol>
-      <ACol :span="12">
+      <ACol :span="8">
         <FormItem :style="{ 'text-align': 'right' }">
           <!-- No logic, you need to deal with it yourself -->
           <Button type="link" size="small" @click="setLoginState(LoginStateEnum.RESET_PASSWORD)">
@@ -67,7 +71,7 @@
 <script lang="ts" setup>
   import { reactive, ref, unref, computed } from 'vue';
 
-  import { Checkbox, Form, Input, Row, Col, Button } from 'ant-design-vue';
+  import { Checkbox, Form, Input, Row, Col, Button, Select } from 'ant-design-vue';
   import LoginFormTitle from './LoginFormTitle.vue';
 
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -92,8 +96,12 @@
   const formRef = ref();
   const loading = ref(false);
   const rememberMe = ref(false);
-  const isAdmin = ref(false);
-
+  const userType = ref<UserTypeEnum>(UserTypeEnum.STUDENT);
+  const userTypeOptions = [
+    { label: '学生登录', value: UserTypeEnum.STUDENT },
+    { label: '教师登录', value: UserTypeEnum.TEACHER },
+    { label: '管理员登录', value: UserTypeEnum.ADMIN },
+  ];
   const formData = reactive({
     account: '000000',
     password: '123456',
@@ -112,7 +120,7 @@
         password: data.password,
         userId: data.account,
         mode: 'none', //不要默认的错误提示
-        userType: isAdmin.value ? UserTypeEnum.ADMIN : UserTypeEnum.STUDENT,
+        userType: userType.value,
       });
       if (userInfo) {
         notification.success({

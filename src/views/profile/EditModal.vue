@@ -20,15 +20,14 @@
   import { UserTypeEnum } from '/@/enums/userTypeEnum';
   import { CropperAvatar } from '/@/components/Cropper';
   import { uploadAvatar } from '/@/api/sys/user';
+  import { cloneDeep } from 'lodash';
 
   export default defineComponent({
     name: 'UserModal',
     components: { BasicModal, BasicForm, CropperAvatar },
     emits: ['submit', 'register'],
     setup(_, { emit }) {
-      let userId: string | undefined = undefined;
-      let userType: UserTypeEnum | undefined = undefined;
-      const adminFormSchemas: FormSchema[] = [
+      const teahcerFormSchemas: FormSchema[] = [
         {
           field: 'birth',
           label: '出生日期',
@@ -86,6 +85,9 @@
         },
       ];
 
+      const adminFormSchemas = cloneDeep(teahcerFormSchemas);
+      adminFormSchemas.splice(0, 1);
+
       const stuFormSchemas: FormSchema[] = [
         {
           field: 'birth',
@@ -123,16 +125,20 @@
 
       const [registerModal, { closeModal }] = useModalInner(async (userInfo: UserInfo) => {
         resetFields();
-        userType = userInfo.userType;
-        userId = userInfo.userId;
-        const schemas =
-          userInfo.userType === UserTypeEnum.ADMIN ? adminFormSchemas : stuFormSchemas;
+        let schemas: FormSchema[] = [];
+        if (userInfo.userType === UserTypeEnum.TEACHER) {
+          schemas = teahcerFormSchemas;
+        } else if (userInfo.userType === UserTypeEnum.STUDENT) {
+          schemas = stuFormSchemas;
+        } else {
+          schemas = adminFormSchemas;
+        }
         setProps({ schemas });
         nextTick(() => setFieldsValue(userInfo));
       });
       async function handleSubmit() {
         const values = await validate();
-        emit('submit', { ...values, userId, userType });
+        emit('submit', values);
         closeModal();
       }
 

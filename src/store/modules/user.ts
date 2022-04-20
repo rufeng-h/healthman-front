@@ -15,7 +15,6 @@ import { RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 import { isArray } from '/@/utils/is';
 import { h } from 'vue';
-import { role2Authorities } from './authority';
 
 interface UserState {
   userInfo: Nullable<UserInfo>;
@@ -123,10 +122,7 @@ export const useUserStore = defineStore({
       if (!this.getToken) return null;
       const userInfo = await getUserInfo();
       const { roles = [] } = userInfo;
-      if (isArray(roles)) {
-        const authorities = role2Authorities(userInfo.roles);
-        this.setAuthorities(authorities);
-      } else {
+      if (!isArray(roles)) {
         userInfo.roles = [];
         this.setAuthorities([]);
       }

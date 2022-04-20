@@ -9,7 +9,7 @@
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
   import { getClassList } from '/@/api/ptclass';
   import { getCollegeList } from '/@/api/college';
-  import { addUser, AdminRoleTypeEnum } from '/@/api/admin';
+  import { addUser, AdminRoleTypeEnum } from '/@/api/teacher';
   import { useMessage } from '/@/hooks/web/useMessage';
 
   const { createMessage } = useMessage();

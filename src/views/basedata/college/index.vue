@@ -64,7 +64,7 @@
   import { PageWrapper } from '/@/components/Page';
   import {
     collegeColumns,
-    getCollegeList,
+    pageCollege,
     uploadCollege,
     downloadFileTemplate,
     CollegeModel,
@@ -120,7 +120,7 @@
   };
   const [registerTable, { reload }] = useTable({
     title: '学院信息',
-    api: getCollegeList,
+    api: pageCollege,
     columns: collegeColumns,
     titleHelpMessage: '温馨提示',
     bordered: true,

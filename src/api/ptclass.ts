@@ -1,5 +1,6 @@
 import { BasicColumn } from '../components/Table/src/types/table';
 import { TreeItem } from '../components/Tree';
+import { numberGradeToZhcn } from '../enums/gradeEnum';
 import { BasicFetchResult } from './model/baseModel';
 import { ErrorMessageMode } from '/#/axios';
 import { defHttp } from '/@/utils/http/axios';
@@ -43,9 +44,16 @@ export interface ClassInfoModel {
   clsName: string;
   clgCode?: string;
   clgName?: string;
+  teaName: string;
   clsEntryYear: number;
+  clsEntryGrade: number;
   clsCreated: string;
   stuCount: number;
+
+  /**
+   * 前端计算
+   */
+  gradeZhcn: string;
 }
 
 export const classColumns: BasicColumn[] = [
@@ -70,8 +78,13 @@ export const classColumns: BasicColumn[] = [
     width: 150,
   },
   {
-    dataIndex: 'clsEntryYear',
+    dataIndex: 'teaName',
+    title: '教师',
+    width: 100,
+  },
+  {
     title: '年级',
+    dataIndex: 'gradeZhcn',
   },
   {
     dataIndex: 'stuCount',
@@ -89,16 +102,27 @@ export const classColumns: BasicColumn[] = [
 ];
 
 /* 获取年级 */
-export function getGradeList(params: ClassQuery, errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<number[]>({ url: Api.GradeList, params }, { errorMessageMode });
+export function getGradeList(
+  clgCode: string | undefined = undefined,
+  errorMessageMode: ErrorMessageMode = 'none',
+) {
+  return defHttp.get<number[]>({ url: Api.GradeList, params: { clgCode } }, { errorMessageMode });
 }
 
 /* 班级详情 */
-export function getClassPage(query: ClassQuery, errorMessageMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<BasicFetchResult<ClassInfoModel>>(
+export async function getClassPage(
+  query: ClassQuery,
+  errorMessageMode: ErrorMessageMode = 'modal',
+) {
+  const data = await defHttp.get<BasicFetchResult<ClassInfoModel>>(
     { url: Api.ClassPage, params: query },
     { errorMessageMode },
   );
+  const year = new Date().getFullYear();
+  data.items.forEach((cls) => {
+    cls.gradeZhcn = numberGradeToZhcn(year - cls.clsEntryYear + cls.clsEntryGrade);
+  });
+  return Promise.resolve(data);
 }
 
 /*  */

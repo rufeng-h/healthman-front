@@ -7,5 +7,6 @@
  */
 export enum UserTypeEnum {
   ADMIN = 'ADMIN',
+  TEACHER = 'TEACHER',
   STUDENT = 'STUDENT',
 }

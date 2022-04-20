@@ -24,7 +24,7 @@ export const collegeColumns: BasicColumn[] = [
     width: 200,
   },
   {
-    dataIndex: 'clgPrincipal',
+    dataIndex: 'principal',
     title: '负责人',
     width: 150,
   },
@@ -63,7 +63,11 @@ export interface CollegeModel {
   clgHome: string;
   clgTel: string;
   clgCreated: string;
-  clgPrincipal: string;
+}
+
+export interface CollegeInfo extends CollegeModel {
+  principal: string;
+  teaId: string;
 }
 
 export type CollegeQuery = Partial<CollegeModel>;
@@ -78,7 +82,7 @@ enum Api {
 }
 
 export function getCollegeList(msgMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<CollegeModel>({ url: Api.CollegeList }, { errorMessageMode: msgMode });
+  return defHttp.get<CollegeInfo>({ url: Api.CollegeList }, { errorMessageMode: msgMode });
 }
 
 export function getCollegeInfo(clgCode: string, errorMessageMode: ErrorMessageMode = 'modal') {
@@ -100,6 +104,10 @@ export function uploadCollege(
 export async function downloadFileTemplate(
   params: any = {},
   errorMessageMode: ErrorMessageMode = 'modal',
-): Promise<void> {
+): Promise<boolean> {
   return defHttp.downloadFileByData({ url: Api.TemplateDownload, params }, { errorMessageMode });
+}
+
+export function pageCollege(params) {
+  return defHttp.get({ url: Api.BaseUrl, params }, { errorMessageMode: 'message' });
 }
