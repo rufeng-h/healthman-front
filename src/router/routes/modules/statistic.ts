@@ -14,7 +14,7 @@ const basedata: AppRouteModule = {
   component: LAYOUT,
   redirect: '/statistic/college',
   meta: {
-    orderNo: 2,
+    orderNo: 4,
     icon: 'ant-design:database-outlined',
     title: '数据统计',
   },

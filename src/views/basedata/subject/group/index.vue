@@ -73,6 +73,7 @@
   import { useGo } from '/@/hooks/web/usePage';
   import { delSubGrp, pageSubGroupInfo, SubGroupInfoModel, SubGroupQuery } from '/@/api/subgroup';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
 
   export default defineComponent({
     components: {
@@ -140,7 +141,7 @@
       const addGroup = () => {
         go({
           //@ts-ignore
-          name: 'BaseDataSubjectGroupAdd',
+          name: ROUTENAMES.SUBJECT.SUBGRP_ADD,
         });
       };
       const actions: any[] = [

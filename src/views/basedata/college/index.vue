@@ -79,6 +79,7 @@
   import { ref, unref } from 'vue';
   import { uploadClass } from '/@/api/ptclass';
   import { useLoading } from '/@/components/Loading';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
   const { createMessage } = useMessage();
   const impExcel = ref();
   let curUploadClg: Nullable<CollegeModel> = null;
@@ -141,7 +142,7 @@
   function handleView(record) {
     go({
       // @ts-ignore
-      name: 'BaseDataCollegeDetail',
+      name: ROUTENAMES.BASEDATA.COLLEGE_DETAIL,
       params: { clgCode: record.clgCode },
     });
   }

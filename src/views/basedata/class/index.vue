@@ -23,10 +23,14 @@
         />
       </template>
       <template #toolbar>
-        <a-button type="primary" @click="downloadFileTemplate" pre-icon="akar-icons:cloud-download"
+        <a-button
+          type="primary"
+          v-if="hasPermission(CLASS_TEMPLATE)"
+          @click="downloadFileTemplate"
+          pre-icon="akar-icons:cloud-download"
           >下载模板</a-button
         >
-        <ImpExcel @success="impSuccess">
+        <ImpExcel @success="impSuccess" v-if="hasPermission(CLASS_UPLOAD)">
           <a-button pre-icon="akar-icons:cloud-upload" type="primary">导入数据</a-button>
         </ImpExcel>
       </template>
@@ -55,7 +59,10 @@
   import { useGo } from '/@/hooks/web/usePage';
   import { useLoading } from '/@/components/Loading';
   import { numberGradeToZhcn } from '/@/enums/gradeEnum';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import { CLASS_TEMPLATE, CLASS_UPLOAD } from '/@/store/modules/Authority';
   const tableTitle = ref('');
+  const { hasPermission } = usePermission();
   const [openFullLoading, closeFullLoading] = useLoading({
     tip: '请稍后...',
   });
@@ -158,7 +165,7 @@
   function handleView(record) {
     go({
       //@ts-ignore
-      name: 'BaseDataClassDetail',
+      name: ROUTENAMES.BASEDATA.CLASS_DETAIL,
       params: {
         clsCode: record.clsCode,
       },

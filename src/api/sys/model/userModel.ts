@@ -35,7 +35,7 @@ export interface UserInfoModel {
   createdTime: string;
   lastModifyTime: string;
   desp: string;
-  roles: RoleInfoModel[];
+  authorities: string[];
   userType: UserTypeEnum;
   gender: GenderEnum;
   birth: string;
@@ -43,13 +43,4 @@ export interface UserInfoModel {
   phone?: string;
   clgName?: string;
   clsName?: string;
-}
-
-export interface RoleInfoModel {
-  roleName: string;
-  roleValue: number;
-  roleCreated: string;
-  roleId: string;
-  roleType: RoleTypeEnum;
-  target: string | undefined;
 }

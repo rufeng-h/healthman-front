@@ -10,6 +10,7 @@ const profile: AppRouteModule = {
     icon: 'ant-design:deployment-unit-outlined',
     title: '个人中心',
     orderNo: 100,
+    hideChildrenInMenu: true,
   },
   children: [
     {

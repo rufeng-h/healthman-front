@@ -121,9 +121,10 @@ export const useUserStore = defineStore({
     async getUserInfoAction(): Promise<UserInfo | null> {
       if (!this.getToken) return null;
       const userInfo = await getUserInfo();
-      const { roles = [] } = userInfo;
-      if (!isArray(roles)) {
-        userInfo.roles = [];
+      const { authorities = [] } = userInfo;
+      if (!isArray(authorities)) {
+        console.warn('authorities必须为string[]');
+        userInfo.authorities = [];
         this.setAuthorities([]);
       }
       this.setUserInfo(userInfo);

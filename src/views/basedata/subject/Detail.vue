@@ -4,7 +4,7 @@
       <template #headerContent>
         <div class="flex flex-row flex-wrap md:justify-end lg:justify-between lg:w-2/3 mx-auto">
           <Alert
-            message="若无指定年级和性别的评分标准则认为该项科目无需测试。评分区间为左开右闭，若无上限或下限可不填"
+            message="若无指定年级和性别的评分标准则认为该项科目无需评分。评分区间为左开右闭，可无上限或下限"
             show-icon
           />
         </div>
@@ -19,7 +19,11 @@
             <Icon v-else icon="twemoji:female-sign" />
           </template>
           <template #toolbar>
-            <a-button type="primary" @click="tryAddLevel" :disabled="currentEditKey !== ''"
+            <a-button
+              v-if="hasPermission(SCOS_UPDATE)"
+              type="primary"
+              @click="tryAddLevel"
+              :disabled="currentEditKey !== ''"
               >新增等级</a-button
             >
           </template>
@@ -60,6 +64,8 @@
   import { useRoute } from 'vue-router';
   import { useTabs } from '/@/hooks/web/useTabs';
   import Icon from '/@/components/Icon';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import { SCOS_DELETE, SCOS_UPDATE } from '/@/store/modules/Authority';
   export default defineComponent({
     components: {
       PageWrapper,
@@ -70,6 +76,7 @@
       Icon,
     },
     setup() {
+      const { hasPermission } = usePermission();
       const { createMessage: msg } = useMessage();
       const { setTitle: setTabTitle } = useTabs();
       const route = useRoute();
@@ -80,6 +87,7 @@
               label: '编辑',
               disabled: state.currentEditKey ? state.currentEditKey !== record.key : false,
               onClick: handleEdit.bind(null, record),
+              ifShow: () => hasPermission(SCOS_UPDATE),
             },
             {
               label: '删除',
@@ -88,6 +96,7 @@
                 title: '确认删除吗',
                 confirm: handleDelete.bind(null, record, column),
               },
+              ifShow: () => hasPermission(SCOS_DELETE),
             },
           ];
         }
@@ -337,6 +346,10 @@
         addLevel,
         levelModal,
         ...toRefs(state),
+
+        hasPermission,
+        SCOS_DELETE,
+        SCOS_UPDATE,
       };
     },
   });

@@ -183,6 +183,7 @@
   import Icon from '/@/components/Icon';
   import { FormSchema, useForm, BasicForm } from '/@/components/Form';
   import { gradeEnumOptions } from '/@/enums/gradeEnum';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
   export default defineComponent({
     components: {
       [Tooltip.name]: Tooltip,
@@ -290,7 +291,7 @@
               closeTab();
               go({
                 //@ts-ignore
-                name: 'BaseDataSubjectGroup',
+                name: ROUTENAMES.SUBGRP.SUBGRP_INDEX,
               });
             }, 2000);
           }

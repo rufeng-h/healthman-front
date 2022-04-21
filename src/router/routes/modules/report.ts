@@ -14,7 +14,7 @@ const basedata: AppRouteModule = {
   component: LAYOUT,
   redirect: '/report/index',
   meta: {
-    orderNo: 4,
+    orderNo: 5,
     icon: 'ant-design:database-outlined',
     title: '健康轨迹',
   },

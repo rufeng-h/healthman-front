@@ -179,6 +179,7 @@
   import { useGo } from '/@/hooks/web/usePage';
   import { useLoading } from '/@/components/Loading';
   import { ImpExcel } from '/@/components/Excel';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
 
   export default defineComponent({
     components: {
@@ -300,7 +301,7 @@
       function handleView(measurement: MeasurementInfoModel) {
         go({
           // @ts-ignore
-          name: 'BaseDataMeasurementDetail',
+          name: ROUTENAMES.MS.MS_DETAIL,
           params: {
             msId: measurement.msId,
           },

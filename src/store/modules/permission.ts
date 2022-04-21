@@ -1,3 +1,4 @@
+import { UserTypeEnum } from './../../enums/userTypeEnum';
 import type { AppRouteRecordRaw, Menu } from '/@/router/types';
 
 import { defineStore } from 'pinia';
@@ -23,6 +24,7 @@ import { getPermCode } from '/@/api/sys/user';
 
 import { useMessage } from '/@/hooks/web/useMessage';
 import { PageEnum } from '/@/enums/pageEnum';
+import { adminRoutes, studentRoutes, teaRoutes } from '/@/router/routes/routeMapping';
 
 interface PermissionState {
   // Permission code list
@@ -159,6 +161,19 @@ export const usePermissionStore = defineStore({
         case PermissionModeEnum.ROUTE_MAPPING:
           routes = filter(asyncRoutes, routeFilter);
           routes = routes.filter(routeFilter);
+
+          const userType = userStore.userInfo?.userType;
+          switch (userType) {
+            case UserTypeEnum.ADMIN:
+              routes.push(...adminRoutes());
+              break;
+            case UserTypeEnum.STUDENT:
+              routes.push(...studentRoutes(userStore.userInfo?.userId as string));
+              break;
+            case UserTypeEnum.TEACHER:
+              routes.push(...teaRoutes());
+          }
+
           const menuList = transformRouteToMenu(routes, true);
           routes = filter(routes, routeRemoveIgnoreFilter);
           routes = routes.filter(routeRemoveIgnoreFilter);

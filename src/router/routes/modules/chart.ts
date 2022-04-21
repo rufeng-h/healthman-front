@@ -7,7 +7,7 @@ const basedata: AppRouteModule = {
   component: LAYOUT,
   redirect: '/chart/college',
   meta: {
-    orderNo: 3,
+    orderNo: 6,
     icon: 'ant-design:database-outlined',
     title: '数据可视化',
   },

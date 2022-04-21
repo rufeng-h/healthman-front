@@ -17,7 +17,11 @@
         </a-form>
       </template>
       <template #extra>
-        <a-button type="primary" pre-icon="ant-design:plus-circle-outlined" @click="tryAddSubject"
+        <a-button
+          v-if="hasPermission(SUBJECT_INSERT)"
+          type="primary"
+          pre-icon="ant-design:plus-circle-outlined"
+          @click="tryAddSubject"
           >创建新科目</a-button
         >
       </template>
@@ -86,7 +90,7 @@
                         @click="handleView(item)" /></a-tooltip
                   ></div>
                   <div v-else class="action-item">
-                    <a-tooltip title="无成绩标准，请导入">
+                    <a-tooltip title="无成绩标准">
                       <Icon
                         icon="ep:warning-filled"
                         color="orange"
@@ -94,7 +98,7 @@
                         :size="20" /></a-tooltip
                   ></div>
 
-                  <div class="action-item">
+                  <div class="action-item" v-if="hasPermission(SUBJECT_UPDATE)">
                     <a-tooltip title="编辑科目信息">
                       <Icon
                         icon="bxs:edit"
@@ -105,7 +109,7 @@
                     /></a-tooltip>
                   </div>
 
-                  <div class="action-item">
+                  <div class="action-item" v-if="hasPermission(SUBJECT_DELETE)">
                     <a-tooltip title="删除该科目">
                       <Icon
                         icon="ep:delete-filled"
@@ -115,7 +119,7 @@
                         @click="handleDel(item)"
                     /></a-tooltip>
                   </div>
-                  <div class="action-item">
+                  <div class="action-item" v-if="hasPermission(SCOS_UPLOAD)">
                     <a-tooltip title="导入评分标准">
                       <ImpExcel @success="handleImpScoreSheet($event, item)">
                         <Icon
@@ -172,7 +176,17 @@
   import { uploadScoreSheet } from '/@/api/scoreSheet';
   import { useMessage } from '/@/hooks/web/useMessage';
   import SubjectModal from './SubjectModal.vue';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { useGo } from '/@/hooks/web/usePage';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import {
+    SUBJECT_INSERT,
+    SUBJECT_UPDATE,
+    SUBJECT_DELETE,
+    SUBJECT_LIST,
+    SCOS_PAGE,
+    SCOS_UPLOAD,
+  } from '/@/store/modules/Authority';
   export default defineComponent({
     components: {
       ImpExcel,
@@ -192,6 +206,7 @@
       [Avatar.name]: Avatar,
     },
     setup() {
+      const { hasPermission } = usePermission();
       const go = useGo();
       const DEFAULT_PAGE_SIZE = 8;
       const { createMessage, createConfirm } = useMessage();
@@ -268,7 +283,7 @@
       function handleView(sub: SubjectInfoModel) {
         go({
           //@ts-ignore
-          name: 'BaseDataSubjectDetail',
+          name: ROUTENAMES.SUBJECT.SUBJECT_DETAIL,
           params: { subId: sub.subId },
         });
       }
@@ -306,6 +321,14 @@
         handleEdit,
         handleImpScoreSheet,
         handleView,
+
+        hasPermission,
+        SUBJECT_INSERT,
+        SUBJECT_UPDATE,
+        SUBJECT_DELETE,
+        SUBJECT_LIST,
+        SCOS_PAGE,
+        SCOS_UPLOAD,
       };
     },
   });
@@ -317,15 +340,13 @@
       display: inline-block;
       padding: 0 0.5rem;
       color: @text-color-secondary;
-
+      border-right: 1px solid @border-color-base;
       &:nth-child(1) {
         padding-left: 0;
       }
 
-      &:nth-child(1),
-      &:nth-child(2),
-      &:nth-child(3) {
-        border-right: 1px solid @border-color-base;
+      &:last-child {
+        border-right: 0;
       }
     }
 

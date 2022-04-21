@@ -68,6 +68,7 @@
   import { useGo } from '/@/hooks/web/usePage';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useLoading } from '/@/components/Loading';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
   const tableTitle = ref('未选择班级');
   const { createMessage } = useMessage();
 
@@ -150,9 +151,9 @@
   const beforeFetch = (params: StudentQuery) => {
     const { field, order } = params;
     if (field && order) {
-      if (order === 'descend') {
+      if (order === OrderEnum.desc) {
         params.order = OrderEnum.DESC;
-      } else if (order === 'ascend') {
+      } else if (order === OrderEnum.asc) {
         params.order = OrderEnum.ASC;
       } else {
         throw new Error('order参数异常 => ' + order);
@@ -212,7 +213,7 @@
   function handleView(record) {
     go({
       // @ts-ignore
-      name: 'BaseDataStudentDetail',
+      name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
       params: {
         stuId: record.stuId,
       },

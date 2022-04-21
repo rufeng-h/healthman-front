@@ -5,6 +5,8 @@ import { defHttp } from '../utils/http/axios';
 import { ErrorMessageMode } from '/#/axios';
 import { isBlank } from '../utils/is';
 import { BasicColumn } from '../components/Table/src/types/table';
+import { usePermission } from '/@/hooks/web/usePermission';
+import { SCOS_DELETE, SCOS_UPDATE } from '/@/store/modules/Authority';
 
 /*
  * @Author: 黄纯峰
@@ -16,6 +18,8 @@ import { BasicColumn } from '../components/Table/src/types/table';
 
 export const SCORE_SHEET_MAX = 9999;
 export const SCORE_SHEET_MIN = -9999;
+
+const { hasPermission } = usePermission();
 
 export interface ScoreSheetModel {
   id: number;
@@ -138,6 +142,7 @@ export const scoreSheetColumns: BasicColumn[] = [
     title: '操作',
     slots: { customRender: 'action' },
     width: 100,
+    ifShow: () => hasPermission(SCOS_DELETE) || hasPermission(SCOS_UPDATE),
   },
 ];
 

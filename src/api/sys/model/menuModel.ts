@@ -10,6 +10,10 @@ export interface RouteItem {
   children?: RouteItem[];
 }
 
+export interface MenuItem {
+  name: string;
+}
+
 /**
  * @description: Get menu return value
  */
