@@ -21,11 +21,13 @@
                 icon: 'clarity:info-standard-line',
                 tooltip: '详情',
                 onClick: handleView.bind(null, record),
+                ifShow: () => hasPermission(COLLEGE_GET),
               },
               {
                 icon: 'mdi:database-import',
                 tooltip: '导入班级数据',
                 onClick: handleImpCls.bind(null, record),
+                ifShow: () => hasPermission(CLASS_UPLOAD),
               },
               // {
               //   icon: 'clarity:note-edit-line',
@@ -48,9 +50,11 @@
           <a-button type="primary" @click="openWindow(record.clgHome)">主页</a-button>
         </template>
         <template #toolbar>
-          <a-button type="primary" @click="downloadTemplate">下载模板文件</a-button>
+          <a-button type="primary" @click="downloadTemplate" v-if="hasPermission(COLLEGE_TEMPLATE)"
+            >下载模板文件</a-button
+          >
           <ImpExcel @success="impSuccess" ref="impExcel">
-            <a-button type="primary">导入学院数据</a-button>
+            <a-button v-if="hasPermission(COLLEGE_UPLOAD)" type="primary">导入学院数据</a-button>
           </ImpExcel>
         </template>
       </BasicTable>
@@ -80,7 +84,16 @@
   import { uploadClass } from '/@/api/ptclass';
   import { useLoading } from '/@/components/Loading';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import {
+    COLLEGE_TEMPLATE,
+    COLLEGE_UPLOAD,
+    CLASS_UPLOAD,
+    COLLEGE_GET,
+  } from '/@/store/modules/Authority';
   const { createMessage } = useMessage();
+  const { hasPermission } = usePermission();
+
   const impExcel = ref();
   let curUploadClg: Nullable<CollegeModel> = null;
   const [openFullLoading, closeFullLoading] = useLoading({

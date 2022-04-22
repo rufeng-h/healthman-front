@@ -60,10 +60,16 @@
           <Icon v-else icon="twemoji:female-sign" />
         </template>
         <template #toolbar>
-          <a-button type="primary" @click="showMoreScoreData">{{
+          <a-button v-if="hasData" type="primary" @click="showMoreScoreData">{{
             showScoData ? '只显示成绩' : '显示体测数据和成绩'
           }}</a-button>
-          <a-button type="primary" @click="downloadData">导出数据</a-button>
+          <a-button
+            type="primary"
+            @click="downloadData"
+            v-if="hasPermission(SCORE_DOWNLOAD)"
+            :disabled="!hasData"
+            >导出数据</a-button
+          >
         </template>
         <template #expandedRowRender="{ record }">
           <a-table :columns="scoreColumns" :data-source="record.scores" :pagination="false" />
@@ -74,7 +80,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
+  import { computed, defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
   import { useRoute } from 'vue-router';
   import { DEFAULT_MS, getMeasurementDetail, MeasurementDetailModel } from '/@/api/measurement';
   import { PageWrapper } from '/@/components/Page';
@@ -87,6 +93,8 @@
   import Icon from '/@/components/Icon';
   import { useLoading } from '/@/components/Loading';
   import { useGo } from '/@/hooks/web/usePage';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import { SCORE_DOWNLOAD } from '/@/store/modules/Authority';
   export default defineComponent({
     components: {
       Icon,
@@ -104,6 +112,8 @@
     },
     setup() {
       const go = useGo();
+      const { hasPermission } = usePermission();
+
       const { setTitle: setTabTitle } = useTabs();
       const [openFullLoading, closeFullLoading] = useLoading({
         tip: '正在导出...',
@@ -118,6 +128,7 @@
         showScoData: true,
         ms: DEFAULT_MS,
       });
+
       onMounted(async () => {
         state.ms = await getMeasurementDetail(route.params.msId as unknown as number);
         setTabTitle(state.ms.msName);
@@ -224,6 +235,9 @@
         title: '体测结果',
         titleHelpMessage: '默认展示最优成绩',
       });
+      const hasData = computed(() => {
+        return getDataSource().length > 0;
+      });
       const showMoreScoreData = () => {
         state.showScoData = !state.showScoData;
         const items = getDataSource();
@@ -275,6 +289,10 @@
         registerTable,
         ...toRefs(state),
         scoreColumns,
+        hasData,
+
+        hasPermission,
+        SCORE_DOWNLOAD,
       };
     },
   });

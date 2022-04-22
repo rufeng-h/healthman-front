@@ -125,8 +125,8 @@ export const useUserStore = defineStore({
       if (!isArray(authorities)) {
         console.warn('authorities必须为string[]');
         userInfo.authorities = [];
-        this.setAuthorities([]);
       }
+      this.setAuthorities(authorities);
       this.setUserInfo(userInfo);
       return userInfo;
     },

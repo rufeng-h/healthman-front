@@ -2,6 +2,8 @@ import { ErrorMessageMode } from '/#/axios';
 import { defHttp } from '/@/utils/http/axios';
 import { BasicColumn } from '/@/components/Table';
 import { TreeItem } from '../components/Tree';
+import { usePermission } from '../hooks/web/usePermission';
+import { COLLEGE_GET, CLASS_UPLOAD } from '../store/modules/Authority';
 
 /*
  * @Author: 黄纯峰
@@ -10,6 +12,7 @@ import { TreeItem } from '../components/Tree';
  * @Version: 1.0
  * @Description: TODO
  */
+const { hasPermission } = usePermission();
 export const collegeColumns: BasicColumn[] = [
   {
     dataIndex: 'clgCode',
@@ -53,6 +56,7 @@ export const collegeColumns: BasicColumn[] = [
     title: '操作',
     slots: { customRender: 'action' },
     width: 80,
+    ifShow: () => hasPermission(COLLEGE_GET) || hasPermission(CLASS_UPLOAD),
   },
 ];
 
@@ -81,8 +85,8 @@ enum Api {
   TemplateDownload = '/api/college/template',
 }
 
-export function getCollegeList(msgMode: ErrorMessageMode = 'modal') {
-  return defHttp.get<CollegeInfo>({ url: Api.CollegeList }, { errorMessageMode: msgMode });
+export function getCollegeList() {
+  return defHttp.get<CollegeInfo>({ url: Api.CollegeList }, { errorMessageMode: 'message' });
 }
 
 export function getCollegeInfo(clgCode: string, errorMessageMode: ErrorMessageMode = 'modal') {

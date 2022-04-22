@@ -104,7 +104,7 @@ export const classColumns: BasicColumn[] = [
 /* 获取年级 */
 export function getGradeList(
   clgCode: string | undefined = undefined,
-  errorMessageMode: ErrorMessageMode = 'none',
+  errorMessageMode: ErrorMessageMode = 'message',
 ) {
   return defHttp.get<number[]>({ url: Api.GradeList, params: { clgCode } }, { errorMessageMode });
 }

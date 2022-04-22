@@ -71,7 +71,7 @@ const subGrpIndex: AppRouteRecordRaw = {
 /* 学生详情页 */
 const studentDetail: AppRouteRecordRaw = {
   path: ':stuId',
-  name: 'StuMsDetail',
+  name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
   component: () => import('/@/views/basedata/student/StudentDetail.vue'),
   meta: {
     title: '学生详情',
@@ -79,63 +79,84 @@ const studentDetail: AppRouteRecordRaw = {
     currentActiveMenu: '/ms/stu',
   },
 };
-
+/* 体测列表页 */
+const msIndex = {
+  path: 'index',
+  name: ROUTENAMES.MS.MS_INDEX,
+  component: () => import('/@/views/basedata/measurement/index.vue'),
+  meta: {
+    title: '体测信息',
+    icon: 'ant-design:aliwangwang-outlined',
+    hideChildrenInMenu: true,
+  },
+};
+/* 体测详情页 */
+const msDetail = {
+  path: ':msId',
+  component: () => import('/@/views/basedata/measurement/Detail.vue'),
+  name: ROUTENAMES.MS.MS_DETAIL,
+  meta: {
+    title: '体测详情',
+    hideMenu: true,
+  },
+};
+/* 学院列表页 */
+const collegeIndex = {
+  path: 'clg',
+  name: ROUTENAMES.BASEDATA.COLLEGE_INDEX,
+  component: () => import('/@/views/basedata/college/index.vue'),
+  meta: {
+    title: '学院信息',
+    icon: 'ant-design:ant-design-outlined',
+    hideChildrenInMenu: true,
+  },
+};
+const collegeDetail = {
+  path: ':clgCode',
+  name: ROUTENAMES.BASEDATA.COLLEGE_DETAIL,
+  component: () => import('/@/views/basedata/college/CollegeDetail.vue'),
+  meta: {
+    title: '详情',
+    hideMenu: true,
+    currentActiveMenu: '/basedata/clg',
+  },
+};
+const classIndex = {
+  path: 'cls',
+  name: ROUTENAMES.BASEDATA.CLASS_INDEX,
+  component: () => import('/@/views/basedata/class/index.vue'),
+  meta: {
+    title: '班级信息',
+    icon: 'ant-design:bank-outlined',
+    hideChildrenInMenu: true,
+  },
+};
+const classDetail = {
+  path: ':clsCode',
+  name: ROUTENAMES.BASEDATA.CLASS_DETAIL,
+  component: () => import('/@/views/basedata/class/ClassDetail.vue'),
+  meta: {
+    title: '班级详情',
+    hideMenu: true,
+    currentActiveMenu: '/basedata/cls',
+  },
+};
 export function teaRoutes() {
   const basedata: AppRouteModule = {
     path: '/basedata',
     name: 'Basedata',
     component: LAYOUT,
-    redirect: '/basedata/clg',
+    redirect: { name: collegeIndex.name },
     meta: {
       orderNo: 1,
       icon: 'ant-design:database-outlined',
       title: '基础数据管理',
     },
     children: [
-      {
-        path: 'clg',
-        name: ROUTENAMES.BASEDATA.COLLEGE_INDEX,
-        component: () => import('/@/views/basedata/college/index.vue'),
-        meta: {
-          title: '学院信息',
-          icon: 'ant-design:ant-design-outlined',
-          hideChildrenInMenu: true,
-        },
-        children: [
-          {
-            path: ':clgCode',
-            name: ROUTENAMES.BASEDATA.COLLEGE_DETAIL,
-            component: () => import('/@/views/basedata/college/CollegeDetail.vue'),
-            meta: {
-              title: '详情',
-              hideMenu: true,
-              currentActiveMenu: '/basedata/clg',
-            },
-          },
-        ],
-      },
-      {
-        path: 'cls',
-        name: ROUTENAMES.BASEDATA.CLASS_INDEX,
-        component: () => import('/@/views/basedata/class/index.vue'),
-        meta: {
-          title: '班级信息',
-          icon: 'ant-design:bank-outlined',
-          hideChildrenInMenu: true,
-        },
-        children: [
-          {
-            path: ':clsCode',
-            name: ROUTENAMES.BASEDATA.CLASS_DETAIL,
-            component: () => import('/@/views/basedata/class/ClassDetail.vue'),
-            meta: {
-              title: '班级详情',
-              hideMenu: true,
-              currentActiveMenu: '/basedata/cls',
-            },
-          },
-        ],
-      },
+      collegeIndex,
+      collegeDetail,
+      classIndex,
+      classDetail,
       {
         path: 'tea',
         name: ROUTENAMES.BASEDATA.TEACHER_INDEX,
@@ -181,30 +202,7 @@ export function teaRoutes() {
       orderNo: 3,
       icon: 'ant-design:aliwangwang-outlined',
     },
-    children: [
-      {
-        path: 'index',
-        name: ROUTENAMES.MS.MS_INDEX,
-        component: () => import('/@/views/basedata/measurement/index.vue'),
-        meta: {
-          title: '体测管理',
-          icon: 'ant-design:aliwangwang-outlined',
-          hideChildrenInMenu: true,
-        },
-        children: [
-          {
-            path: ':msId',
-            component: () => import('/@/views/basedata/measurement/Detail.vue'),
-            name: ROUTENAMES.MS.MS_DETAIL,
-            meta: {
-              title: '体测详情',
-              hideMenu: true,
-            },
-          },
-          studentDetail,
-        ],
-      },
-    ],
+    children: [msIndex, msDetail, studentDetail],
   };
 
   return [basedata, subject, measurement];
@@ -254,6 +252,9 @@ export function adminRoutes(): AppRouteModule[] {
       hideChildrenInMenu: true,
     },
     children: [
+      msIndex,
+      msDetail,
+      studentDetail,
       {
         path: 'index',
         component: () => import('/@/views/admin/index.vue'),
@@ -265,5 +266,30 @@ export function adminRoutes(): AppRouteModule[] {
       },
     ],
   };
-  return [admin];
+  const ms: AppRouteRecordRaw = {
+    name: 'msIndex',
+    redirect: { name: msIndex.name },
+    component: LAYOUT,
+    path: '/ms',
+    meta: {
+      title: '体测信息',
+      icon: 'ant-design:aliwangwang-outlined',
+      hideChildrenInMenu: true,
+      orderNo: 2,
+    },
+    children: [msIndex, msDetail],
+  };
+  const base: AppRouteRecordRaw = {
+    path: '/base',
+    name: 'base',
+    component: LAYOUT,
+    redirect: { name: collegeIndex.name },
+    meta: {
+      orderNo: 1,
+      icon: 'ant-design:database-outlined',
+      title: '基础数据管理',
+    },
+    children: [collegeIndex, collegeDetail, classIndex, classDetail],
+  };
+  return [admin, ms, base];
 }

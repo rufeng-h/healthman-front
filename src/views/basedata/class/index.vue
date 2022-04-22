@@ -61,6 +61,7 @@
   import { numberGradeToZhcn } from '/@/enums/gradeEnum';
   import { usePermission } from '/@/hooks/web/usePermission';
   import { CLASS_TEMPLATE, CLASS_UPLOAD } from '/@/store/modules/Authority';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
   const tableTitle = ref('');
   const { hasPermission } = usePermission();
   const [openFullLoading, closeFullLoading] = useLoading({

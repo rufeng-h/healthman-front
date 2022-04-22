@@ -34,8 +34,14 @@
       </template>
 
       <template #toolbar>
-        <a-button type="primary" @click="downloadTemplate">下载模板</a-button>
-        <ImpExcel @success="impSuccess" dateFormat="yyyy-MM-DD">
+        <a-button type="primary" @click="downloadTemplate" v-if="hasPermission(STUDENT_TEMPLATE)"
+          >下载模板</a-button
+        >
+        <ImpExcel
+          @success="impSuccess"
+          dateFormat="yyyy-MM-DD"
+          v-if="hasPermission(STUDENT_UPLOAD)"
+        >
           <a-button type="primary">导入数据</a-button>
         </ImpExcel>
       </template>
@@ -69,8 +75,11 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useLoading } from '/@/components/Loading';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import { STUDENT_UPLOAD, STUDENT_TEMPLATE, STUDENT_GET } from '/@/store/modules/Authority';
   const tableTitle = ref('未选择班级');
   const { createMessage } = useMessage();
+  const { hasPermission } = usePermission();
 
   const fetchClass = async (clgCode: string | undefined = undefined) => {
     const data = await getClassList({ clgCode });
@@ -183,6 +192,7 @@
       title: '操作',
       width: 50,
       slots: { customRender: 'action' },
+      ifShow: () => hasPermission(STUDENT_GET),
     },
   });
   const [registerModal, { openModal }] = useModal();

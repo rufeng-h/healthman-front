@@ -18,7 +18,11 @@
         </a-form>
       </template>
       <template #extra>
-        <a-button type="primary" pre-icon="ant-design:plus-circle-outlined" @click="addMeasurement"
+        <a-button
+          type="primary"
+          pre-icon="ant-design:plus-circle-outlined"
+          @click="addMeasurement"
+          v-if="hasPermission(MS_INSERT)"
           >新建体测</a-button
         >
       </template>
@@ -68,7 +72,7 @@
                 <span :class="`${prefixCls}__card-detail-desp`">{{ item.msDesp }}</span>
               </div>
               <div :class="`${prefixCls}__card-action`">
-                <div :class="`${prefixCls}__card-action-item`">
+                <div :class="`${prefixCls}__card-action-item`" v-if="hasPermission(MS_DETAIL)">
                   <a-tooltip title="查看成绩详情">
                     <Icon
                       icon="akar-icons:more-horizontal"
@@ -78,7 +82,7 @@
                       @click="handleView(item)" /></a-tooltip
                 ></div>
 
-                <div :class="`${prefixCls}__card-action-item`">
+                <div :class="`${prefixCls}__card-action-item`" v-if="hasPermission(MS_UPDATE)">
                   <a-tooltip title="编辑体测信息">
                     <Icon
                       icon="bxs:edit"
@@ -89,7 +93,7 @@
                     />
                   </a-tooltip>
                 </div>
-                <div :class="`${prefixCls}__card-action-item`">
+                <div :class="`${prefixCls}__card-action-item`" v-if="hasPermission(MS_DELETE)">
                   <a-tooltip title="删除本次体测">
                     <Icon
                       icon="ep:delete-filled"
@@ -100,7 +104,7 @@
                     />
                   </a-tooltip>
                 </div>
-                <div :class="`${prefixCls}__card-action-item`">
+                <div :class="`${prefixCls}__card-action-item`" v-if="hasPermission(SCORE_UPLOAD)">
                   <a-tooltip title="导入体测数据">
                     <ImpExcel @success="handleImpScore($event, item)">
                       <Icon
@@ -112,7 +116,7 @@
                     </ImpExcel>
                   </a-tooltip>
                 </div>
-                <div :class="`${prefixCls}__card-action-item`">
+                <div :class="`${prefixCls}__card-action-item`" v-if="hasPermission(MS_TEMPLATE)">
                   <a-tooltip title="下载成绩模板">
                     <Icon
                       icon="el:download"
@@ -180,6 +184,15 @@
   import { useLoading } from '/@/components/Loading';
   import { ImpExcel } from '/@/components/Excel';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
+  import {
+    SCORE_UPLOAD,
+    MS_DELETE,
+    MS_INSERT,
+    MS_UPDATE,
+    MS_TEMPLATE,
+    MS_DETAIL,
+  } from '/@/store/modules/Authority';
+  import { usePermission } from '/@/hooks/web/usePermission';
 
   export default defineComponent({
     components: {
@@ -205,6 +218,7 @@
     },
     setup() {
       const impExcel = ref();
+      const { hasPermission } = usePermission();
       const go = useGo();
       const [openFullLoading, closeFullLoading] = useLoading({
         tip: '请稍后...',
@@ -346,6 +360,13 @@
         handleEdit,
         handleDel,
         downloadFileTemplate,
+        SCORE_UPLOAD,
+        MS_DELETE,
+        MS_INSERT,
+        MS_UPDATE,
+        MS_TEMPLATE,
+        MS_DETAIL,
+        hasPermission,
       };
     },
   });
@@ -406,16 +427,14 @@
           display: inline-block;
           padding: 0 0.5rem;
           color: @text-color-secondary;
+          border-right: 1px solid @border-color-base;
 
           &:nth-child(1) {
             padding-left: 0;
           }
 
-          &:nth-child(1),
-          &:nth-child(2),
-          &:nth-child(3),
-          &:nth-child(4) {
-            border-right: 1px solid @border-color-base;
+          &:last-child {
+            border-right: 0;
           }
         }
 

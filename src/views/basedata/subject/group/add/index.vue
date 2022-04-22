@@ -356,7 +356,7 @@
       function handleView(sub: SubjectInfoModel) {
         go({
           //@ts-ignore
-          name: 'BaseDataSubjectDetail',
+          name: ROUTENAMES.SUBJECT.SUBJECT_DETAIL,
           params: { subId: sub.subId },
         });
       }

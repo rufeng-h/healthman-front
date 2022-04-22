@@ -13,7 +13,11 @@
       </a-form>
     </template>
     <template #extra>
-      <a-button type="primary" pre-icon="ant-design:plus-circle-outlined" @click="addGroup"
+      <a-button
+        v-if="hasPermission(SUBGRP_INSERT)"
+        type="primary"
+        pre-icon="ant-design:plus-circle-outlined"
+        @click="addGroup"
         >新增科目组</a-button
       ></template
     >
@@ -74,6 +78,8 @@
   import { delSubGrp, pageSubGroupInfo, SubGroupInfoModel, SubGroupQuery } from '/@/api/subgroup';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import { SUBGRP_INSERT } from '/@/store/modules/Authority';
 
   export default defineComponent({
     components: {
@@ -89,6 +95,7 @@
     },
     setup() {
       const go = useGo();
+      const { hasPermission } = usePermission();
       const { createConfirm } = useMessage();
       const DEFAULT_PAGE_SIZE = 3;
       onMounted(() => {
@@ -171,6 +178,9 @@
         actions,
         doSearch,
         onChange,
+
+        hasPermission,
+        SUBGRP_INSERT,
       };
     },
   });
