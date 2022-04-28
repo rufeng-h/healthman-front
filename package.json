@@ -1,6 +1,7 @@
 {
   "name": "vben-admin",
   "version": "2.8.0",
+  "web-types": "./web-types.json",
   "author": {
     "name": "vben",
     "email": "anncwb@126.com",

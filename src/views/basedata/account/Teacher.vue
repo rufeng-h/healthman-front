@@ -179,7 +179,7 @@
       openFullLoading();
       const cnt = await uploadAdmin(file);
       message.success(`成功导入${cnt}条数据`);
-      reload({ page: 1 });
+      await reload({ page: 1 });
     } finally {
       closeFullLoading();
     }

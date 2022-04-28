@@ -255,7 +255,7 @@
             const success = await deleteSubject(sub.subId);
             if (success) {
               createMessage.success({ content: '操作成功', key: 'delSubject' });
-              fetchData();
+              await fetchData();
             }
           },
           title: `此操作将会删除科目${sub.subName}及其所有评分标准，确认继续？`,
@@ -269,7 +269,7 @@
         createMessage.success(`导入${data}条数据`);
       }
       async function doSubmit({ isUpdate, sub }) {
-        let success = false;
+        let success: boolean;
         if (isUpdate) {
           success = await updateSubject(sub);
         } else {
@@ -277,7 +277,7 @@
         }
         if (success) {
           createMessage.success('操作成功!');
-          fetchData();
+          await fetchData();
         }
       }
       function handleView(sub: SubjectInfoModel) {
