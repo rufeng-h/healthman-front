@@ -141,6 +141,25 @@ const classDetail = {
     currentActiveMenu: '/basedata/cls',
   },
 };
+const teacherIndex: AppRouteRecordRaw = {
+  path: 'tea',
+  name: ROUTENAMES.BASEDATA.TEACHER_INDEX,
+  component: () => import('/@/views/basedata/account/Teacher.vue'),
+  meta: {
+    title: '教师信息',
+    icon: 'ant-design:aliwangwang-outlined',
+  },
+};
+const studentIndex: AppRouteRecordRaw = {
+  path: 'stu',
+  name: ROUTENAMES.BASEDATA.STUDENT_INDEX,
+  component: () => import('/@/views/basedata/student/index.vue'),
+  meta: {
+    title: '学生信息',
+    icon: 'ant-design:aliwangwang-outlined',
+    hideChildrenInMenu: true,
+  },
+};
 export function teaRoutes() {
   const basedata: AppRouteModule = {
     path: '/basedata',
@@ -157,26 +176,9 @@ export function teaRoutes() {
       collegeDetail,
       classIndex,
       classDetail,
-      {
-        path: 'tea',
-        name: ROUTENAMES.BASEDATA.TEACHER_INDEX,
-        component: () => import('/@/views/basedata/account/Teacher.vue'),
-        meta: {
-          title: '教师信息',
-          icon: 'ant-design:aliwangwang-outlined',
-        },
-      },
-      {
-        path: 'stu',
-        name: ROUTENAMES.BASEDATA.STUDENT_INDEX,
-        component: () => import('/@/views/basedata/student/index.vue'),
-        meta: {
-          title: '学生信息',
-          icon: 'ant-design:aliwangwang-outlined',
-          hideChildrenInMenu: true,
-        },
-        children: [studentDetail],
-      },
+      teacherIndex,
+      studentDetail,
+      studentIndex,
     ],
   };
   const subject: AppRouteModule = {
@@ -289,7 +291,7 @@ export function adminRoutes(): AppRouteModule[] {
       icon: 'ant-design:database-outlined',
       title: '基础数据管理',
     },
-    children: [collegeIndex, collegeDetail, classIndex, classDetail],
+    children: [collegeIndex, collegeDetail, classIndex, classDetail, teacherIndex, studentIndex],
   };
   return [admin, ms, base];
 }

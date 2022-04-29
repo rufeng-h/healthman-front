@@ -1,6 +1,7 @@
-import { GenderEnum } from './../../../enums/genderEnum';
+import { GenderEnum } from '/@/enums/genderEnum';
 import type { RoleInfo } from '/#/store';
 import { UserTypeEnum } from '/@/enums/userTypeEnum';
+import { ClassModel } from '/@/api/ptclass';
 
 /**
  * @description: Login interface parameters
@@ -9,13 +10,6 @@ export interface LoginQuery {
   userId: string;
   password: string;
   userType: UserTypeEnum;
-}
-
-export enum RoleTypeEnum {
-  COLLEGE = 'COLLEGE',
-  CLASS = 'CLASS',
-  SYSTEM = 'SYSTEM',
-  STUDENT = 'STUDENT',
 }
 
 /**
@@ -43,4 +37,5 @@ export interface UserInfoModel {
   phone?: string;
   clgName?: string;
   clsName?: string;
+  classes?: ClassModel[];
 }

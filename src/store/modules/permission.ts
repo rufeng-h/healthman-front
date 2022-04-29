@@ -1,4 +1,4 @@
-import { UserTypeEnum } from './../../enums/userTypeEnum';
+import { UserTypeEnum } from '/@/enums/userTypeEnum';
 import type { AppRouteRecordRaw, Menu } from '/@/router/types';
 
 import { defineStore } from 'pinia';

@@ -15,6 +15,7 @@
               icon: 'clarity:note-edit-line',
               tooltip: '编辑用户资料',
               onClick: handleEdit.bind(null, record),
+              ifShow: () => true,
             },
             {
               icon: 'ant-design:delete-outlined',
@@ -24,14 +25,20 @@
                 title: '是否确认删除',
                 confirm: handleDelete.bind(null, record),
               },
+              ifShow: () => true,
             },
           ]"
         />
       </template>
       <template #toolbar>
-        <a-button type="primary" @click="downloadFileTemplate">下载模板文件</a-button>
+        <a-button
+          type="primary"
+          @click="downloadFileTemplate"
+          v-if="hasPermission(TEACHER_TEMPLATE)"
+          >下载模板文件</a-button
+        >
         <ImpExcel @success="impSuccess">
-          <a-button type="primary">从excel上传</a-button>
+          <a-button type="primary" v-if="hasPermission(TEACHER_UPLOAD)">从excel上传</a-button>
         </ImpExcel>
         <a-button type="primary" @click="handleCreate">新增账号</a-button>
       </template>
@@ -50,14 +57,9 @@
     <ExcelModal @register="excelModal" @confirm="confirmUpload" />
   </PageWrapper>
 </template>
-<script lang="ts" setup>
-  import { ImpExcel } from '/@/components/Excel';
-  import { Image } from 'ant-design-vue';
-  import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+<script lang="ts">
   import { FormProps } from '/@/components/Form';
-  import ExcelModal from '../ExcelModal.vue';
-  import { ref } from 'vue';
+  import { defineComponent, ref } from 'vue';
   import {
     teaColumns,
     pageTeacher,
@@ -71,128 +73,166 @@
   import { getCollegeList } from '/@/api/college';
   import { useLoading } from '/@/components/Loading';
   import Icon from '/@/components/Icon';
-  const { createMessage: message } = useMessage();
-  const tableTitle = ref('');
-  const actionColumn = {
-    width: 120,
-    title: '操作',
-    dataIndex: 'action',
-    slots: { customRender: 'action' },
-  };
-  const formConfig: FormProps = {
-    submitOnReset: false,
-    labelWidth: 100,
-    showAdvancedButton: true,
-    compact: true,
-    schemas: [
-      {
-        field: 'clgCode',
-        label: '学院',
-        component: 'ApiSelect',
-        colProps: {
-          span: 6,
-        },
-        componentProps: {
-          labelField: 'clgName',
-          valueField: 'clgCode',
-          api: getCollegeList,
-        },
-      },
-      {
-        field: 'teaName',
-        label: '姓名',
-        component: 'Input',
-        colProps: {
-          span: 6,
-        },
-      },
-      {
-        field: 'teaId',
-        label: '工号',
-        component: 'Input',
-        colProps: {
-          span: 6,
-        },
-      },
-    ],
-  };
-  const [openFullLoading, closeFullLoading] = useLoading({
-    tip: '请稍后...',
+  import ExcelModal from '../ExcelModal.vue';
+  import { ImpExcel } from '/@/components/Excel';
+  import { Image } from 'ant-design-vue';
+  import { PageWrapper } from '/@/components/Page';
+  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import { TEACHER_TEMPLATE, TEACHER_UPLOAD } from '/@/store/modules/Authority';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  export default defineComponent({
+    components: {
+      Icon,
+      UserModal,
+      ExcelModal,
+      Image,
+      PageWrapper,
+      BasicTable,
+      TableAction,
+      ImpExcel,
+    },
+    setup() {
+      const { createMessage: message } = useMessage();
+      const { hasPermission } = usePermission();
+      const tableTitle = ref('');
+      const actionColumn = {
+        width: 120,
+        title: '操作',
+        dataIndex: 'action',
+        slots: { customRender: 'action' },
+      };
+      const formConfig: FormProps = {
+        submitOnReset: false,
+        labelWidth: 100,
+        showAdvancedButton: true,
+        compact: true,
+        schemas: [
+          {
+            field: 'clgCode',
+            label: '学院',
+            component: 'ApiSelect',
+            colProps: {
+              span: 6,
+            },
+            componentProps: {
+              labelField: 'clgName',
+              valueField: 'clgCode',
+              api: getCollegeList,
+            },
+          },
+          {
+            field: 'teaName',
+            label: '姓名',
+            component: 'Input',
+            colProps: {
+              span: 6,
+            },
+          },
+          {
+            field: 'teaId',
+            label: '工号',
+            component: 'Input',
+            colProps: {
+              span: 6,
+            },
+          },
+        ],
+      };
+      const [openFullLoading, closeFullLoading] = useLoading({
+        tip: '请稍后...',
+      });
+      const [userModal, { openModal: openUserModal }] = useModal();
+      const [excelModal, { openModal: openExcelModal }] = useModal();
+      const [tableRef, { reload }] = useTable({
+        api: pageTeacher,
+        titleHelpMessage: '温馨提示',
+        actionColumn,
+        rowKey: 'teaId',
+        tableSetting: { fullScreen: true },
+        formConfig,
+        useSearchForm: true,
+        showTableSetting: true,
+        columns: teaColumns,
+        showIndexColumn: false,
+        title: tableTitle,
+      });
+
+      function handleCreate() {
+        openUserModal(true, {
+          isUpdate: false,
+        });
+      }
+
+      function handleEdit(record: TeacherInfoModel) {
+        openUserModal(true, {
+          record,
+          isUpdate: true,
+        });
+      }
+
+      function handleSuccess({ isUpdate, values }) {
+        if (isUpdate) {
+          message.warn('更新数据');
+          console.log(values);
+          // 演示不刷新表格直接更新内部数据。
+          // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
+          // const result = updateTableDataRecord(values.id, values);
+          // console.log(result);
+        } else {
+          reload({ page: 1 });
+        }
+      }
+
+      function handleDelete(record: TeacherInfoModel) {
+        console.log(record);
+      }
+
+      // function handleSelect(deptId = '') {
+      //   searchInfo.deptId = deptId;
+      //   reload();
+      // }
+
+      function impSuccess({ excelDataList, file }) {
+        openExcelModal(true, { excelDataList, file });
+      }
+
+      async function confirmUpload(file: File) {
+        try {
+          openFullLoading();
+          const cnt = await uploadAdmin(file);
+          message.success(`成功导入${cnt}条数据`);
+          await reload({ page: 1 });
+        } finally {
+          closeFullLoading();
+        }
+      }
+
+      async function downloadFileTemplate() {
+        try {
+          openFullLoading();
+          await downloadTemplate();
+        } finally {
+          closeFullLoading();
+        }
+      }
+      return {
+        userModal,
+        excelModal,
+        tableRef,
+        downloadFileTemplate,
+        confirmUpload,
+        handleDelete,
+        impSuccess,
+        handleSuccess,
+        handleCreate,
+        handleEdit,
+
+        TEACHER_TEMPLATE,
+        TEACHER_UPLOAD,
+        hasPermission,
+      };
+    },
   });
-  const [userModal, { openModal: openUserModal }] = useModal();
-  const [excelModal, { openModal: openExcelModal }] = useModal();
-  const [tableRef, { reload }] = useTable({
-    api: pageTeacher,
-    titleHelpMessage: '温馨提示',
-    actionColumn,
-    rowKey: 'teaId',
-    tableSetting: { fullScreen: true },
-    formConfig,
-    useSearchForm: true,
-    showTableSetting: true,
-    columns: teaColumns,
-    showIndexColumn: false,
-    title: tableTitle,
-  });
-
-  function handleCreate() {
-    openUserModal(true, {
-      isUpdate: false,
-    });
-  }
-
-  function handleEdit(record: TeacherInfoModel) {
-    openUserModal(true, {
-      record,
-      isUpdate: true,
-    });
-  }
-
-  function handleSuccess({ isUpdate, values }) {
-    if (isUpdate) {
-      message.warn('更新数据');
-      console.log(values);
-      // 演示不刷新表格直接更新内部数据。
-      // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
-      // const result = updateTableDataRecord(values.id, values);
-      // console.log(result);
-    } else {
-      reload({ page: 1 });
-    }
-  }
-
-  function handleDelete(record: TeacherInfoModel) {
-    console.log(record);
-  }
-
-  // function handleSelect(deptId = '') {
-  //   searchInfo.deptId = deptId;
-  //   reload();
-  // }
-
-  function impSuccess({ excelDataList, file }) {
-    openExcelModal(true, { excelDataList, file });
-  }
-
-  async function confirmUpload(file: File) {
-    try {
-      openFullLoading();
-      const cnt = await uploadAdmin(file);
-      message.success(`成功导入${cnt}条数据`);
-      await reload({ page: 1 });
-    } finally {
-      closeFullLoading();
-    }
-  }
-
-  async function downloadFileTemplate() {
-    try {
-      openFullLoading();
-      await downloadTemplate();
-    } finally {
-      closeFullLoading();
-    }
-  }
 </script>
 
 <style scoped lang="less">

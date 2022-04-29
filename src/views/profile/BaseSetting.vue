@@ -39,6 +39,11 @@
       <a-descriptions-item label="上次修改" v-if="userInfo.lastModifyTime">{{
         userInfo.lastModifyTime
       }}</a-descriptions-item>
+      <a-descriptions-item label="我的班级" span="3">
+        <a-tag v-for="cls in userInfo.classes" :key="cls.clsCode" color="green">
+          {{ cls.clsName }}
+        </a-tag>
+      </a-descriptions-item>
       <a-descriptions-item label="备注信息">{{ userInfo.desp }}</a-descriptions-item>
     </a-descriptions>
     <a-descriptions
@@ -154,7 +159,7 @@
           const success = await updatePwd(values);
           if (success) {
             createMessage.success('操作成功！请重新登录！');
-            userStore.logout();
+            await userStore.logout();
           }
         } finally {
           closeFullLoading();
