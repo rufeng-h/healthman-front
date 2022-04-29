@@ -1,4 +1,4 @@
-import { BasicColumn } from '../components/Table/src/types/table';
+import { BasicColumn } from '/@/components/Table';
 import { TreeItem } from '../components/Tree';
 import { numberGradeToZhcn } from '../enums/gradeEnum';
 import { BasicFetchResult } from './model/baseModel';

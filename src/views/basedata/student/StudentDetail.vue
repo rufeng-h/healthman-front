@@ -47,14 +47,14 @@
               <div class="flex flex-col justify-center text-right mr-6 md: mt-2">
                 <span class="text-secondary"> 进行中 </span>
                 <span class="text-xl">{{
-                  stu.msStatus.reduce((prev, ms) => (!ms.status ? prev + 1 : prev + 0), 0)
+                  stu.msStatus.reduce((prev, ms) => (!ms.status ? prev + 1 : prev), 0)
                 }}</span>
               </div>
 
               <div class="flex flex-col justify-center text-right md: mt-2">
                 <span class="text-secondary"> 已完成 </span>
                 <span class="text-xl">{{
-                  stu.msStatus.reduce((prev, ms) => (ms.status ? prev + 1 : prev + 0), 0)
+                  stu.msStatus.reduce((prev, ms) => (ms.status ? prev + 1 : prev), 0)
                 }}</span>
               </div>
             </div>
@@ -116,7 +116,7 @@
 
               <CollapseContainer
                 :default-expand="false"
-                :can-expan="item.scores != undefined && item.scores.length !== 0"
+                :can-expan="item.scores !== undefined && item.scores.length !== 0"
               >
                 <template #title>
                   <BasicTitle
@@ -233,8 +233,8 @@
       }
       onMounted(async () => {
         state.stu = await getStudentInfo(route.params.stuId as string);
-        setTitle(state.stu.stuId + ' ' + state.stu.stuName);
-        fetchMsData(state.stu.stuId, { page: 1 });
+        await setTitle(state.stu.stuId + ' ' + state.stu.stuName);
+        await fetchMsData(state.stu.stuId, { page: 1 });
       });
       const actions = [
         { icon: 'clarity:star-line', text: '156', color: '#018ffb' },

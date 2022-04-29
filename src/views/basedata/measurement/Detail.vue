@@ -131,8 +131,8 @@
 
       onMounted(async () => {
         state.ms = await getMeasurementDetail(route.params.msId as unknown as number);
-        setTabTitle(state.ms.msName);
-        reload({ page: 1 });
+        await setTabTitle(state.ms.msName);
+        await reload({ page: 1 });
       });
       //@ts-ignore
       const [registerTable, { reload, setTableData, getDataSource, getForm }] = useTable({

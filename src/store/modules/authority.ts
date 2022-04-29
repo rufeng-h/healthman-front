@@ -30,6 +30,7 @@ export const STUDENT_PAGE = 'student:page';
 export const STUDENT_UPLOAD = 'student:upload';
 export const STUDENT_TEMPLATE = 'student:template';
 export const SUBGRP_DELETE = 'subGrp:delete';
+export const SUBGRP_SUB_DELETE = 'subGrp:subDelete';
 export const SUBGRP_INSERT = 'subGrp:insert';
 export const SUBGRP_LIST = 'subGrp:list';
 export const SUBGRP_PAGE = 'subGrp:page';

@@ -68,17 +68,7 @@ const subGrpIndex: AppRouteRecordRaw = {
     hideChildrenInMenu: true,
   },
 };
-/* 学生详情页 */
-const studentDetail: AppRouteRecordRaw = {
-  path: ':stuId',
-  name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
-  component: () => import('/@/views/basedata/student/StudentDetail.vue'),
-  meta: {
-    title: '学生详情',
-    hideMenu: true,
-    currentActiveMenu: '/ms/stu',
-  },
-};
+
 /* 体测列表页 */
 const msIndex = {
   path: 'index',
@@ -97,6 +87,7 @@ const msDetail = {
   name: ROUTENAMES.MS.MS_DETAIL,
   meta: {
     title: '体测详情',
+    hideBreadcrumb: true,
     hideMenu: true,
   },
 };
@@ -118,6 +109,7 @@ const collegeDetail = {
   meta: {
     title: '详情',
     hideMenu: true,
+    hideBreadcrumb: true,
     currentActiveMenu: '/basedata/clg',
   },
 };
@@ -138,6 +130,7 @@ const classDetail = {
   meta: {
     title: '班级详情',
     hideMenu: true,
+    hideBreadcrumb: true,
     currentActiveMenu: '/basedata/cls',
   },
 };
@@ -158,6 +151,18 @@ const studentIndex: AppRouteRecordRaw = {
     title: '学生信息',
     icon: 'ant-design:aliwangwang-outlined',
     hideChildrenInMenu: true,
+  },
+};
+/* 学生详情页 */
+const studentDetail: AppRouteRecordRaw = {
+  path: ':stuId',
+  name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
+  component: () => import('/@/views/basedata/student/StudentDetail.vue'),
+  meta: {
+    title: '学生详情',
+    hideMenu: true,
+    hideBreadcrumb: true,
+    currentActiveMenu: '/basedata/stu',
   },
 };
 export function teaRoutes() {
@@ -211,6 +216,18 @@ export function teaRoutes() {
 }
 
 export function studentRoutes(stuId: string): AppRouteModule[] {
+  /* 基础数据 */
+  const base: AppRouteModule = {
+    name: 'Basedata',
+    path: '/base',
+    component: LAYOUT,
+    redirect: { name: collegeIndex.name },
+    meta: {
+      title: '基本信息',
+      icon: 'ant-design:deployment-unit-outlined',
+    },
+    children: [collegeIndex, collegeDetail, classIndex, classDetail, teacherIndex],
+  };
   /* 科目 */
   const subject: AppRouteModule = {
     name: 'Subject',
@@ -238,7 +255,7 @@ export function studentRoutes(stuId: string): AppRouteModule[] {
     },
     children: [studentDetail],
   };
-  return [student, subject];
+  return [base, student, subject];
 }
 
 export function adminRoutes(): AppRouteModule[] {

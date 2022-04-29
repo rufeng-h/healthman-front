@@ -50,11 +50,7 @@
   </PageWrapper>
 </template>
 
-<script setup lang="ts">
-  import { Icon } from '/@/components/Icon';
-  import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { Image, Tag } from 'ant-design-vue';
+<script lang="ts">
   import {
     studentColumns,
     getStudentPage,
@@ -62,173 +58,205 @@
     downloadFileTemplate,
     uploadStudent,
   } from '/@/api/student';
-  import { ref, Ref } from 'vue';
+  import { ref, Ref, defineComponent } from 'vue';
   import { FormProps } from '/@/components/Form';
   import OrderEnum from '../../../enums/orderEnum';
   import { getCollegeList } from '/@/api/college';
   import { getClassList } from '/@/api/ptclass';
   import { isArray } from '/@/utils/is';
-  import { ImpExcel } from '/@/components/Excel';
-  import ExcelModal from '../ExcelModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useGo } from '/@/hooks/web/usePage';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useLoading } from '/@/components/Loading';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { usePermission } from '/@/hooks/web/usePermission';
+  import { Icon } from '/@/components/Icon';
+  import { PageWrapper } from '/@/components/Page';
+  import { BasicTable, useTable, TableAction } from '/@/components/Table';
+  import { Image, Tag } from 'ant-design-vue';
+  import { ImpExcel } from '/@/components/Excel';
+  import ExcelModal from '../ExcelModal.vue';
   import { STUDENT_UPLOAD, STUDENT_TEMPLATE, STUDENT_GET } from '/@/store/modules/Authority';
-  const tableTitle = ref('未选择班级');
-  const { createMessage } = useMessage();
-  const { hasPermission } = usePermission();
+  export default defineComponent({
+    components: {
+      ImpExcel,
+      ExcelModal,
+      Icon,
+      PageWrapper,
+      BasicTable,
+      TableAction,
+      Image,
+      Tag,
+    },
+    setup() {
+      const tableTitle = ref('未选择班级');
+      const { createMessage } = useMessage();
+      const { hasPermission } = usePermission();
 
-  const fetchClass = async (clgCode: string | undefined = undefined) => {
-    const data = await getClassList({ clgCode });
-    classes.value.length = 0;
-    classes.value.push(
-      ...data.map((item) => {
-        return {
-          value: item.clsCode,
-          label: item.clsName,
-        };
-      }),
-    );
-  };
-  type OptionsItem = { label: string; value: string; disabled?: boolean };
-  const classes: Ref<OptionsItem[]> = ref([]);
-  const formConfig: FormProps = {
-    submitOnReset: false,
-    labelWidth: 80,
-    showAdvancedButton: true,
-    compact: true,
-    schemas: [
-      {
-        field: 'clgCode',
-        label: '学院',
-        component: 'ApiSelect',
-        colProps: {
-          span: 6,
-        },
-        componentProps: {
-          api: getCollegeList,
-          immediate: true,
-          labelField: 'clgName',
-          valueField: 'clgCode',
-          showSearch: true,
-          onSelect: async (value: string) => {
-            getForm().setFieldsValue({ clsCode: undefined });
-            fetchClass(value);
+      const fetchClass = async (clgCode: string | undefined = undefined) => {
+        const data = await getClassList({ clgCode });
+        classes.value.length = 0;
+        classes.value.push(
+          ...data.map((item) => {
+            return {
+              value: item.clsCode,
+              label: item.clsName,
+            };
+          }),
+        );
+      };
+      type OptionsItem = { label: string; value: string; disabled?: boolean };
+      const classes: Ref<OptionsItem[]> = ref([]);
+      const formConfig: FormProps = {
+        submitOnReset: false,
+        labelWidth: 80,
+        showAdvancedButton: true,
+        compact: true,
+        schemas: [
+          {
+            field: 'clgCode',
+            label: '学院',
+            component: 'ApiSelect',
+            colProps: {
+              span: 6,
+            },
+            componentProps: {
+              api: getCollegeList,
+              immediate: true,
+              labelField: 'clgName',
+              valueField: 'clgCode',
+              showSearch: true,
+              onSelect: async (value: string) => {
+                await getForm().setFieldsValue({ clsCode: undefined });
+                await fetchClass(value);
+              },
+            },
           },
-        },
-      },
-      {
-        field: 'clsCode',
-        label: '班级',
-        component: 'Select',
-        componentProps: {
-          options: classes.value,
-          onSelect(_, option: OptionsItem) {
-            tableTitle.value = option.label;
+          {
+            field: 'clsCode',
+            label: '班级',
+            component: 'Select',
+            componentProps: {
+              options: classes.value,
+              onSelect(_, option: OptionsItem) {
+                tableTitle.value = option.label;
+              },
+            },
+            colProps: {
+              span: 6,
+            },
           },
-        },
-        colProps: {
-          span: 6,
-        },
-      },
-      {
-        field: 'stuName',
-        label: '姓名',
-        component: 'Input',
-        colProps: {
-          span: 6,
-        },
-      },
-      {
-        field: 'stuId',
-        label: '学号',
-        component: 'Input',
-        colProps: {
-          span: 6,
-        },
-      },
-    ],
-  };
+          {
+            field: 'stuName',
+            label: '姓名',
+            component: 'Input',
+            colProps: {
+              span: 6,
+            },
+          },
+          {
+            field: 'stuId',
+            label: '学号',
+            component: 'Input',
+            colProps: {
+              span: 6,
+            },
+          },
+        ],
+      };
 
-  const [openFullLoading, closeFullLoading] = useLoading({
-    tip: '正在上传...',
-  });
+      const [openFullLoading, closeFullLoading] = useLoading({
+        tip: '正在上传...',
+      });
 
-  const beforeFetch = (params: StudentQuery) => {
-    const { field, order } = params;
-    if (field && order) {
-      if (order === OrderEnum.desc) {
-        params.order = OrderEnum.DESC;
-      } else if (order === OrderEnum.asc) {
-        params.order = OrderEnum.ASC;
-      } else {
-        throw new Error('order参数异常 => ' + order);
+      const beforeFetch = (params: StudentQuery) => {
+        const { field, order } = params;
+        if (field && order) {
+          if (order === OrderEnum.desc) {
+            params.order = OrderEnum.DESC;
+          } else if (order === OrderEnum.asc) {
+            params.order = OrderEnum.ASC;
+          } else {
+            throw new Error('order参数异常 => ' + order);
+          }
+        } else if (field || order) {
+          throw new Error('请求参数异常' + field + ' ' + order);
+        }
+        if (params.stuGender && isArray(params.stuGender)) {
+          params.stuGender = params.stuGender[0];
+        }
+        return params;
+      };
+      const [tableRef, { getForm, reload }] = useTable({
+        bordered: true,
+        title: tableTitle,
+        columns: studentColumns,
+        api: getStudentPage,
+        showTableSetting: true,
+        // immediate: false,
+        tableSetting: { fullScreen: true, size: false },
+        beforeFetch,
+        inset: true,
+        useSearchForm: true,
+        formConfig,
+        canResize: true,
+        actionColumn: {
+          title: '操作',
+          width: 50,
+          slots: { customRender: 'action' },
+          ifShow: () => hasPermission(STUDENT_GET),
+        },
+      });
+      const [registerModal, { openModal }] = useModal();
+      const impSuccess = ({ excelDataList, file }) => {
+        openModal(true, { excelDataList, file });
+      };
+      const confirmUpload = async (file: File) => {
+        try {
+          openFullLoading();
+          const data = await uploadStudent(file);
+          if (data) {
+            createMessage.success(`成功添加${data}条记录!`);
+            await reload();
+          }
+        } finally {
+          closeFullLoading();
+        }
+      };
+      async function downloadTemplate() {
+        try {
+          openFullLoading();
+          await downloadFileTemplate();
+        } finally {
+          closeFullLoading();
+        }
       }
-    } else if (field || order) {
-      throw new Error('请求参数异常' + field + ' ' + order);
-    }
-    if (params.stuGender && isArray(params.stuGender)) {
-      params.stuGender = params.stuGender[0];
-    }
-    return params;
-  };
-  const [tableRef, { getForm, reload }] = useTable({
-    bordered: true,
-    title: tableTitle,
-    columns: studentColumns,
-    api: getStudentPage,
-    showTableSetting: true,
-    // immediate: false,
-    tableSetting: { fullScreen: true, size: false },
-    beforeFetch,
-    inset: true,
-    useSearchForm: true,
-    formConfig,
-    canResize: true,
-    actionColumn: {
-      title: '操作',
-      width: 50,
-      slots: { customRender: 'action' },
-      ifShow: () => hasPermission(STUDENT_GET),
+      const go = useGo();
+      function handleView(record) {
+        go({
+          // @ts-ignore
+          name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
+          params: {
+            stuId: record.stuId,
+          },
+        });
+      }
+      return {
+        registerModal,
+        tableRef,
+
+        handleView,
+        downloadTemplate,
+        confirmUpload,
+        impSuccess,
+
+        STUDENT_UPLOAD,
+        STUDENT_TEMPLATE,
+        STUDENT_GET,
+        hasPermission,
+      };
     },
   });
-  const [registerModal, { openModal }] = useModal();
-  const impSuccess = ({ excelDataList, file }) => {
-    openModal(true, { excelDataList, file });
-  };
-  const confirmUpload = async (file: File) => {
-    try {
-      openFullLoading();
-      const data = await uploadStudent(file);
-      if (data) {
-        createMessage.success(`成功添加${data}条记录!`);
-        reload();
-      }
-    } finally {
-      closeFullLoading();
-    }
-  };
-  async function downloadTemplate() {
-    try {
-      openFullLoading();
-      downloadFileTemplate();
-    } finally {
-      closeFullLoading();
-    }
-  }
-  const go = useGo();
-  function handleView(record) {
-    go({
-      // @ts-ignore
-      name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
-      params: {
-        stuId: record.stuId,
-      },
-    });
-  }
 </script>
 
 <style lang="less" scoped>

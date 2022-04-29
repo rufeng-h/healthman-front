@@ -1,11 +1,12 @@
 import { BasicPageParams } from './model/baseModel';
-import { defHttp } from './../utils/http/axios/index';
-import { ErrorMessageMode } from './../../types/axios.d';
+import { defHttp } from '/@/utils/http/axios';
+import { ErrorMessageMode } from '/#/axios';
 enum Api {
   BaseUrl = '/api/subGroup',
   SubGroupList = '/api/subGroup/list',
   SubGroupAdd = '/api/subGroup',
   PageSubGroup = '/api/subGroup',
+  DelSubFromGrp = '/api/subGroup/sub',
 }
 
 export interface SubGroupQuery extends BasicPageParams {
@@ -38,6 +39,16 @@ export function addSubGroup(data: SubGroupFormdata) {
 
 export function pageSubGroupInfo(params: any = {}) {
   return defHttp.get({ url: Api.PageSubGroup, params }, { errorMessageMode: 'message' });
+}
+
+/**
+ * 从科目组中删除科目
+ */
+export function delSubFromGrp(subGrpId: number, subId: number) {
+  return defHttp.delete<boolean>(
+    { url: Api.BaseUrl + `/${subGrpId}/${subId}` },
+    { errorMessageMode: 'message' },
+  );
 }
 
 export function delSubGrp(grpId: number) {

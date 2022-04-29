@@ -13,9 +13,8 @@
   import { defineComponent, ref, computed, unref } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
-  import { getClassList } from '/@/api/ptclass';
-
   import { getSubGroupList } from '/@/api/subgroup';
+  import { useUserStore } from '/@/store/modules/user';
 
   export default defineComponent({
     name: 'UserModal',
@@ -24,7 +23,13 @@
     setup(_, { emit }) {
       const isUpdate = ref(true);
       const rowId = ref('');
-
+      const userInfo = useUserStore().getUserInfo;
+      const clsOpts = userInfo?.classes?.map((cls) => {
+        return {
+          label: cls.clsName,
+          value: cls.clsCode,
+        };
+      });
       const msScheme: FormSchema[] = [
         {
           label: '测试名称',
@@ -64,13 +69,10 @@
         {
           label: '选择班级',
           field: 'clsCodes',
-          component: 'ApiSelect',
+          component: 'Select',
           componentProps: {
-            immedite: true,
-            api: getClassList,
-            labelField: 'clsName',
-            valueField: 'clsCode',
             mode: 'multiple',
+            options: clsOpts,
           },
           required: true,
         },
@@ -86,7 +88,7 @@
       });
 
       const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-        resetFields();
+        await resetFields();
         setModalProps({ confirmLoading: false });
         isUpdate.value = !!data?.isUpdate;
         if (unref(isUpdate)) {
@@ -98,7 +100,7 @@
             grpId: record.grpId,
           };
           rowId.value = record.msId;
-          setFieldsValue(fieldsValue);
+          await setFieldsValue(fieldsValue);
         }
       });
 

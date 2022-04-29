@@ -53,9 +53,22 @@
                   {{ item.grpName }}
                   <span :class="`${prefixCls}__creator`"> {{ item.grpCreatedAdminName }}</span>
                 </div>
-                <div>
+                <div v-if="hasPermission(SUBGRP_SUB_DELETE)">
                   <template v-for="tag in item.subjects" :key="tag.subId">
-                    <Tag class="mb-2" color="orange" style="fontsize: 1.1em">
+                    <Tag class="mb-2" color="orange">
+                      {{ tag.subName }}
+                      <template #icon>
+                        <Icon
+                          icon="clarity:remove-line"
+                          @click="removeSub(item.grpId, tag.subId)"
+                        />
+                      </template>
+                    </Tag>
+                  </template>
+                </div>
+                <div v-else>
+                  <template v-for="tag in item.subjects" :key="tag.subId">
+                    <Tag class="mb-2" color="orange">
                       {{ tag.subName }}
                     </Tag>
                   </template>
@@ -75,11 +88,18 @@
   import { PageWrapper } from '/@/components/Page';
   import { List, InputSearch, Form } from 'ant-design-vue';
   import { useGo } from '/@/hooks/web/usePage';
-  import { delSubGrp, pageSubGroupInfo, SubGroupInfoModel, SubGroupQuery } from '/@/api/subgroup';
+  import {
+    delSubGrp,
+    pageSubGroupInfo,
+    SubGroupInfoModel,
+    SubGroupQuery,
+    delSubFromGrp,
+  } from '/@/api/subgroup';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { SUBGRP_INSERT } from '/@/store/modules/Authority';
+  import { SUBGRP_INSERT, SUBGRP_SUB_DELETE } from '/@/store/modules/Authority';
+  import { useLoading } from '/@/components/Loading';
 
   export default defineComponent({
     components: {
@@ -95,8 +115,11 @@
     },
     setup() {
       const go = useGo();
+      const [openFullLoading, closeFullLoading] = useLoading({
+        tip: '请稍后...',
+      });
       const { hasPermission } = usePermission();
-      const { createConfirm } = useMessage();
+      const { createConfirm, createMessage } = useMessage();
       const DEFAULT_PAGE_SIZE = 3;
       onMounted(() => {
         fetchData();
@@ -165,12 +188,42 @@
           onOk: async () => {
             const data = await delSubGrp(item.grpId);
             if (data) {
-              fetchData();
+              await fetchData();
             }
           },
           title: `删除科目组${item.grpName}?`,
         });
       }
+
+      async function removeSub(grpId: number, subId: number) {
+        try {
+          openFullLoading();
+          const success = await delSubFromGrp(grpId, subId);
+          if (success) {
+            let idx = -1;
+            for (const grp of state.dataSource) {
+              if (grpId === grp.grpId) {
+                for (let i = 0; i < grp.subjects.length; i++) {
+                  if (grp.subjects[i].subId === subId) {
+                    idx = i;
+                    break;
+                  }
+                }
+                if (idx !== -1) {
+                  grp.subjects.splice(idx, 1);
+                  break;
+                }
+              }
+            }
+            if (idx !== -1) {
+              createMessage.success('操作成功');
+            }
+          }
+        } finally {
+          closeFullLoading();
+        }
+      }
+
       return {
         prefixCls: 'list-search',
         ...toRefs(state),
@@ -178,9 +231,10 @@
         actions,
         doSearch,
         onChange,
-
+        removeSub,
         hasPermission,
         SUBGRP_INSERT,
+        SUBGRP_SUB_DELETE
       };
     },
   });
