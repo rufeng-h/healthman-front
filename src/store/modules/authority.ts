@@ -4,6 +4,8 @@ export const CLASS_LIST = 'class:list';
 export const CLASS_PAGE = 'class:page';
 export const CLASS_TEMPLATE = 'class:template';
 export const CLASS_UPLOAD = 'class:upload';
+export const CLASS_DELETE = 'class:delete';
+export const CLASS_UPDATE = 'class:update';
 
 export const COLLEGE_GET = 'college:get';
 export const COLLEGE_LIST = 'college:list';

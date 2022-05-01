@@ -15,9 +15,26 @@
         <TableAction
           :actions="[
             {
+              icon: 'ant-design:delete-outlined',
+              color: 'error',
+              tooltip: '删除此班级',
+              popConfirm: {
+                title: '该操作将会删除班级下的所有数据（学生、体测成绩等），确认执行？',
+                confirm: handleDelete.bind(null, record),
+              },
+              ifShow: () => hasPermission(CLASS_DELETE),
+            },
+            {
+              icon: 'clarity:note-edit-line',
+              tooltip: '编辑用户资料',
+              onClick: handleEdit.bind(null, record),
+              ifShow: () => hasPermission(CLASS_UPDATE),
+            },
+            {
               icon: 'clarity:info-standard-line',
               tooltip: '详情',
               onClick: handleView.bind(null, record),
+              ifShow: () => hasPermission(CLASS_GET),
             },
           ]"
         />
@@ -35,7 +52,8 @@
         </ImpExcel>
       </template>
     </BasicTable>
-    <ExcelModal @confirm="confirmUpload" @register="registerModal" />
+    <ExcelModal @confirm="confirmUpload" @register="excelModal" />
+    <ClassModal @submit="handleUpdate" @register="classModal" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -43,9 +61,13 @@
   import { FormProps } from '/@/components/Form';
   import {
     classColumns,
+    ClassInfoModel,
+    deletePtClass,
     downloadTemplate,
     getClassPage,
     getGradeList,
+    updatePtClass,
+    UpdatePtClassFormdata,
     uploadClass,
   } from '/@/api/ptclass';
   import { defineComponent, onMounted, ref, Ref } from 'vue';
@@ -56,10 +78,17 @@
   import { useLoading } from '/@/components/Loading';
   import { numberGradeToZhcn } from '/@/enums/gradeEnum';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { CLASS_TEMPLATE, CLASS_UPLOAD } from '/@/store/modules/Authority';
+  import {
+    CLASS_TEMPLATE,
+    CLASS_UPLOAD,
+    CLASS_DELETE,
+    CLASS_GET,
+    CLASS_UPDATE,
+  } from '/@/store/modules/Authority';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { PageWrapper } from '/@/components/Page';
   import ExcelModal from '/@/views/basedata/ExcelModal.vue';
+  import ClassModal from './ClassModal.vue';
   import { ImpExcel } from '/@/components/Excel';
   import { Tag } from 'ant-design-vue';
 
@@ -71,6 +100,7 @@
       ImpExcel,
       TableAction,
       Tag,
+      ClassModal,
     },
     setup() {
       const tableTitle = ref('');
@@ -149,9 +179,10 @@
         tableSetting: { fullScreen: true },
       });
 
-      const [registerModal, { openModal }] = useModal();
+      const [excelModal, { openModal: openExcelModal }] = useModal();
+      const [classModal, { openModal: openClassModal }] = useModal();
       const impSuccess = ({ excelDataList, file }) => {
-        openModal(true, { excelDataList, file });
+        openExcelModal(true, { excelDataList, file });
       };
       const confirmUpload = async (file: File) => {
         try {
@@ -165,6 +196,36 @@
           throw e;
         }
       };
+
+      async function handleDelete(record: ClassInfoModel) {
+        try {
+          openFullLoading();
+          const success = await deletePtClass(record.clsCode);
+          if (success) {
+            createMessage.success('操作成功！');
+            await reload({ page: 1 });
+          }
+        } finally {
+          closeFullLoading();
+        }
+      }
+
+      async function handleUpdate(data: UpdatePtClassFormdata) {
+        try {
+          openFullLoading();
+          const success = await updatePtClass(data);
+          if (success) {
+            createMessage.success('更新班级信息成功！');
+            await reload({ page: 1 });
+          }
+        } finally {
+          closeFullLoading();
+        }
+      }
+
+      function handleEdit(record: ClassInfoModel) {
+        openClassModal(true, record);
+      }
 
       async function downloadFileTemplate() {
         try {
@@ -189,14 +250,21 @@
 
       return {
         tableRef,
-        registerModal,
+        excelModal,
+        classModal,
         handleView,
+        handleDelete,
+        handleUpdate,
+        handleEdit,
         downloadFileTemplate,
         confirmUpload,
         impSuccess,
 
         CLASS_TEMPLATE,
         CLASS_UPLOAD,
+        CLASS_DELETE,
+        CLASS_GET,
+        CLASS_UPDATE,
         hasPermission,
       };
     },

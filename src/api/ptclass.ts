@@ -38,6 +38,13 @@ export interface ClassModel {
   clsCreated: string;
 }
 
+export interface UpdatePtClassFormdata {
+  clsCode: string;
+  clgCode?: string;
+  clsName: string;
+  teaId: string;
+}
+
 export interface ClassInfoModel {
   clsId: number;
   clsCode: string;
@@ -48,6 +55,7 @@ export interface ClassInfoModel {
   clsEntryYear: number;
   clsEntryGrade: number;
   clsCreated: string;
+  clsModified: string;
   stuCount: number;
 
   /**
@@ -69,10 +77,6 @@ export const classColumns: BasicColumn[] = [
     width: 200,
   },
   {
-    dataIndex: 'clgCode',
-    title: '学院代码',
-  },
-  {
     dataIndex: 'clgName',
     title: '学院',
     width: 150,
@@ -91,12 +95,16 @@ export const classColumns: BasicColumn[] = [
     title: '班级人数',
   },
   {
+    dataIndex: 'clsModified',
+    title: '上次修改',
+  },
+  {
     dataIndex: 'clsCreated',
     title: '创建时间',
   },
   {
     title: '操作',
-    width: 50,
+    width: 150,
     slots: { customRender: 'action' },
   },
 ];
@@ -158,4 +166,17 @@ export function uploadClass(
     { file, name },
     { errorMessageMode },
   );
+}
+
+export function deletePtClass(clsCode: string) {
+  return defHttp.delete<boolean>(
+    {
+      url: Api.BaseUrl + `/${clsCode}`,
+    },
+    { errorMessageMode: 'message' },
+  );
+}
+
+export function updatePtClass(data: UpdatePtClassFormdata) {
+  return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
 }

@@ -86,7 +86,7 @@ enum Api {
 }
 
 export function getCollegeList() {
-  return defHttp.get<CollegeInfo>({ url: Api.CollegeList }, { errorMessageMode: 'message' });
+  return defHttp.get<CollegeModel[]>({ url: Api.CollegeList }, { errorMessageMode: 'message' });
 }
 
 export function getCollegeInfo(clgCode: string, errorMessageMode: ErrorMessageMode = 'modal') {

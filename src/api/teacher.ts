@@ -87,10 +87,18 @@ interface AddUserData {
   email: string;
 }
 
+export interface TeacherListInfoModel {
+  teaId: string;
+  teaName: string;
+  clgCode?: string;
+  clgName?: string;
+}
+
 export type UserQuery = Partial<TeacherInfoModel> & QueryOrder;
 
 enum Api {
   BaseUrl = '/api/teacher',
+  ListTeacher = '/api/teacher/list',
   TeacherUpload = '/api/teacher/upload',
   TemplateDownload = '/api/teacher/template',
 }
@@ -109,4 +117,12 @@ export function uploadAdmin(file: File, errorMessageMode: ErrorMessageMode = 'me
 
 export function downloadTemplate(errorMessageMode: ErrorMessageMode = 'message') {
   return defHttp.downloadFileByData({ url: Api.TemplateDownload }, { errorMessageMode });
+}
+
+/* 优化 */
+export function listTeacher() {
+  return defHttp.get<TeacherListInfoModel[]>(
+    { url: Api.ListTeacher },
+    { errorMessageMode: 'message' },
+  );
 }
