@@ -3,7 +3,13 @@ import { defHttp } from '/@/utils/http/axios';
 import { BasicColumn } from '/@/components/Table';
 import { TreeItem } from '../components/Tree';
 import { usePermission } from '../hooks/web/usePermission';
-import { COLLEGE_GET, CLASS_UPLOAD } from '../store/modules/Authority';
+import {
+  COLLEGE_GET,
+  CLASS_UPLOAD,
+  COLLEGE_DELETE,
+  COLLEGE_UPDATE,
+} from '../store/modules/Authority';
+import { calcColWidth } from '../utils/actionCol';
 
 /*
  * @Author: 黄纯峰
@@ -12,7 +18,8 @@ import { COLLEGE_GET, CLASS_UPLOAD } from '../store/modules/Authority';
  * @Version: 1.0
  * @Description: TODO
  */
-const { hasPermission } = usePermission();
+const { hasAnyAuthority } = usePermission();
+const authorities = [COLLEGE_GET, COLLEGE_DELETE, CLASS_UPLOAD, COLLEGE_UPDATE];
 export const collegeColumns: BasicColumn[] = [
   {
     dataIndex: 'clgCode',
@@ -54,9 +61,10 @@ export const collegeColumns: BasicColumn[] = [
   },
   {
     title: '操作',
+    fixed: 'right',
     slots: { customRender: 'action' },
-    width: 80,
-    ifShow: () => hasPermission(COLLEGE_GET) || hasPermission(CLASS_UPLOAD),
+    width: calcColWidth(authorities),
+    ifShow: () => hasAnyAuthority(authorities),
   },
 ];
 
@@ -69,7 +77,15 @@ export interface CollegeModel {
   clgCreated: string;
 }
 
-export interface CollegeInfo extends CollegeModel {
+export interface CollegeUpdateFormdata {
+  clgName: string;
+  teaId: string;
+  clgTel: string;
+  clgHome: string;
+  clgOffice: string;
+}
+
+export interface CollegeInfoModel extends CollegeModel {
   principal: string;
   teaId: string;
 }
@@ -114,4 +130,20 @@ export async function downloadFileTemplate(
 
 export function pageCollege(params) {
   return defHttp.get({ url: Api.BaseUrl, params }, { errorMessageMode: 'message' });
+}
+
+export function deleteCollege(clgCode: string) {
+  return defHttp.delete<boolean>(
+    { url: Api.BaseUrl + `/${clgCode}` },
+    { errorMessageMode: 'message' },
+  );
+}
+
+export function updateCollege(data: CollegeUpdateFormdata) {
+  return defHttp.put<boolean>(
+    { url: Api.BaseUrl, data },
+    {
+      errorMessageMode: 'message',
+    },
+  );
 }

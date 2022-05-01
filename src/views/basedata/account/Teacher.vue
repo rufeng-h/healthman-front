@@ -153,8 +153,11 @@
         useSearchForm: true,
         showTableSetting: true,
         columns: teaColumns,
-        showIndexColumn: false,
         title: tableTitle,
+        indexColumnProps: {
+          dataIndex: '',
+          title: '序号',
+        },
       });
 
       function handleCreate() {

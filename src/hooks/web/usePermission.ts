@@ -80,6 +80,15 @@ export function usePermission() {
     return true;
   }
 
+  function hasAnyAuthority(authorities: string[]) {
+    for (const a of authorities) {
+      if (userStore.getAuthorities.includes(a)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Change roles
    * @param authorities
@@ -105,5 +114,5 @@ export function usePermission() {
     resume();
   }
 
-  return { changeRole, hasPermission, togglePermissionMode, refreshMenu };
+  return { changeRole, hasPermission, togglePermissionMode, refreshMenu, hasAnyAuthority };
 }

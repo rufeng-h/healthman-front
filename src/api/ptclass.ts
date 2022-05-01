@@ -1,9 +1,12 @@
+import { usePermission } from '/@/hooks/web/usePermission';
 import { BasicColumn } from '/@/components/Table';
 import { TreeItem } from '../components/Tree';
 import { numberGradeToZhcn } from '../enums/gradeEnum';
 import { BasicFetchResult } from './model/baseModel';
 import { ErrorMessageMode } from '/#/axios';
 import { defHttp } from '/@/utils/http/axios';
+import { CLASS_GET, CLASS_DELETE, CLASS_UPDATE } from '../store/modules/Authority';
+import { calcColWidth } from '../utils/actionCol';
 /*
  * @Author: 黄纯峰
  * @Date: 2022-03-12 17:41:02
@@ -11,13 +14,13 @@ import { defHttp } from '/@/utils/http/axios';
  * @Version: 1.0
  * @Description: TODO
  */
-
+const authorities = [CLASS_DELETE, CLASS_GET, CLASS_UPDATE];
+const { hasAnyAuthority } = usePermission();
 enum Api {
   BaseUrl = '/api/class',
   ClassPage = '/api/class',
   ClassTree = '/api/class/tree',
   ClassList = '/api/class/list',
-  GradeList = '/api/class/grade/list',
   ClassTemplate = '/api/class/template',
   ClassUpload = '/api/class/upload',
 }
@@ -68,23 +71,20 @@ export const classColumns: BasicColumn[] = [
   {
     dataIndex: 'clsCode',
     title: '代码',
-    width: 100,
+    fixed: 'left',
     slots: { customRender: 'code' },
   },
   {
     dataIndex: 'clsName',
     title: '班级',
-    width: 200,
   },
   {
     dataIndex: 'clgName',
     title: '学院',
-    width: 150,
   },
   {
     dataIndex: 'teaName',
     title: '教师',
-    width: 100,
   },
   {
     title: '年级',
@@ -104,19 +104,12 @@ export const classColumns: BasicColumn[] = [
   },
   {
     title: '操作',
-    width: 150,
+    width: calcColWidth(authorities),
+    fixed: 'right',
     slots: { customRender: 'action' },
+    ifShow: () => hasAnyAuthority(authorities),
   },
 ];
-
-/* 获取年级 */
-export function getGradeList(
-  clgCode: string | undefined = undefined,
-  errorMessageMode: ErrorMessageMode = 'message',
-) {
-  return defHttp.get<number[]>({ url: Api.GradeList, params: { clgCode } }, { errorMessageMode });
-}
-
 /* 班级详情 */
 export async function getClassPage(
   query: ClassQuery,

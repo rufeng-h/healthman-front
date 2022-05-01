@@ -1,5 +1,4 @@
 export const CLASS_GET = 'class:get';
-export const CLASS_GRADELIST = 'class:gradeList';
 export const CLASS_LIST = 'class:list';
 export const CLASS_PAGE = 'class:page';
 export const CLASS_TEMPLATE = 'class:template';
@@ -7,6 +6,8 @@ export const CLASS_UPLOAD = 'class:upload';
 export const CLASS_DELETE = 'class:delete';
 export const CLASS_UPDATE = 'class:update';
 
+export const COLLEGE_UPDATE = 'college:update';
+export const COLLEGE_DELETE = 'college:delete';
 export const COLLEGE_GET = 'college:get';
 export const COLLEGE_LIST = 'college:list';
 export const COLLEGE_PAGE = 'college:page';
@@ -27,10 +28,13 @@ export const SCOS_DELETE = 'scos:delete';
 export const SCOS_PAGE = 'scos:page';
 export const SCOS_UPDATE = 'scos:update';
 export const SCOS_UPLOAD = 'scos:upload';
+
 export const STUDENT_GET = 'student:get';
 export const STUDENT_PAGE = 'student:page';
 export const STUDENT_UPLOAD = 'student:upload';
 export const STUDENT_TEMPLATE = 'student:template';
+export const STUDENT_DELETE = 'student:delete';
+
 export const SUBGRP_DELETE = 'subGrp:delete';
 export const SUBGRP_SUB_DELETE = 'subGrp:subDelete';
 export const SUBGRP_INSERT = 'subGrp:insert';

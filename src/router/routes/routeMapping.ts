@@ -271,9 +271,6 @@ export function adminRoutes(): AppRouteModule[] {
       hideChildrenInMenu: true,
     },
     children: [
-      msIndex,
-      msDetail,
-      studentDetail,
       {
         path: 'index',
         component: () => import('/@/views/admin/index.vue'),
@@ -308,7 +305,15 @@ export function adminRoutes(): AppRouteModule[] {
       icon: 'ant-design:database-outlined',
       title: '基础数据管理',
     },
-    children: [collegeIndex, collegeDetail, classIndex, classDetail, teacherIndex, studentIndex],
+    children: [
+      collegeIndex,
+      collegeDetail,
+      classIndex,
+      classDetail,
+      teacherIndex,
+      studentIndex,
+      studentDetail,
+    ],
   };
   return [admin, ms, base];
 }

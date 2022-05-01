@@ -7,8 +7,7 @@
   import { defineComponent, onMounted, reactive, toRefs } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
-  import { getCollegeList } from '/@/api/college';
-  import { ClassInfoModel } from '/@/api/ptclass';
+  import { CollegeInfoModel } from '/@/api/college';
   import { listTeacher } from '/@/api/teacher';
 
   export default defineComponent({
@@ -17,16 +16,9 @@
     emits: ['submit', 'register'],
     setup(_, { emit }) {
       const state: any = reactive({
-        clgOptions: [],
         teaOptions: [],
       });
       onMounted(async () => {
-        state.clgOptions = (await getCollegeList()).map((clg) => {
-          return {
-            label: clg.clgName,
-            value: clg.clgCode,
-          };
-        });
         state.teaOptions = (await listTeacher()).map((tea) => {
           return {
             label: `${tea.clgName} ${tea.teaId} ${tea.teaName}`,
@@ -35,55 +27,57 @@
         });
       });
 
-      const { clgOptions, teaOptions } = toRefs(state);
+      const { teaOptions } = toRefs(state);
       const accountFormSchema: FormSchema[] = [
         {
-          field: 'clsCode',
-          label: '班级代码',
+          field: 'clgCode',
+          label: '学院代码',
           component: 'Input',
           componentProps: {
             disabled: true,
           },
         },
         {
-          field: 'clsName',
-          label: '班级名称',
+          field: 'clgName',
+          label: '学院名称',
           component: 'Input',
           rules: [
             {
               required: true,
-              message: '请输入班级名',
+              message: '请输入学院名',
               trigger: 'blur',
             },
           ],
         },
         {
-          field: 'clgCode',
-          label: '所属学院',
-          component: 'Select',
-          componentProps: {
-            options: clgOptions,
-          },
+          field: 'clgTel',
+          label: '电话',
+          component: 'Input',
           required: true,
-          ifShow() {
-            return state.clgOptions.length !== 0;
-          },
         },
         {
-          field: 'clsEntryYear',
-          label: '入学年度',
+          field: 'clgOffice',
+          label: '办公室',
           component: 'Input',
-          componentProps: {
-            disabled: true,
-          },
+          rules: [
+            {
+              required: true,
+              message: '请输入办公室',
+              trigger: 'blur',
+            },
+          ],
         },
         {
-          field: 'gradeZhcn',
-          label: '年级',
+          field: 'clgHome',
+          label: '主页',
           component: 'Input',
-          componentProps: {
-            disabled: true,
-          },
+          rules: [
+            {
+              required: true,
+              message: '请输入学院网址',
+              trigger: 'blur',
+            },
+          ],
         },
         /* TODO优化 */
         {
@@ -108,7 +102,7 @@
         },
       });
 
-      const [registerModal, { closeModal }] = useModalInner(async (record: ClassInfoModel) => {
+      const [registerModal, { closeModal }] = useModalInner(async (record: CollegeInfoModel) => {
         setFieldsValue(record);
       });
 

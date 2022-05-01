@@ -1,9 +1,12 @@
+import { STUDENT_DELETE, STUDENT_GET } from './../store/modules/Authority';
+import { usePermission } from '/@/hooks/web/usePermission';
 import { GenderEnum } from '../enums/genderEnum';
 import { defHttp } from '../utils/http/axios';
 import { QueryOrder } from './common';
 import { MeasurementModel } from './measurement';
 import { ErrorMessageMode } from '/#/axios';
 import { BasicColumn } from '/@/components/Table';
+import { calcColWidth } from '../utils/actionCol';
 
 /*
  * @Author: 黄纯峰
@@ -12,6 +15,10 @@ import { BasicColumn } from '/@/components/Table';
  * @Version: 1.0
  * @Description: TODO
  */
+
+const { hasAnyAuthority } = usePermission();
+const authorities = [STUDENT_DELETE, STUDENT_GET];
+
 export interface StudentInfoModel {
   sid: number;
   stuId: string;
@@ -108,6 +115,13 @@ export const studentColumns: BasicColumn[] = [
     title: '上次登录',
     dataIndex: 'stuLastLogin',
   },
+  {
+    title: '操作',
+    width: calcColWidth(authorities),
+    slots: { customRender: 'action' },
+    fixed: 'right',
+    ifShow: () => hasAnyAuthority(authorities),
+  },
 ];
 
 enum Api {
@@ -142,4 +156,11 @@ export function uploadStudent(
 
 export function updateStudent(data: StudentUpdateFormdata) {
   return defHttp.put<boolean>({ url: Api.BaseUrl, data }, { errorMessageMode: 'message' });
+}
+
+export function deleteStudent(stuId: string) {
+  return defHttp.delete<boolean>(
+    { url: Api.BaseUrl + `/${stuId}` },
+    { errorMessageMode: 'message' },
+  );
 }

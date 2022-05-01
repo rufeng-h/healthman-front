@@ -6,55 +6,65 @@
  * @Description: TODO
 -->
 <template>
-  <PageWrapper content-full-height dense content-background>
-    <BasicTable @register="tableRef">
-      <template #code="{ record }">
-        <Tag color="green">{{ record.clsCode }}</Tag>
-      </template>
-      <template #action="{ record }">
-        <TableAction
-          :actions="[
-            {
-              icon: 'ant-design:delete-outlined',
-              color: 'error',
-              tooltip: '删除此班级',
-              popConfirm: {
-                title: '该操作将会删除班级下的所有数据（学生、体测成绩等），确认执行？',
-                confirm: handleDelete.bind(null, record),
+  <div>
+    <PageWrapper content-full-height dense content-background>
+      <BasicTable @register="tableRef">
+        <template #code="{ record }">
+          <Tag color="green">{{ record.clsCode }}</Tag>
+        </template>
+        <template #action="{ record }">
+          <TableAction
+            :actions="[
+              {
+                icon: 'ant-design:delete-outlined',
+                color: 'error',
+                tooltip: '删除此班级',
+                popConfirm: {
+                  title: '该操作将会删除班级下的所有数据（学生、体测成绩等），确认执行？',
+                  confirm: handleDelete.bind(null, record),
+                },
+                ifShow: () => hasPermission(CLASS_DELETE),
               },
-              ifShow: () => hasPermission(CLASS_DELETE),
-            },
-            {
-              icon: 'clarity:note-edit-line',
-              tooltip: '编辑用户资料',
-              onClick: handleEdit.bind(null, record),
-              ifShow: () => hasPermission(CLASS_UPDATE),
-            },
-            {
-              icon: 'clarity:info-standard-line',
-              tooltip: '详情',
-              onClick: handleView.bind(null, record),
-              ifShow: () => hasPermission(CLASS_GET),
-            },
-          ]"
-        />
-      </template>
-      <template #toolbar>
-        <a-button
-          type="primary"
-          v-if="hasPermission(CLASS_TEMPLATE)"
-          @click="downloadFileTemplate"
-          pre-icon="akar-icons:cloud-download"
-          >下载模板
-        </a-button>
-        <ImpExcel @success="impSuccess" v-if="hasPermission(CLASS_UPLOAD)">
-          <a-button pre-icon="akar-icons:cloud-upload" type="primary">导入数据</a-button>
-        </ImpExcel>
-      </template>
-    </BasicTable>
-    <ExcelModal @confirm="confirmUpload" @register="excelModal" />
-    <ClassModal @submit="handleUpdate" @register="classModal" />
-  </PageWrapper>
+              {
+                icon: 'clarity:note-edit-line',
+                tooltip: '编辑',
+                onClick: handleEdit.bind(null, record),
+                ifShow: () => hasPermission(CLASS_UPDATE),
+              },
+              {
+                icon: 'clarity:info-standard-line',
+                tooltip: '详情',
+                onClick: handleView.bind(null, record),
+                ifShow: () => hasPermission(CLASS_GET),
+              },
+            ]"
+          />
+        </template>
+        <template #toolbar>
+          <a-button
+            type="primary"
+            v-if="hasPermission(CLASS_TEMPLATE)"
+            @click="downloadFileTemplate"
+            pre-icon="akar-icons:cloud-download"
+            >下载模板
+          </a-button>
+          <ImpExcel @success="impSuccess" v-if="hasPermission(CLASS_UPLOAD)">
+            <a-button pre-icon="akar-icons:cloud-upload" type="primary">导入数据</a-button>
+          </ImpExcel>
+        </template>
+      </BasicTable>
+      <ExcelModal
+        v-if="hasPermission(CLASS_UPLOAD)"
+        @confirm="confirmUpload"
+        @register="excelModal"
+      />
+      <ClassModal
+        v-if="hasPermission(CLASS_UPDATE)"
+        @submit="handleUpdate"
+        @register="classModal"
+      />
+    </PageWrapper>
+  </div>
 </template>
 <script lang="ts">
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
@@ -65,18 +75,16 @@
     deletePtClass,
     downloadTemplate,
     getClassPage,
-    getGradeList,
     updatePtClass,
     UpdatePtClassFormdata,
     uploadClass,
   } from '/@/api/ptclass';
-  import { defineComponent, onMounted, ref, Ref } from 'vue';
+  import { defineComponent, ref } from 'vue';
   import { getCollegeList } from '/@/api/college';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useGo } from '/@/hooks/web/usePage';
   import { useLoading } from '/@/components/Loading';
-  import { numberGradeToZhcn } from '/@/enums/gradeEnum';
   import { usePermission } from '/@/hooks/web/usePermission';
   import {
     CLASS_TEMPLATE,
@@ -91,6 +99,7 @@
   import ClassModal from './ClassModal.vue';
   import { ImpExcel } from '/@/components/Excel';
   import { Tag } from 'ant-design-vue';
+  import { gradeOptions } from '/@/enums/gradeEnum';
 
   export default defineComponent({
     components: {
@@ -109,24 +118,6 @@
         tip: '请稍后...',
       });
       const { createMessage } = useMessage();
-      type OptionsItem = { label: string; value: string; disabled?: boolean };
-      const grades: Ref<OptionsItem[]> = ref<OptionsItem[]>([]);
-      const fetchGrades = async (clgCode: string | undefined = undefined) => {
-        grades.value.length = 0;
-        const gs: number[] = await getGradeList(clgCode);
-        grades.value.push(
-          ...gs.map((g) => {
-            return {
-              label: numberGradeToZhcn(g),
-              value: g.toString(),
-            };
-          }),
-        );
-      };
-      onMounted(() => {
-        fetchGrades();
-      });
-
       const formConfig: FormProps = {
         submitOnReset: false,
         labelWidth: 80,
@@ -138,7 +129,7 @@
             label: '学院',
             component: 'ApiSelect',
             colProps: {
-              span: 8,
+              span: 6,
             },
             componentProps: {
               api: getCollegeList,
@@ -146,9 +137,7 @@
               labelField: 'clgName',
               valueField: 'clgCode',
               showSearch: true,
-              onSelect: async (value: string, opt) => {
-                await getForm().setFieldsValue({ grade: undefined });
-                await fetchGrades(value);
+              onSelect: async (_: string, opt) => {
                 tableTitle.value = opt.label;
               },
             },
@@ -156,17 +145,28 @@
           {
             field: 'grade',
             label: '年级',
+            colProps: {
+              span: 6,
+            },
             component: 'Select',
             componentProps: {
-              options: grades.value,
+              options: gradeOptions,
+            },
+          },
+          {
+            field: 'clsName',
+            label: '班级名称',
+            component: 'Input',
+            componentProps: {
+              placeholder: '输入班级名称',
             },
             colProps: {
-              span: 8,
+              span: 6,
             },
           },
         ],
       };
-      const [tableRef, { getForm, reload }] = useTable({
+      const [tableRef, { reload }] = useTable({
         api: getClassPage,
         title: tableTitle,
         columns: classColumns,
@@ -175,7 +175,11 @@
         useSearchForm: true,
         rowKey: 'clsCode',
         formConfig: formConfig,
-        showIndexColumn: false,
+        showIndexColumn: true,
+        indexColumnProps: {
+          dataIndex: '',
+          title: '序号',
+        },
         tableSetting: { fullScreen: true },
       });
 
@@ -271,7 +275,7 @@
   });
 </script>
 <style lang="less" scoped>
-  ::v-deep(tbody.ant-table-tbody tr.ant-table-row td) {
-    padding: 0.5rem !important;
-  }
+  // ::v-deep(tbody.ant-table-tbody tr.ant-table-row td) {
+  //   padding: 0.5rem !important;
+  // }
 </style>

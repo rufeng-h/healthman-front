@@ -25,9 +25,20 @@
         <TableAction
           :actions="[
             {
+              icon: 'ant-design:delete-outlined',
+              color: 'error',
+              tooltip: '删除此班级',
+              popConfirm: {
+                title: '该操作将会删除学生的所有信息，确认执行？',
+                confirm: handleDelete.bind(null, record),
+              },
+              ifShow: () => hasPermission(STUDENT_DELETE),
+            },
+            {
               icon: 'clarity:info-standard-line',
               tooltip: '详情',
               onClick: handleView.bind(null, record),
+              ifShow: () => hasPermission(STUDENT_GET),
             },
           ]"
         />
@@ -57,10 +68,12 @@
     StudentQuery,
     downloadFileTemplate,
     uploadStudent,
+    StudentInfoModel,
+    deleteStudent,
   } from '/@/api/student';
   import { ref, Ref, defineComponent } from 'vue';
   import { FormProps } from '/@/components/Form';
-  import OrderEnum from '../../../enums/orderEnum';
+  import OrderEnum from '/@/enums/orderEnum';
   import { getCollegeList } from '/@/api/college';
   import { getClassList } from '/@/api/ptclass';
   import { isArray } from '/@/utils/is';
@@ -76,7 +89,12 @@
   import { Image, Tag } from 'ant-design-vue';
   import { ImpExcel } from '/@/components/Excel';
   import ExcelModal from '../ExcelModal.vue';
-  import { STUDENT_UPLOAD, STUDENT_TEMPLATE, STUDENT_GET } from '/@/store/modules/Authority';
+  import {
+    STUDENT_UPLOAD,
+    STUDENT_TEMPLATE,
+    STUDENT_GET,
+    STUDENT_DELETE,
+  } from '/@/store/modules/Authority';
   export default defineComponent({
     components: {
       ImpExcel,
@@ -193,19 +211,16 @@
         columns: studentColumns,
         api: getStudentPage,
         showTableSetting: true,
-        // immediate: false,
+        indexColumnProps: {
+          dataIndex: '',
+          title: '序号',
+        },
         tableSetting: { fullScreen: true, size: false },
         beforeFetch,
         inset: true,
         useSearchForm: true,
         formConfig,
         canResize: true,
-        actionColumn: {
-          title: '操作',
-          width: 50,
-          slots: { customRender: 'action' },
-          ifShow: () => hasPermission(STUDENT_GET),
-        },
       });
       const [registerModal, { openModal }] = useModal();
       const impSuccess = ({ excelDataList, file }) => {
@@ -223,6 +238,17 @@
           closeFullLoading();
         }
       };
+      async function handleDelete(record: StudentInfoModel) {
+        try {
+          openFullLoading();
+          if (await deleteStudent(record.stuId)) {
+            createMessage.success('删除成功！');
+            reload();
+          }
+        } finally {
+          closeFullLoading();
+        }
+      }
       async function downloadTemplate() {
         try {
           openFullLoading();
@@ -246,6 +272,7 @@
         tableRef,
 
         handleView,
+        handleDelete,
         downloadTemplate,
         confirmUpload,
         impSuccess,
@@ -253,6 +280,7 @@
         STUDENT_UPLOAD,
         STUDENT_TEMPLATE,
         STUDENT_GET,
+        STUDENT_DELETE,
         hasPermission,
       };
     },
