@@ -12,20 +12,23 @@
         <TableAction
           :actions="[
             {
-              icon: 'clarity:note-edit-line',
-              tooltip: '编辑用户资料',
-              onClick: handleEdit.bind(null, record),
-              ifShow: () => true,
-            },
-            {
               icon: 'ant-design:delete-outlined',
               color: 'error',
-              tooltip: '删除此账号',
+              tooltip: '请确认该教师不关联其他资源，否则删除失败！是否继续？',
               popConfirm: {
                 title: '是否确认删除',
                 confirm: handleDelete.bind(null, record),
               },
-              ifShow: () => true,
+              ifShow: () => hasPermission(TEACHER_DELETE),
+            },
+            {
+              icon: 'material-symbols:lock-reset-sharp',
+              tooltip: '重置密码',
+              popConfirm: {
+                title: '重置密码？',
+                confirm: resetPwd.bind(null, record),
+              },
+              ifShow: () => hasPermission(TEACHER_PWDRESET),
             },
           ]"
         />
@@ -40,20 +43,21 @@
         <ImpExcel @success="impSuccess">
           <a-button type="primary" v-if="hasPermission(TEACHER_UPLOAD)">从excel上传</a-button>
         </ImpExcel>
-        <a-button type="primary" @click="handleCreate">新增账号</a-button>
       </template>
       <template #avatar="{ record }">
         <Image :src="record.avatar" :width="30" :height="30" />
       </template>
       <template #principal="{ record }">
-        <span>{{ record.principal ? '负责人' : '教职工' }}</span>
+        <Tooltip v-if="record.principal" title="负责人"
+          ><Icon icon="ant-design:user-outlined"
+        /></Tooltip>
+        <Tooltip v-else title="教职工"><Icon icon="akar-icons:people-group" /></Tooltip>
       </template>
       <template #gender="{ record }">
         <Icon v-if="record.teaGender === 'M'" icon="twemoji:male-sign" />
         <Icon v-else icon="twemoji:female-sign" />
       </template>
     </BasicTable>
-    <UserModal @register="userModal" @success="handleSuccess" />
     <ExcelModal @register="excelModal" @confirm="confirmUpload" />
   </PageWrapper>
 </template>
@@ -66,8 +70,9 @@
     uploadAdmin,
     downloadTemplate,
     TeacherInfoModel,
+    resetTeaPwd,
+    deleteTeacher,
   } from '/@/api/teacher';
-  import UserModal from './UserModal.vue';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { getCollegeList } from '/@/api/college';
@@ -78,29 +83,29 @@
   import { Image } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
-  import { TEACHER_TEMPLATE, TEACHER_UPLOAD } from '/@/store/modules/Authority';
+  import {
+    TEACHER_TEMPLATE,
+    TEACHER_UPLOAD,
+    TEACHER_DELETE,
+    TEACHER_PWDRESET,
+  } from '/@/store/modules/Authority';
   import { usePermission } from '/@/hooks/web/usePermission';
+  import { Tooltip } from 'ant-design-vue';
   export default defineComponent({
     components: {
       Icon,
-      UserModal,
       ExcelModal,
       Image,
       PageWrapper,
       BasicTable,
       TableAction,
       ImpExcel,
+      Tooltip,
     },
     setup() {
       const { createMessage: message } = useMessage();
       const { hasPermission } = usePermission();
       const tableTitle = ref('');
-      const actionColumn = {
-        width: 120,
-        title: '操作',
-        dataIndex: 'action',
-        slots: { customRender: 'action' },
-      };
       const formConfig: FormProps = {
         submitOnReset: false,
         labelWidth: 100,
@@ -141,12 +146,10 @@
       const [openFullLoading, closeFullLoading] = useLoading({
         tip: '请稍后...',
       });
-      const [userModal, { openModal: openUserModal }] = useModal();
       const [excelModal, { openModal: openExcelModal }] = useModal();
       const [tableRef, { reload }] = useTable({
         api: pageTeacher,
         titleHelpMessage: '温馨提示',
-        actionColumn,
         rowKey: 'teaId',
         tableSetting: { fullScreen: true },
         formConfig,
@@ -160,43 +163,30 @@
         },
       });
 
-      function handleCreate() {
-        openUserModal(true, {
-          isUpdate: false,
-        });
-      }
-
-      function handleEdit(record: TeacherInfoModel) {
-        openUserModal(true, {
-          record,
-          isUpdate: true,
-        });
-      }
-
-      function handleSuccess({ isUpdate, values }) {
-        if (isUpdate) {
-          message.warn('更新数据');
-          console.log(values);
-          // 演示不刷新表格直接更新内部数据。
-          // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
-          // const result = updateTableDataRecord(values.id, values);
-          // console.log(result);
-        } else {
-          reload({ page: 1 });
+      async function handleDelete(record: TeacherInfoModel) {
+        try {
+          openFullLoading();
+          if (await deleteTeacher(record.teaId)) {
+            message.success('删除成功！');
+          }
+        } finally {
+          closeFullLoading();
         }
       }
 
-      function handleDelete(record: TeacherInfoModel) {
-        console.log(record);
-      }
-
-      // function handleSelect(deptId = '') {
-      //   searchInfo.deptId = deptId;
-      //   reload();
-      // }
-
       function impSuccess({ excelDataList, file }) {
         openExcelModal(true, { excelDataList, file });
+      }
+
+      async function resetPwd(record: TeacherInfoModel) {
+        try {
+          openFullLoading();
+          if (await resetTeaPwd(record.teaId)) {
+            message.success('操作成功！');
+          }
+        } finally {
+          closeFullLoading();
+        }
       }
 
       async function confirmUpload(file: File) {
@@ -219,17 +209,15 @@
         }
       }
       return {
-        userModal,
         excelModal,
         tableRef,
         downloadFileTemplate,
         confirmUpload,
         handleDelete,
         impSuccess,
-        handleSuccess,
-        handleCreate,
-        handleEdit,
-
+        resetPwd,
+        TEACHER_DELETE,
+        TEACHER_PWDRESET,
         TEACHER_TEMPLATE,
         TEACHER_UPLOAD,
         hasPermission,

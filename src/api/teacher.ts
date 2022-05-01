@@ -1,3 +1,5 @@
+import { usePermission } from '/@/hooks/web/usePermission';
+import { TEACHER_PWDRESET, TEACHER_DELETE } from './../store/modules/Authority';
 import { GenderEnum } from './../enums/genderEnum';
 /*
  * @Author: 黄纯峰
@@ -11,6 +13,10 @@ import { BasicColumn } from '../components/Table';
 import { defHttp } from '../utils/http/axios';
 import { QueryOrder } from './common';
 import { ErrorMessageMode } from '/#/axios';
+import { calcColWidth } from '../utils/actionCol';
+
+const authorities = [TEACHER_PWDRESET, TEACHER_DELETE];
+const { hasAnyAuthority } = usePermission();
 
 export interface TeacherInfoModel {
   teaId: string;
@@ -75,6 +81,14 @@ export const teaColumns: BasicColumn[] = [
     title: '创建时间',
     dataIndex: 'teaCreated',
   },
+  {
+    width: calcColWidth(authorities),
+    title: '操作',
+    fixed: 'right',
+    dataIndex: 'action',
+    slots: { customRender: 'action' },
+    ifShow: () => hasAnyAuthority(authorities),
+  },
 ];
 
 interface AddUserData {
@@ -101,6 +115,7 @@ enum Api {
   ListTeacher = '/api/teacher/list',
   TeacherUpload = '/api/teacher/upload',
   TemplateDownload = '/api/teacher/template',
+  ResetPwd = '/api/teacher/resetPwd',
 }
 
 export function pageTeacher(params: UserQuery, errorMessageMode: ErrorMessageMode = 'message') {
@@ -119,10 +134,21 @@ export function downloadTemplate(errorMessageMode: ErrorMessageMode = 'message')
   return defHttp.downloadFileByData({ url: Api.TemplateDownload }, { errorMessageMode });
 }
 
-/* 优化 */
+/* 优化 TODO */
 export function listTeacher() {
   return defHttp.get<TeacherListInfoModel[]>(
     { url: Api.ListTeacher },
+    { errorMessageMode: 'message' },
+  );
+}
+
+export function resetTeaPwd(teaId: string) {
+  return defHttp.put<boolean>({ url: Api.ResetPwd + `/${teaId}` }, { errorMessageMode: 'message' });
+}
+
+export function deleteTeacher(teaId: string) {
+  return defHttp.delete<boolean>(
+    { url: Api.BaseUrl + `/${teaId}` },
     { errorMessageMode: 'message' },
   );
 }

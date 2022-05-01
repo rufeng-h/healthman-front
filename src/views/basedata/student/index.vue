@@ -35,6 +35,15 @@
               ifShow: () => hasPermission(STUDENT_DELETE),
             },
             {
+              icon: 'material-symbols:lock-reset-sharp',
+              tooltip: '重置密码',
+              popConfirm: {
+                title: '重置密码？',
+                confirm: resetPwd.bind(null, record),
+              },
+              ifShow: () => hasPermission(STUDENT_PWDRESET),
+            },
+            {
               icon: 'clarity:info-standard-line',
               tooltip: '详情',
               onClick: handleView.bind(null, record),
@@ -70,6 +79,7 @@
     uploadStudent,
     StudentInfoModel,
     deleteStudent,
+    resetStuPwd,
   } from '/@/api/student';
   import { ref, Ref, defineComponent } from 'vue';
   import { FormProps } from '/@/components/Form';
@@ -94,6 +104,7 @@
     STUDENT_TEMPLATE,
     STUDENT_GET,
     STUDENT_DELETE,
+    STUDENT_PWDRESET,
   } from '/@/store/modules/Authority';
   export default defineComponent({
     components: {
@@ -195,10 +206,12 @@
           } else if (order === OrderEnum.asc) {
             params.order = OrderEnum.ASC;
           } else {
-            throw new Error('order参数异常 => ' + order);
+            console.warn(`排序异常 ${field} ${order}`);
+            throw new Error();
           }
         } else if (field || order) {
-          throw new Error('请求参数异常' + field + ' ' + order);
+          console.warn('请求参数异常' + field + ' ' + order);
+          throw new Error();
         }
         if (params.stuGender && isArray(params.stuGender)) {
           params.stuGender = params.stuGender[0];
@@ -211,16 +224,17 @@
         columns: studentColumns,
         api: getStudentPage,
         showTableSetting: true,
-        indexColumnProps: {
-          dataIndex: '',
-          title: '序号',
-        },
+        // indexColumnProps: {
+        //   dataIndex: '',
+        //   title: '序号',
+        // },
         tableSetting: { fullScreen: true, size: false },
         beforeFetch,
         inset: true,
         useSearchForm: true,
         formConfig,
         canResize: true,
+        autoCreateKey: true,
       });
       const [registerModal, { openModal }] = useModal();
       const impSuccess = ({ excelDataList, file }) => {
@@ -257,6 +271,16 @@
           closeFullLoading();
         }
       }
+      async function resetPwd(record: StudentInfoModel) {
+        try {
+          openFullLoading();
+          if (await resetStuPwd(record.stuId)) {
+            createMessage.success('操作成功！');
+          }
+        } finally {
+          closeFullLoading();
+        }
+      }
       const go = useGo();
       function handleView(record) {
         go({
@@ -271,6 +295,7 @@
         registerModal,
         tableRef,
 
+        resetPwd,
         handleView,
         handleDelete,
         downloadTemplate,
@@ -281,6 +306,7 @@
         STUDENT_TEMPLATE,
         STUDENT_GET,
         STUDENT_DELETE,
+        STUDENT_PWDRESET,
         hasPermission,
       };
     },

@@ -8,8 +8,8 @@
 enum OrderEnum {
   ASC = 'ASC',
   DESC = 'DESC',
-  asc = 'asc',
-  desc = 'desc',
+  asc = 'ascend',
+  desc = 'descend',
 }
 
 export default OrderEnum;

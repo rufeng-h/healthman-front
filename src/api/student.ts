@@ -1,4 +1,4 @@
-import { STUDENT_DELETE, STUDENT_GET } from './../store/modules/Authority';
+import { STUDENT_DELETE, STUDENT_GET, STUDENT_PWDRESET } from './../store/modules/Authority';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { GenderEnum } from '../enums/genderEnum';
 import { defHttp } from '../utils/http/axios';
@@ -17,7 +17,7 @@ import { calcColWidth } from '../utils/actionCol';
  */
 
 const { hasAnyAuthority } = usePermission();
-const authorities = [STUDENT_DELETE, STUDENT_GET];
+const authorities = [STUDENT_DELETE, STUDENT_GET, STUDENT_PWDRESET];
 
 export interface StudentInfoModel {
   sid: number;
@@ -129,6 +129,7 @@ enum Api {
   StudenPage = '/api/student',
   StudentTemplate = '/api/student/template',
   StudentUpload = '/api/student/upload',
+  ResetPwd = '/api/student/resetPwd',
 }
 
 export function getStudentPage(params: StudentQuery, errorMessageMode: ErrorMessageMode = 'modal') {
@@ -163,4 +164,7 @@ export function deleteStudent(stuId: string) {
     { url: Api.BaseUrl + `/${stuId}` },
     { errorMessageMode: 'message' },
   );
+}
+export function resetStuPwd(stuId: string) {
+  return defHttp.put<boolean>({ url: Api.ResetPwd + `/${stuId}` }, { errorMessageMode: 'message' });
 }
