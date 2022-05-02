@@ -49,7 +49,9 @@
           data.sort((a, b) => (a.teaId > b.teaId ? 1 : -1));
           state.teaOptions = data.map((tea) => {
             return {
-              title: `${tea.clgName} ${tea.teaId} ${tea.teaName}`,
+              title: tea.clgName
+                ? `${tea.clgName} ${tea.teaId} ${tea.teaName}`
+                : `${tea.teaId} ${tea.teaName}`,
               key: tea.teaId,
             };
           });

@@ -4,7 +4,7 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, onMounted, reactive, toRefs } from 'vue';
+  import { defineComponent, reactive, toRefs } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
   import { CollegeInfoModel } from '/@/api/college';
@@ -16,15 +16,7 @@
     emits: ['submit', 'register'],
     setup(_, { emit }) {
       const state: any = reactive({
-        teaOptions: [],
-      });
-      onMounted(async () => {
-        state.teaOptions = (await listTeacher()).map((tea) => {
-          return {
-            label: `${tea.clgName} ${tea.teaId} ${tea.teaName}`,
-            value: tea.teaId,
-          };
-        });
+        teaOptions: undefined,
       });
 
       const { teaOptions } = toRefs(state);
@@ -82,7 +74,7 @@
         /* TODO优化 */
         {
           field: 'teaId',
-          label: '任课教师',
+          label: '负责人',
           component: 'Select',
           componentProps: {
             options: teaOptions,
@@ -103,6 +95,16 @@
       });
 
       const [registerModal, { closeModal }] = useModalInner(async (record: CollegeInfoModel) => {
+        if (state.teaOptions === undefined) {
+          state.teaOptions = (await listTeacher()).map((tea) => {
+            return {
+              label: tea.clgName
+                ? `${tea.clgName} ${tea.teaId} ${tea.teaName}`
+                : `${tea.teaId} ${tea.teaName}`,
+              value: tea.teaId,
+            };
+          });
+        }
         setFieldsValue(record);
       });
 

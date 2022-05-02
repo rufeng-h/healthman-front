@@ -4,7 +4,7 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, onMounted, reactive, toRefs } from 'vue';
+  import { defineComponent, reactive, toRefs } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form';
   import { getCollegeList } from '/@/api/college';
@@ -17,24 +17,9 @@
     emits: ['submit', 'register'],
     setup(_, { emit }) {
       const state: any = reactive({
-        clgOptions: [],
-        teaOptions: [],
+        clgOptions: undefined,
+        teaOptions: undefined,
       });
-      onMounted(async () => {
-        state.clgOptions = (await getCollegeList()).map((clg) => {
-          return {
-            label: clg.clgName,
-            value: clg.clgCode,
-          };
-        });
-        state.teaOptions = (await listTeacher()).map((tea) => {
-          return {
-            label: `${tea.clgName} ${tea.teaId} ${tea.teaName}`,
-            value: tea.teaId,
-          };
-        });
-      });
-
       const { clgOptions, teaOptions } = toRefs(state);
       const accountFormSchema: FormSchema[] = [
         {
@@ -109,6 +94,24 @@
       });
 
       const [registerModal, { closeModal }] = useModalInner(async (record: ClassInfoModel) => {
+        if (state.teaOptions === undefined) {
+          state.teaOptions = (await listTeacher()).map((tea) => {
+            return {
+              label: tea.clgName
+                ? `${tea.clgName} ${tea.teaId} ${tea.teaName}`
+                : `${tea.teaId} ${tea.teaName}`,
+              value: tea.teaId,
+            };
+          });
+        }
+        if (state.clgOptions === undefined) {
+          state.clgOptions = (await getCollegeList()).map((clg) => {
+            return {
+              label: clg.clgName,
+              value: clg.clgCode,
+            };
+          });
+        }
         setFieldsValue(record);
       });
 

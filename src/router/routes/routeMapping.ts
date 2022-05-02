@@ -26,7 +26,7 @@ export const ROUTENAMES: Recordable<Recordable<string>> = {
 
 /* 科目组添加 */
 const subGrpAdd: AppRouteRecordRaw = {
-  path: 'add',
+  path: 'group/add',
   name: ROUTENAMES.SUBJECT.SUBGRP_ADD,
   component: () => import('/@/views/basedata/subject/group/add/index.vue'),
   meta: {
@@ -38,7 +38,7 @@ const subGrpAdd: AppRouteRecordRaw = {
 
 /* 科目详情页 */
 const subjectDetail: AppRouteRecordRaw = {
-  path: ':subId',
+  path: 'sub/:subId',
   component: () => import('/@/views/basedata/subject/Detail.vue'),
   name: ROUTENAMES.SUBJECT.SUBJECT_DETAIL,
   meta: {
@@ -82,7 +82,7 @@ const msIndex = {
 };
 /* 体测详情页 */
 const msDetail = {
-  path: ':msId',
+  path: 'ms/:msId',
   component: () => import('/@/views/basedata/measurement/Detail.vue'),
   name: ROUTENAMES.MS.MS_DETAIL,
   meta: {
@@ -103,7 +103,7 @@ const collegeIndex = {
   },
 };
 const collegeDetail = {
-  path: ':clgCode',
+  path: 'clg/:clgCode',
   name: ROUTENAMES.BASEDATA.COLLEGE_DETAIL,
   component: () => import('/@/views/basedata/college/CollegeDetail.vue'),
   meta: {
@@ -124,7 +124,7 @@ const classIndex = {
   },
 };
 const classDetail = {
-  path: ':clsCode',
+  path: 'cls/:clsCode',
   name: ROUTENAMES.BASEDATA.CLASS_DETAIL,
   component: () => import('/@/views/basedata/class/ClassDetail.vue'),
   meta: {
@@ -155,7 +155,7 @@ const studentIndex: AppRouteRecordRaw = {
 };
 /* 学生详情页 */
 const studentDetail: AppRouteRecordRaw = {
-  path: ':stuId',
+  path: 'stu/:stuId',
   name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
   component: () => import('/@/views/basedata/student/StudentDetail.vue'),
   meta: {
@@ -219,7 +219,7 @@ export function studentRoutes(stuId: string): AppRouteModule[] {
   /* 基础数据 */
   const base: AppRouteModule = {
     name: 'Basedata',
-    path: '/base',
+    path: '/basedata',
     component: LAYOUT,
     redirect: { name: collegeIndex.name },
     meta: {
@@ -296,7 +296,7 @@ export function adminRoutes(): AppRouteModule[] {
     children: [msIndex, msDetail],
   };
   const base: AppRouteRecordRaw = {
-    path: '/base',
+    path: '/basedata',
     name: 'base',
     component: LAYOUT,
     redirect: { name: collegeIndex.name },
@@ -315,5 +315,18 @@ export function adminRoutes(): AppRouteModule[] {
       studentDetail,
     ],
   };
-  return [admin, ms, base];
+  const sub: AppRouteModule = {
+    path: '/sub',
+    name: 'sub',
+    redirect: { name: subjectIndex.name },
+    component: LAYOUT,
+    meta: {
+      orderNo: 2,
+      icon: 'ant-design:database-outlined',
+      title: '科目管理',
+      hideChildrenInMenu: true,
+    },
+    children: [subjectIndex, subjectDetail],
+  };
+  return [admin, ms, base, sub];
 }
