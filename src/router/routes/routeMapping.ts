@@ -60,7 +60,7 @@ const subjectIndex: AppRouteRecordRaw = {
 /* 科目组列表页 */
 const subGrpIndex: AppRouteRecordRaw = {
   path: 'group',
-  name: ROUTENAMES.SUBJECT.SUBGRPINDEX,
+  name: ROUTENAMES.SUBJECT.SUBGRP_INDEX,
   component: () => import('/@/views/basedata/subject/group/index.vue'),
   meta: {
     title: '科目组信息',

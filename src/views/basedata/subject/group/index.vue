@@ -1,88 +1,125 @@
 <template>
-  <PageWrapper :class="prefixCls" title="科目组信息" content-full-height dense>
-    <template #headerContent>
-      <a-form :model="query">
-        <a-form-item label="科目组名" :labelCol="{ span: 2 }" :wrapperCol="{ span: 6 }">
-          <a-input-search
-            allowClear
-            v-model:value="query.grpName"
-            placeholder="输入名称搜索"
-            @change="onChange"
-            @search="doSearch"
-        /></a-form-item>
-      </a-form>
-    </template>
-    <template #extra>
-      <a-button
-        v-if="hasPermission(SUBGRP_INSERT)"
-        type="primary"
-        pre-icon="ant-design:plus-circle-outlined"
-        @click="addGroup"
-        >新增科目组</a-button
-      ></template
-    >
+  <div>
+    <PageWrapper :class="prefixCls" title="科目组信息" content-full-height dense>
+      <template #headerContent>
+        <a-form :model="query" layout="inline">
+          <a-form-item label="科目组名" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }">
+            <a-input-search
+              allowClear
+              v-model:value="query.grpName"
+              placeholder="输入名称搜索"
+              @change="onChange"
+              @search="doSearch"
+          /></a-form-item>
+          <a-form-item label="只看我创建的" :labelCol="{ span: 18 }" :wrapperCol="{ span: 6 }">
+            <a-checkbox v-model:checked="query.self" @change="doSearch"
+          /></a-form-item>
+        </a-form>
+      </template>
+      <template #extra>
+        <a-button
+          v-if="hasPermission(SUBGRP_INSERT)"
+          type="primary"
+          pre-icon="ant-design:plus-circle-outlined"
+          @click="addGroup"
+          >新增科目组</a-button
+        ></template
+      >
 
-    <div :class="`${prefixCls}__container`">
-      <a-list :pagination="pagination" size="small">
-        <template v-for="item in dataSource" :key="item.grpId">
-          <a-list-item>
-            <a-list-item-meta>
-              <template #description>
-                <div :class="`${prefixCls}__content`">
-                  {{ item.grpDesp }}
-                </div>
-                <div :class="`${prefixCls}__action`">
-                  <template v-for="action in actions" :key="action.icon">
-                    <div :class="`${prefixCls}__action-item`">
-                      <Icon
-                        v-if="action.icon"
-                        :class="`${prefixCls}__action-icon`"
-                        :icon="action.icon"
-                        :size="action.size"
-                        @click="action.action(item)"
-                        :color="action.color"
-                      />
-                      {{ action.text }}
-                    </div>
-                  </template>
-                  <span :class="`${prefixCls}__time`">{{ item.grpCreated }}</span>
-                </div>
-              </template>
-              <template #title>
-                <div :class="`${prefixCls}__title`">
-                  {{ item.grpName }}
-                  <span :class="`${prefixCls}__creator`"> {{ item.grpCreatedAdminName }}</span>
-                </div>
-                <div v-if="hasPermission(SUBGRP_SUB_DELETE)">
-                  <template v-for="tag in item.subjects" :key="tag.subId">
-                    <Tag class="mb-2" color="orange">
-                      {{ tag.subName }}
-                      <template #icon>
+      <div :class="`${prefixCls}__container`">
+        <a-list :pagination="pagination" size="small">
+          <template v-for="item in dataSource" :key="item.grpId">
+            <a-list-item>
+              <a-list-item-meta>
+                <template #description>
+                  <div :class="`${prefixCls}__content`">
+                    {{ item.grpDesp }}
+                  </div>
+                  <div class="flex flex-row justify-between">
+                    <div :class="`${prefixCls}__action`">
+                      <div :class="`${prefixCls}__action-item`">
                         <Icon
-                          icon="clarity:remove-line"
-                          @click="removeSub(item.grpId, tag.subId)"
+                          :class="`${prefixCls}__action-icon`"
+                          icon="akar-icons:more-horizontal"
+                          :size="20"
+                          color="#33f834"
                         />
-                      </template>
-                    </Tag>
-                  </template>
-                </div>
-                <div v-else>
-                  <template v-for="tag in item.subjects" :key="tag.subId">
-                    <Tag class="mb-2" color="orange">
-                      {{ tag.subName }}
-                    </Tag>
-                  </template>
-                </div>
-              </template>
-            </a-list-item-meta>
-          </a-list-item>
-        </template>
-      </a-list>
-    </div>
-  </PageWrapper>
+                      </div>
+                      <div :class="`${prefixCls}__action-item`" v-if="!item.shared">
+                        <Icon
+                          :class="`${prefixCls}__action-icon`"
+                          icon="bxs:edit"
+                          :size="20"
+                          color="#018ffb"
+                        />
+                      </div>
+                      <div :class="`${prefixCls}__action-item`" v-if="!item.shared">
+                        <Icon
+                          :class="`${prefixCls}__action-icon`"
+                          icon="ep:delete-filled"
+                          :size="20"
+                          color="#f00"
+                          @click="handleDel(item)"
+                        />
+                      </div>
+                      <div :class="`${prefixCls}__action-item`" v-if="!item.shared">
+                        <Icon
+                          :class="`${prefixCls}__action-icon`"
+                          icon="codicon:live-share"
+                          :size="20"
+                          color="#42ff33"
+                          @click="tryShare(item)"
+                        />
+                      </div>
+                    </div>
+                    <div class="flex flex-col justify-center" :class="`${prefixCls}__time`"
+                      ><span>{{ item.grpCreated }}</span></div
+                    >
+                  </div>
+                </template>
+                <template #title>
+                  <div :class="`${prefixCls}__title`">
+                    {{ item.grpName }}
+                    <span :class="`${prefixCls}__creator`">
+                      {{
+                        item.shared
+                          ? `由${item.grpCreatedTeaName}于${item.shareTime}分享`
+                          : item.grpCreatedTeaName
+                      }}</span
+                    >
+                  </div>
+                  <div v-if="hasPermission(SUBGRP_SUBDELETE) && !item.shared">
+                    <template v-for="tag in item.subjects" :key="tag.subId">
+                      <Tag class="mb-2" color="orange">
+                        {{ tag.subName }}
+                        <template #icon>
+                          <Icon
+                            icon="clarity:remove-line"
+                            @click="removeSub(item.grpId, tag.subId)"
+                          />
+                        </template>
+                      </Tag>
+                    </template>
+                  </div>
+                  <div v-else>
+                    <template v-for="tag in item.subjects" :key="tag.subId">
+                      <Tag class="mb-2" color="orange">
+                        {{ tag.subName }}
+                      </Tag>
+                    </template>
+                  </div>
+                </template>
+              </a-list-item-meta>
+            </a-list-item>
+          </template>
+        </a-list>
+      </div>
+    </PageWrapper>
+    <ShareModal @register="shareModal" @submit="handleShare" />
+  </div>
 </template>
 <script lang="ts">
-  import { PaginationProps, Tag } from 'ant-design-vue';
+  import { PaginationProps, Tag, Checkbox } from 'ant-design-vue';
   import { defineComponent, onMounted, reactive, toRefs } from 'vue';
   import Icon from '/@/components/Icon/index';
   import { PageWrapper } from '/@/components/Page';
@@ -94,15 +131,20 @@
     SubGroupInfoModel,
     SubGroupQuery,
     delSubFromGrp,
+    SubGroupShareFormdata,
+    shareSubGrp,
   } from '/@/api/subgroup';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { SUBGRP_INSERT, SUBGRP_SUB_DELETE } from '/@/store/modules/Authority';
+  import { SUBGRP_INSERT, SUBGRP_SUBDELETE } from '/@/store/modules/Authority';
   import { useLoading } from '/@/components/Loading';
+  import ShareModal from './ShareModal.vue';
+  import { useModal } from '/@/components/Modal';
 
   export default defineComponent({
     components: {
+      ShareModal,
       Icon,
       Tag,
       [Form.name]: Form,
@@ -112,6 +154,7 @@
       [List.name]: List,
       [List.Item.name]: List.Item,
       AListItemMeta: List.Item.Meta,
+      [Checkbox.name]: Checkbox,
     },
     setup() {
       const go = useGo();
@@ -122,7 +165,7 @@
       const { createConfirm, createMessage } = useMessage();
       const DEFAULT_PAGE_SIZE = 3;
       onMounted(() => {
-        fetchData();
+        fetchData(state.query);
       });
       const fetchData = async (params: SubGroupQuery | undefined = undefined) => {
         if (params === undefined) {
@@ -139,8 +182,8 @@
           state.loading = false;
         }
       };
-      const doSearch = () => {
-        if (state.query.grpName != '') {
+      const doSearch = (change) => {
+        if (!!state.query.grpName || change !== undefined) {
           fetchData(state.query);
         }
       };
@@ -166,7 +209,7 @@
             fetchData({ page, pageSize });
           },
         },
-        query: { grpName: '' },
+        query: { grpName: '', self: false },
       });
       const addGroup = () => {
         go({
@@ -175,20 +218,37 @@
         });
       };
       const actions: any[] = [
-        { icon: 'akar-icons:more-horizontal', color: '#33f834', action: () => {}, size: 20 },
-        { icon: 'bxs:edit', color: '#018ffb', action: () => {}, size: 20 },
-        { icon: 'ep:delete-filled', color: '#f00', action: handleDel, size: 20 },
-        // { icon: 'mdi:database-import', color: '#42d27d', action: () => {}, size: 20 },
+        { icon: 'codicon:live-share', color: '#42d27d', action: tryShare, size: 20 },
       ];
+      const [shareModal, { openModal: openShareModal }] = useModal();
+      async function tryShare(record: SubGroupInfoModel) {
+        openShareModal(true, record);
+      }
+      async function handleShare(data: SubGroupShareFormdata) {
+        try {
+          openFullLoading();
+          if (await shareSubGrp(data)) {
+            createMessage.success('操作成功！');
+            await fetchData();
+          }
+        } finally {
+          closeFullLoading();
+        }
+      }
       async function handleDel(item: SubGroupInfoModel) {
         createConfirm({
           iconType: 'warning',
           okText: '确定',
           cancelText: '取消',
           onOk: async () => {
-            const data = await delSubGrp(item.grpId);
-            if (data) {
-              await fetchData();
+            try {
+              openFullLoading();
+              const data = await delSubGrp(item.grpId);
+              if (data) {
+                await fetchData();
+              }
+            } finally {
+              closeFullLoading();
             }
           },
           title: `删除科目组${item.grpName}?`,
@@ -226,6 +286,10 @@
 
       return {
         prefixCls: 'list-search',
+        handleShare,
+        tryShare,
+        shareModal,
+        handleDel,
         ...toRefs(state),
         addGroup,
         actions,
@@ -234,7 +298,7 @@
         removeSub,
         hasPermission,
         SUBGRP_INSERT,
-        SUBGRP_SUB_DELETE
+        SUBGRP_SUBDELETE,
       };
     },
   });
@@ -272,6 +336,7 @@
       margin-top: 0.4rem;
       &-item {
         display: inline-block;
+        border-right: 1px solid @border-color-base;
         padding: 0 0.5rem;
         color: @text-color-secondary;
 
@@ -279,9 +344,8 @@
           padding-left: 0;
         }
 
-        &:nth-child(1),
-        &:nth-child(2) {
-          border-right: 1px solid @border-color-base;
+        &:last-child {
+          border-right: 0;
         }
       }
 
@@ -291,8 +355,6 @@
     }
 
     &__time {
-      position: absolute;
-      right: 1rem;
       color: rgb(0 0 0 / 45%);
     }
   }
