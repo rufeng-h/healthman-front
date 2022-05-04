@@ -165,11 +165,15 @@
       const { createConfirm, createMessage } = useMessage();
       const DEFAULT_PAGE_SIZE = 3;
       onMounted(() => {
-        fetchData(state.query);
+        fetchData();
       });
       const fetchData = async (params: SubGroupQuery | undefined = undefined) => {
         if (params === undefined) {
-          params = { page: state.pagination.current, pageSize: state.pagination.pageSize };
+          params = {
+            page: state.pagination.current,
+            pageSize: state.pagination.pageSize,
+            ...state.query,
+          };
         }
         try {
           state.loading = true;
@@ -184,7 +188,7 @@
       };
       const doSearch = (change) => {
         if (!!state.query.grpName || change !== undefined) {
-          fetchData(state.query);
+          fetchData();
         }
       };
       const onChange = (e) => {
@@ -205,8 +209,8 @@
           current: 1,
           pageSize: DEFAULT_PAGE_SIZE,
           total: 0,
-          onChange(page, pageSize) {
-            fetchData({ page, pageSize });
+          onChange() {
+            fetchData();
           },
         },
         query: { grpName: '', self: false },

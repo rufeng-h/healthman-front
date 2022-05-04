@@ -1,5 +1,5 @@
-import { LAYOUT } from '../../constant';
-import { AppRouteModule } from '../../types';
+import { LAYOUT } from '../constant';
+import { AppRouteModule } from '../types';
 
 /*
  * @Author: 黄纯峰

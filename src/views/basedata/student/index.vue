@@ -27,7 +27,7 @@
             {
               icon: 'ant-design:delete-outlined',
               color: 'error',
-              tooltip: '删除此班级',
+              tooltip: '删除此学生信息',
               popConfirm: {
                 title: '该操作将会删除学生的所有信息，确认执行？',
                 confirm: handleDelete.bind(null, record),
