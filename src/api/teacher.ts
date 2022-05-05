@@ -1,5 +1,10 @@
 import { usePermission } from '/@/hooks/web/usePermission';
-import { TEACHER_PWDRESET, TEACHER_DELETE } from './../store/modules/Authority';
+import {
+  TEACHER_PWDRESET,
+  TEACHER_DELETE,
+  TEACHER_GET,
+  TEACHER_UPDATE,
+} from './../store/modules/Authority';
 import { GenderEnum } from './../enums/genderEnum';
 /*
  * @Author: 黄纯峰
@@ -15,7 +20,7 @@ import { QueryOrder } from './common';
 import { ErrorMessageMode } from '/#/axios';
 import { calcColWidth } from '../utils/actionCol';
 
-const authorities = [TEACHER_PWDRESET, TEACHER_DELETE];
+const authorities = [TEACHER_PWDRESET, TEACHER_DELETE, TEACHER_GET, TEACHER_UPDATE];
 const { hasAnyAuthority } = usePermission();
 
 export interface TeacherInfoModel {

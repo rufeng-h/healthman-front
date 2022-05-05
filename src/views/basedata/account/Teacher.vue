@@ -22,6 +22,12 @@
               ifShow: () => hasPermission(TEACHER_DELETE),
             },
             {
+              icon: 'clarity:note-edit-line',
+              tooltip: '编辑教师信息',
+              onClick: handleEdit.bind(null, record),
+              ifShow: () => hasPermission(TEACHER_UPDATE),
+            },
+            {
               icon: 'material-symbols:lock-reset-sharp',
               tooltip: '重置密码',
               popConfirm: {
@@ -30,18 +36,30 @@
               },
               ifShow: () => hasPermission(TEACHER_PWDRESET),
             },
+            {
+              icon: 'clarity:info-standard-line',
+              tooltip: '详情',
+              onClick: handleView.bind(null, record),
+              ifShow: () => hasPermission(TEACHER_GET),
+            },
           ]"
         />
       </template>
       <template #toolbar>
         <a-button
           type="primary"
+          pre-icon="akar-icons:cloud-download"
           @click="downloadFileTemplate"
           v-if="hasPermission(TEACHER_TEMPLATE)"
           >下载模板文件</a-button
         >
         <ImpExcel @success="impSuccess">
-          <a-button type="primary" v-if="hasPermission(TEACHER_UPLOAD)">从excel上传</a-button>
+          <a-button
+            pre-icon="akar-icons:cloud-upload"
+            type="primary"
+            v-if="hasPermission(TEACHER_UPLOAD)"
+            >从excel上传</a-button
+          >
         </ImpExcel>
       </template>
       <template #avatar="{ record }">
@@ -88,6 +106,8 @@
     TEACHER_UPLOAD,
     TEACHER_DELETE,
     TEACHER_PWDRESET,
+    TEACHER_GET,
+    TEACHER_UPDATE,
   } from '/@/store/modules/Authority';
   import { usePermission } from '/@/hooks/web/usePermission';
   import { Tooltip } from 'ant-design-vue';
@@ -105,9 +125,9 @@
     setup() {
       const { createMessage: message } = useMessage();
       const { hasPermission } = usePermission();
-      const tableTitle = ref('');
+      const tableTitle = ref('教师信息');
       const formConfig: FormProps = {
-        submitOnReset: false,
+        submitOnReset: true,
         labelWidth: 100,
         showAdvancedButton: true,
         compact: true,
@@ -208,7 +228,11 @@
           closeFullLoading();
         }
       }
+      function handleView() {}
+      function handleEdit() {}
       return {
+        handleView,
+        handleEdit,
         excelModal,
         tableRef,
         downloadFileTemplate,
@@ -220,6 +244,8 @@
         TEACHER_PWDRESET,
         TEACHER_TEMPLATE,
         TEACHER_UPLOAD,
+        TEACHER_GET,
+        TEACHER_UPDATE,
         hasPermission,
       };
     },

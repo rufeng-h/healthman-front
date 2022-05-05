@@ -137,7 +137,7 @@
       type OptionsItem = { label: string; value: string; disabled?: boolean };
       const classes: Ref<OptionsItem[]> = ref([]);
       const formConfig: FormProps = {
-        submitOnReset: false,
+        submitOnReset: true,
         labelWidth: 80,
         showAdvancedButton: true,
         compact: true,
@@ -224,10 +224,6 @@
         columns: studentColumns,
         api: getStudentPage,
         showTableSetting: true,
-        // indexColumnProps: {
-        //   dataIndex: '',
-        //   title: '序号',
-        // },
         tableSetting: { fullScreen: true, size: false },
         beforeFetch,
         inset: true,

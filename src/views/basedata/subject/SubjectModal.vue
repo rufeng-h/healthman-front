@@ -97,7 +97,7 @@
             valueField: 'compId',
           },
           label: '运动能力',
-          required: false,
+          required: true,
         },
         {
           field: 'subDesp',
@@ -147,8 +147,8 @@
         const subStus = cloneDeep(defaultSubStus);
         state.isUpdate = !!data?.isUpdate;
         if (state.isUpdate) {
-          state.modalTitle = '更新科目';
           const { sub } = data;
+          state.modalTitle = `更新科目 ${sub.subName}`;
           state.subId = sub.subId;
           sub.subStudents.forEach((s) => {
             if (s.grade <= 6) {

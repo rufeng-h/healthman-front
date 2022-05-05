@@ -22,6 +22,10 @@ export const ROUTENAMES: Recordable<Recordable<string>> = {
     MS_INDEX: 'MS_INDEX',
     MS_DETAIL: 'MS_DETAIL',
   },
+  AUTH: {
+    AUTH_INDEX: 'AUTH_INDEX',
+    ROLE_INDEX: 'ROLE_INDEX',
+  },
 };
 
 /* 科目组添加 */
@@ -174,7 +178,7 @@ export function teaRoutes() {
     meta: {
       orderNo: 1,
       icon: 'ant-design:database-outlined',
-      title: '基础数据管理',
+      title: '基础数据',
     },
     children: [
       collegeIndex,
@@ -193,7 +197,7 @@ export function teaRoutes() {
     component: LAYOUT,
     meta: {
       orderNo: 2,
-      title: '科目管理',
+      title: '科目信息',
       icon: 'ant-design:deployment-unit-outlined',
     },
     children: [subjectIndex, subjectDetail, subGrpIndex, subGrpAdd],
@@ -206,7 +210,7 @@ export function teaRoutes() {
     meta: {
       hideChildrenInMenu: true,
       title: '体测管理',
-      orderNo: 3,
+      orderNo: 4,
       icon: 'ant-design:aliwangwang-outlined',
     },
     children: [msIndex, msDetail, studentDetail],
@@ -259,6 +263,38 @@ export function studentRoutes(stuId: string): AppRouteModule[] {
 }
 
 export function adminRoutes(): AppRouteModule[] {
+  const oper_index = {
+    path: 'oper',
+    name: ROUTENAMES.AUTH.AUTH_INDEX,
+    component: () => import('/@/views/auth/Oper.vue'),
+    meta: {
+      title: '权限信息',
+      icon: 'ant-design:bank-outlined',
+      hideChildrenInMenu: true,
+    },
+  };
+  const role_index = {
+    path: 'role',
+    name: ROUTENAMES.AUTH.ROLE_INDEX,
+    component: () => import('/@/views/auth/Role.vue'),
+    meta: {
+      title: '角色信息',
+      icon: 'ant-design:bank-outlined',
+      hideChildrenInMenu: true,
+    },
+  };
+  const authority: AppRouteModule = {
+    path: '/auth',
+    name: 'Auth',
+    component: LAYOUT,
+    redirect: { name: role_index.name },
+    meta: {
+      title: '权限管理',
+      orderNo: 5,
+      icon: 'ant-design:aliwangwang-outlined',
+    },
+    children: [role_index, oper_index],
+  };
   const admin = {
     path: '/admin',
     name: 'Admin',
@@ -291,7 +327,7 @@ export function adminRoutes(): AppRouteModule[] {
       title: '体测信息',
       icon: 'ant-design:aliwangwang-outlined',
       hideChildrenInMenu: true,
-      orderNo: 2,
+      orderNo: 3,
     },
     children: [msIndex, msDetail],
   };
@@ -328,5 +364,5 @@ export function adminRoutes(): AppRouteModule[] {
     },
     children: [subjectIndex, subjectDetail],
   };
-  return [admin, ms, base, sub];
+  return [admin, ms, base, sub, authority];
 }

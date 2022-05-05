@@ -119,7 +119,7 @@
       });
       const { createMessage } = useMessage();
       const formConfig: FormProps = {
-        submitOnReset: false,
+        submitOnReset: true,
         labelWidth: 80,
         showAdvancedButton: true,
         compact: true,

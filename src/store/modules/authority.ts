@@ -51,3 +51,9 @@ export const TEACHER_PAGE = 'teacher:page';
 export const TEACHER_PWDRESET = 'teacher:pwdReset';
 export const TEACHER_TEMPLATE = 'teacher:template';
 export const TEACHER_UPLOAD = 'teacher:upload';
+export const TEACHER_UPDATE = 'teacher:update';
+export const TEACHER_GET = 'teacher:get';
+
+export class PtRole {
+  static readonly rolePage = 'role:page';
+}

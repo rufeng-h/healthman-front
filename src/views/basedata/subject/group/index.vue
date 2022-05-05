@@ -79,6 +79,7 @@
                 </template>
                 <template #title>
                   <div :class="`${prefixCls}__title`">
+                    <a-avatar src="/src/assets/images/logo.png" />
                     {{ item.grpName }}
                     <span :class="`${prefixCls}__creator`">
                       {{
@@ -119,7 +120,7 @@
   </div>
 </template>
 <script lang="ts">
-  import { PaginationProps, Tag, Checkbox } from 'ant-design-vue';
+  import { PaginationProps, Tag, Checkbox, Avatar } from 'ant-design-vue';
   import { defineComponent, onMounted, reactive, toRefs } from 'vue';
   import Icon from '/@/components/Icon/index';
   import { PageWrapper } from '/@/components/Page';
@@ -145,6 +146,7 @@
   export default defineComponent({
     components: {
       ShareModal,
+      [Avatar.name]: Avatar,
       Icon,
       Tag,
       [Form.name]: Form,
