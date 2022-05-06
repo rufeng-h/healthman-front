@@ -181,7 +181,7 @@
               }
               if (state.showScoData) {
                 info[score.subName] = score.scoData;
-                if (score.score) {
+                if (score.score !== undefined) {
                   info[score.subName] += '/' + score.score;
                 }
               } else {

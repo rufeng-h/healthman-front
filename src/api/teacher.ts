@@ -20,7 +20,8 @@ import { QueryOrder } from './common';
 import { ErrorMessageMode } from '/#/axios';
 import { calcColWidth } from '../utils/actionCol';
 
-const authorities = [TEACHER_PWDRESET, TEACHER_DELETE, TEACHER_GET, TEACHER_UPDATE];
+/* TODO */
+const authorities = [TEACHER_PWDRESET, TEACHER_DELETE, TEACHER_UPDATE, TEACHER_GET, TEACHER_UPDATE];
 const { hasAnyAuthority } = usePermission();
 
 export interface TeacherInfoModel {

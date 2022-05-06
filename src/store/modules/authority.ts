@@ -56,4 +56,7 @@ export const TEACHER_GET = 'teacher:get';
 
 export class PtRole {
   static readonly rolePage = 'role:page';
+  static readonly roleInsert = 'role:insert';
+  static readonly roleDelete = 'role:delete';
+  static readonly roleUpdate = 'role:update';
 }

@@ -22,6 +22,12 @@
               ifShow: () => hasPermission(TEACHER_DELETE),
             },
             {
+              icon: 'simple-icons:auth0',
+              color: 'success',
+              tooltip: '分配角色',
+              ifShow: () => hasPermission(TEACHER_UPDATE),
+            },
+            {
               icon: 'clarity:note-edit-line',
               tooltip: '编辑教师信息',
               onClick: handleEdit.bind(null, record),

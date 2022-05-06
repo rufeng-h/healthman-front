@@ -54,6 +54,7 @@
               trigger: 'blur',
             },
           ],
+		  defaultValue:'暂无信息',
         },
         {
           label: '科目组',

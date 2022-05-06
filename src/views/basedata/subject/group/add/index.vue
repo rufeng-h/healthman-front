@@ -291,7 +291,7 @@
               closeTab();
               go({
                 //@ts-ignore
-                name: ROUTENAMES.SUBGRP.SUBGRP_INDEX,
+                name: ROUTENAMES.SUBJECT.SUBGRP_INDEX,
               });
             }, 2000);
           }
