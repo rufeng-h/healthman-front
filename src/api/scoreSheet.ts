@@ -6,7 +6,7 @@ import { ErrorMessageMode } from '/#/axios';
 import { isBlank } from '../utils/is';
 import { BasicColumn } from '../components/Table/src/types/table';
 import { usePermission } from '/@/hooks/web/usePermission';
-import { SCOS_DELETE, SCOS_UPDATE } from '/@/store/modules/Authority';
+import { SCOS_DELETE, SCOS_UPDATE } from '/@/store/modules/authority';
 
 /*
  * @Author: 黄纯峰

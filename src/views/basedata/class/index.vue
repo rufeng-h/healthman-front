@@ -92,7 +92,7 @@
     CLASS_DELETE,
     CLASS_GET,
     CLASS_UPDATE,
-  } from '/@/store/modules/Authority';
+  } from '/@/store/modules/authority';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { PageWrapper } from '/@/components/Page';
   import ExcelModal from '/@/views/basedata/ExcelModal.vue';

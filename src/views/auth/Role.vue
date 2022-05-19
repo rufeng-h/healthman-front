@@ -57,7 +57,7 @@
   import { useModal } from '/@/components/Modal';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { PtRole } from '/@/store/modules/Authority';
+  import { PtRole } from '/@/store/modules/authority';
   import RoleModal from './RoleModal.vue';
   import { PageWrapper } from '/@/components/Page';
   import { useLoading } from '/@/components/Loading';

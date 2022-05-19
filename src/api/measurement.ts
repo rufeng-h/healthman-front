@@ -1,7 +1,7 @@
 import { ScoreInfo } from './score';
 import { SubjectModel } from './subject';
 import { BasicFetchResult, BasicPageParams } from './model/baseModel';
-import { defHttp } from './../utils/http/axios/index';
+import { defHttp } from '/@/utils/http/axios';
 import { ClassModel } from './ptclass';
 import { SubjectStatus } from './subject';
 

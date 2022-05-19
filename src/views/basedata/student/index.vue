@@ -105,7 +105,7 @@
     STUDENT_GET,
     STUDENT_DELETE,
     STUDENT_PWDRESET,
-  } from '/@/store/modules/Authority';
+  } from '/@/store/modules/authority';
   export default defineComponent({
     components: {
       ImpExcel,

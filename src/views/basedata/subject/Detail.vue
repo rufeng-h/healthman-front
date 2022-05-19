@@ -65,7 +65,7 @@
   import { useTabs } from '/@/hooks/web/useTabs';
   import Icon from '/@/components/Icon';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { SCOS_DELETE, SCOS_UPDATE } from '/@/store/modules/Authority';
+  import { SCOS_DELETE, SCOS_UPDATE } from '/@/store/modules/authority';
   export default defineComponent({
     components: {
       PageWrapper,

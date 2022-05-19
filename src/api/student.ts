@@ -1,4 +1,4 @@
-import { STUDENT_DELETE, STUDENT_GET, STUDENT_PWDRESET } from './../store/modules/Authority';
+import { STUDENT_DELETE, STUDENT_GET, STUDENT_PWDRESET } from '../store/modules/authority';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { GenderEnum } from '../enums/genderEnum';
 import { defHttp } from '../utils/http/axios';

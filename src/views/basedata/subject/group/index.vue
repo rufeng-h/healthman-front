@@ -138,7 +138,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { ROUTENAMES } from '/@/router/routes/routeMapping';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { SUBGRP_INSERT, SUBGRP_SUBDELETE } from '/@/store/modules/Authority';
+  import { SUBGRP_INSERT, SUBGRP_SUBDELETE } from '/@/store/modules/authority';
   import { useLoading } from '/@/components/Loading';
   import ShareModal from './ShareModal.vue';
   import { useModal } from '/@/components/Modal';

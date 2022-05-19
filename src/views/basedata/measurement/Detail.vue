@@ -94,7 +94,8 @@
   import { useLoading } from '/@/components/Loading';
   import { useGo } from '/@/hooks/web/usePage';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { SCORE_DOWNLOAD } from '/@/store/modules/Authority';
+  import { SCORE_DOWNLOAD } from '/@/store/modules/authority';
+  import { ROUTENAMES } from '/@/router/routes/routeMapping';
   export default defineComponent({
     components: {
       Icon,
@@ -276,7 +277,7 @@
       const handleView = (record) => {
         go({
           // @ts-ignore
-          name: 'BaseDataStudentDetail',
+          name: ROUTENAMES.BASEDATA.STUDENT_DETAIL,
           params: {
             stuId: record.stuId,
           },

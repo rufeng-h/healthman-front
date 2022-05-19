@@ -219,16 +219,18 @@
         state.pagination.current = data.current;
         state.pagination.pageSize = data.pageSize;
         state.dataSource = data.items;
-        state.dataSource.forEach((s) =>
-          s.scores.sort((s1, s2) => {
-            if (s1.subId !== s2.subId) {
-              return s1.subId - s2.subId;
-            }
-            if (s1.score !== undefined && s2.score !== undefined) {
-              return s2.score - s1.score;
-            }
-            return 0;
-          }),
+        state.dataSource.forEach(
+          (s) =>
+            s.scores &&
+            s.scores.sort((s1, s2) => {
+              if (s1.subId !== s2.subId) {
+                return s1.subId - s2.subId;
+              }
+              if (s1.score !== undefined && s2.score !== undefined) {
+                return s2.score - s1.score;
+              }
+              return 0;
+            }),
         );
       }
       onMounted(async () => {

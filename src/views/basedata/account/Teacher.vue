@@ -114,7 +114,7 @@
     TEACHER_PWDRESET,
     TEACHER_GET,
     TEACHER_UPDATE,
-  } from '/@/store/modules/Authority';
+  } from '/@/store/modules/authority';
   import { usePermission } from '/@/hooks/web/usePermission';
   import { Tooltip } from 'ant-design-vue';
   export default defineComponent({

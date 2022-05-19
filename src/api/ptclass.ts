@@ -5,7 +5,7 @@ import { numberGradeToZhcn } from '../enums/gradeEnum';
 import { BasicFetchResult } from './model/baseModel';
 import { ErrorMessageMode } from '/#/axios';
 import { defHttp } from '/@/utils/http/axios';
-import { CLASS_GET, CLASS_DELETE, CLASS_UPDATE } from '../store/modules/Authority';
+import { CLASS_GET, CLASS_DELETE, CLASS_UPDATE } from '../store/modules/authority';
 import { calcColWidth } from '../utils/actionCol';
 /*
  * @Author: 黄纯峰

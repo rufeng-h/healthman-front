@@ -1,5 +1,5 @@
 import { usePermission } from '/@/hooks/web/usePermission';
-import { PtRole } from '../store/modules/Authority';
+import { PtRole } from '../store/modules/authority';
 import { calcColWidth } from '../utils/actionCol';
 import { BasicColumn } from './../components/Table/src/types/table';
 import { OperationModel } from './operation';

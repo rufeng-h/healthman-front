@@ -31,7 +31,7 @@
         :loading="loading"
         :pagination="pagination"
         :data-source="dataSource"
-        :grid="{ gutter: 8, xs: 1, sm: 1, md: 3, lg: 4, xl: 4, xxl: 6 }"
+        :grid="{ gutter: 8, xs: 1, sm: 1, md: 3, lg: 4, xl: 4, xxl: 5 }"
       >
         <template #renderItem="{ item }">
           <a-list-item>
@@ -191,7 +191,7 @@
     MS_UPDATE,
     MS_TEMPLATE,
     MS_DETAIL,
-  } from '/@/store/modules/Authority';
+  } from '/@/store/modules/authority';
   import { usePermission } from '/@/hooks/web/usePermission';
 
   export default defineComponent({

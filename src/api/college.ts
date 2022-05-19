@@ -8,7 +8,7 @@ import {
   CLASS_UPLOAD,
   COLLEGE_DELETE,
   COLLEGE_UPDATE,
-} from '../store/modules/Authority';
+} from '../store/modules/authority';
 import { calcColWidth } from '../utils/actionCol';
 
 /*

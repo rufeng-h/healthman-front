@@ -4,7 +4,7 @@ import {
   TEACHER_DELETE,
   TEACHER_GET,
   TEACHER_UPDATE,
-} from './../store/modules/Authority';
+} from '../store/modules/authority';
 import { GenderEnum } from './../enums/genderEnum';
 /*
  * @Author: 黄纯峰

@@ -28,7 +28,7 @@
       <a-list
         :data-source="dataSource"
         :pagination="pagination"
-        :grid="{ gutter: 8, xs: 1, sm: 1, md: 3, lg: 4, xl: 4, xxl: 6 }"
+        :grid="{ gutter: 8, xs: 1, sm: 1, md: 3, lg: 4, xl: 4, xxl: 4 }"
         :loading="loading"
         ><template #renderItem="{ item }">
           <a-list-item>
@@ -186,7 +186,7 @@
     SUBJECT_LIST,
     SCOS_PAGE,
     SCOS_UPLOAD,
-  } from '/@/store/modules/Authority';
+  } from '/@/store/modules/authority';
   export default defineComponent({
     components: {
       ImpExcel,

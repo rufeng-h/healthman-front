@@ -108,7 +108,7 @@
     COLLEGE_GET,
     COLLEGE_DELETE,
     COLLEGE_UPDATE,
-  } from '/@/store/modules/Authority';
+  } from '/@/store/modules/authority';
   import CollegeModal from './CollegeModal.vue';
   export default defineComponent({
     components: {
