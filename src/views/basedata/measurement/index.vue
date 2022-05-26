@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageWrapper :class="prefixCls" title="测试记录" dense>
+    <PageWrapper :class="prefixCls" title="测试记录" dense content-background>
       <template #headerContent>
         <a-form :model="query" layout="inline">
           <a-form-item
